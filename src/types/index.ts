@@ -62,7 +62,7 @@ export interface Schedule {
   className: string;
   startDate: string; // Ngày khai giảng lớp học (ISO string)
   startTime: string; // Giờ bắt đầu (VD: "08:00")
-  endTime: string; // Giờ kết thúc (VD: "10:00") 
+  endTime: string; // Giờ kết thúc (VD: "10:00")
   tutorId: string; // ID tham chiếu đến collection tutors
   tutorName: string; // Tên giáo viên (denormalized)
   maxStudents: number; // Cố định 12
@@ -108,7 +108,14 @@ export interface Registration {
   registrationDate: string;
 
   // Enhanced status for tutor requests
-  status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'completed' | 'matched' | 'trial_scheduled';
+  status:
+    | 'pending'
+    | 'approved'
+    | 'rejected'
+    | 'cancelled'
+    | 'completed'
+    | 'matched'
+    | 'trial_scheduled';
 
   approvedBy?: string;
   approvedByName?: string; // Tên người xử lý

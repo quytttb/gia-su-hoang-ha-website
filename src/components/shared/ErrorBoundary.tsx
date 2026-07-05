@@ -36,7 +36,10 @@ class ErrorBoundary extends Component<Props, State> {
         <ErrorDisplay
           fullPage
           message="Đã có lỗi xảy ra"
-          details={this.state.error?.message || "Xin lỗi, đã có lỗi không mong muốn xảy ra. Vui lòng thử lại sau."}
+          details={
+            this.state.error?.message ||
+            'Xin lỗi, đã có lỗi không mong muốn xảy ra. Vui lòng thử lại sau.'
+          }
           retryLabel="Tải lại trang"
           type={this.props.errorType || 'error'}
         />

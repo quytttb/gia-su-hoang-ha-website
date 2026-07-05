@@ -12,9 +12,7 @@ const Banner = ({ banners, autoplay = true, interval = 8000 }: BannerProps) => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Filter only active banners and sort by order
-  const activeBanners = banners
-    .filter(banner => banner.isActive)
-    .sort((a, b) => a.order - b.order);
+  const activeBanners = banners.filter(banner => banner.isActive).sort((a, b) => a.order - b.order);
 
   // Function to reset and start timer
   const resetTimer = useCallback(() => {
@@ -130,7 +128,7 @@ const Banner = ({ banners, autoplay = true, interval = 8000 }: BannerProps) => {
             <div
               className="h-[400px] bg-cover bg-center relative"
               style={{
-                backgroundImage: `url(${banner.imageUrl})`
+                backgroundImage: `url(${banner.imageUrl})`,
               }}
             >
               {/* Chỉ hiển thị overlay khi có tiêu đề, phụ đề hoặc link */}
@@ -139,12 +137,18 @@ const Banner = ({ banners, autoplay = true, interval = 8000 }: BannerProps) => {
                   <div className="text-center p-4 max-w-3xl">
                     <div className="inline-block bg-black/40 backdrop-blur-sm rounded-xl px-6 py-4">
                       {banner.title && (
-                        <h2 className="text-4xl md:text-5xl font-extrabold mb-4 text-white drop-shadow-2xl" style={{ textShadow: '0 2px 16px #000, 0 1px 0 #222' }}>
+                        <h2
+                          className="text-4xl md:text-5xl font-extrabold mb-4 text-white drop-shadow-2xl"
+                          style={{ textShadow: '0 2px 16px #000, 0 1px 0 #222' }}
+                        >
                           {banner.title}
                         </h2>
                       )}
                       {banner.subtitle && (
-                        <p className="text-xl md:text-2xl mb-6 text-white/95 drop-shadow-xl font-semibold" style={{ textShadow: '0 2px 12px #000, 0 1px 0 #222' }}>
+                        <p
+                          className="text-xl md:text-2xl mb-6 text-white/95 drop-shadow-xl font-semibold"
+                          style={{ textShadow: '0 2px 12px #000, 0 1px 0 #222' }}
+                        >
                           {banner.subtitle}
                         </p>
                       )}
@@ -210,8 +214,9 @@ const Banner = ({ banners, autoplay = true, interval = 8000 }: BannerProps) => {
           {activeBanners.map((_, index) => (
             <button
               key={index}
-              className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-primary' : 'bg-white'
-                }`}
+              className={`w-3 h-3 rounded-full ${
+                index === currentIndex ? 'bg-primary' : 'bg-white'
+              }`}
               onClick={() => handleIndicatorClick(index)}
             />
           ))}

@@ -1,60 +1,60 @@
 {
-     "sampleImages": [
-          {
-               "id": 1,
-               "src": "/images/education-1.jpg",
-               "alt": "Môi trường học tập",
-               "title": "Môi trường học tập hiện đại",
-               "description": "Không gian học tập thoải mái và hiện đại"
-          },
-          {
-               "id": 2,
-               "src": "/images/education-2.jpg",
-               "alt": "Học sinh chăm chỉ",
-               "title": "Học sinh tích cực học tập",
-               "description": "Học sinh luôn tích cực và nhiệt huyết trong học tập"
-          },
-          {
-               "id": 3,
-               "src": "/images/education-3.jpg",
-               "alt": "Hoạt động thể thao",
-               "title": "Phát triển toàn diện",
-               "description": "Kết hợp học tập và rèn luyện thể thao"
-          },
-          {
-               "id": 4,
-               "src": "/images/education-4.jpg",
-               "alt": "Gia sư dạy học",
-               "title": "Gia sư chuyên nghiệp",
-               "description": "Đội ngũ gia sư có trình độ cao và nhiều kinh nghiệm"
-          },
-          {
-               "id": 5,
-               "src": "/images/education-5.jpg",
-               "alt": "Lớp học nhóm",
-               "title": "Lớp học nhóm hiệu quả",
-               "description": "Phương pháp học nhóm giúp tăng hiệu quả học tập"
-          },
-          {
-               "id": 6,
-               "src": "/images/education-6.jpg",
-               "alt": "Học tập sáng tạo",
-               "title": "Phương pháp học sáng tạo",
-               "description": "Áp dụng những phương pháp học tập hiện đại và sáng tạo"
-          },
-          {
-               "id": 7,
-               "src": "/images/education-7.jpg",
-               "alt": "Thành quả học tập",
-               "title": "Thành quả học tập xuất sắc",
-               "description": "Học sinh đạt được những thành tích cao trong học tập"
-          },
-          {
-               "id": 8,
-               "src": "/images/education-8.jpg",
-               "alt": "Môi trường học tập",
-               "title": "Môi trường học tập chất lượng",
-               "description": "Cung cấp môi trường học tập chất lượng cao cho học sinh"
-          }
-     ]
+  "sampleImages": [
+    {
+      "id": 1,
+      "src": "/images/education-1.jpg",
+      "alt": "Môi trường học tập",
+      "title": "Môi trường học tập hiện đại",
+      "description": "Không gian học tập thoải mái và hiện đại"
+    },
+    {
+      "id": 2,
+      "src": "/images/education-2.jpg",
+      "alt": "Học sinh chăm chỉ",
+      "title": "Học sinh tích cực học tập",
+      "description": "Học sinh luôn tích cực và nhiệt huyết trong học tập"
+    },
+    {
+      "id": 3,
+      "src": "/images/education-3.jpg",
+      "alt": "Hoạt động thể thao",
+      "title": "Phát triển toàn diện",
+      "description": "Kết hợp học tập và rèn luyện thể thao"
+    },
+    {
+      "id": 4,
+      "src": "/images/education-4.jpg",
+      "alt": "Gia sư dạy học",
+      "title": "Gia sư chuyên nghiệp",
+      "description": "Đội ngũ gia sư có trình độ cao và nhiều kinh nghiệm"
+    },
+    {
+      "id": 5,
+      "src": "/images/education-5.jpg",
+      "alt": "Lớp học nhóm",
+      "title": "Lớp học nhóm hiệu quả",
+      "description": "Phương pháp học nhóm giúp tăng hiệu quả học tập"
+    },
+    {
+      "id": 6,
+      "src": "/images/education-6.jpg",
+      "alt": "Học tập sáng tạo",
+      "title": "Phương pháp học sáng tạo",
+      "description": "Áp dụng những phương pháp học tập hiện đại và sáng tạo"
+    },
+    {
+      "id": 7,
+      "src": "/images/education-7.jpg",
+      "alt": "Thành quả học tập",
+      "title": "Thành quả học tập xuất sắc",
+      "description": "Học sinh đạt được những thành tích cao trong học tập"
+    },
+    {
+      "id": 8,
+      "src": "/images/education-8.jpg",
+      "alt": "Môi trường học tập",
+      "title": "Môi trường học tập chất lượng",
+      "description": "Cung cấp môi trường học tập chất lượng cao cho học sinh"
+    }
+  ]
 }

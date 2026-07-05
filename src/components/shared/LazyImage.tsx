@@ -59,8 +59,9 @@ const LazyImage = ({
         <img
           src={placeholder}
           alt=""
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? 'opacity-0' : 'opacity-100'
-            }`}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+            isLoaded ? 'opacity-0' : 'opacity-100'
+          }`}
         />
       )}
 
@@ -70,8 +71,9 @@ const LazyImage = ({
         src={isInView ? src : placeholder}
         alt={alt}
         style={style}
-        className={`w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
+        className={`w-full h-full object-cover transition-opacity duration-300 ${
+          isLoaded ? 'opacity-100' : 'opacity-0'
+        }`}
         onLoad={handleLoad}
         onError={handleError}
         loading="lazy"
