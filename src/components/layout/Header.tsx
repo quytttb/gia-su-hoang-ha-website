@@ -1,6 +1,9 @@
+'use client';
+
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bars3Icon, XMarkIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import ThemeToggle from '../shared/ThemeToggle';
 import Logo from '../shared/Logo';
 
@@ -18,8 +21,8 @@ interface NavigationItem {
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname() ?? '/';
+  const router = useRouter();
 
   const navigation: NavigationItem[] = [
     {
@@ -39,10 +42,10 @@ const Header = () => {
         { name: 'Đội ngũ giáo viên', href: '/about#team' },
         { name: 'Hình ảnh thực tế', href: '/about#gallery' },
         { name: 'Thư ngỏ', href: '/about#letter' },
-      ]
+      ],
     },
     { name: 'Lớp học', href: '/classes' },
-    { name: 'Gia sư', href: '/tutor-search', },
+    { name: 'Gia sư', href: '/tutor-search' },
     { name: 'Lịch học', href: '/schedule' },
     {
       name: 'Blog',
@@ -54,7 +57,7 @@ const Header = () => {
         { name: 'Chủ đề', href: '/blog#categories' },
         { name: 'Tìm kiếm', href: '/blog#search-filter' },
         { name: 'Bài viết mới nhất', href: '/blog#latest-posts' },
-      ]
+      ],
     },
     { name: 'Liên hệ', href: '/contact' },
   ];
@@ -62,9 +65,9 @@ const Header = () => {
   // Check if current path matches navigation item
   const isActive = (href: string) => {
     if (href === '/') {
-      return location.pathname === '/';
+      return pathname === '/';
     }
-    return location.pathname.startsWith(href.split('#')[0]);
+    return pathname.startsWith(href.split('#')[0]);
   };
 
   // Handle smooth scroll to section
@@ -75,23 +78,24 @@ const Header = () => {
       const [path, sectionId] = href.split('#');
 
       // If we're on the same page, just scroll
-      if (location.pathname === path) {
+      if (pathname === path) {
         const element = document.getElementById(sectionId);
         if (element) {
           const headerHeight = 80; // Adjust based on your header height
           const elementPosition = element.offsetTop - headerHeight;
           window.scrollTo({
             top: elementPosition,
-            behavior: 'smooth'
+            behavior: 'smooth',
           });
+          window.history.pushState(null, '', href);
         }
       } else {
         // Navigate to the page with hash
-        navigate(href);
+        router.push(href);
       }
     } else {
       // Regular navigation
-      navigate(href);
+      router.push(href);
     }
 
     // Close mobile menu if open
@@ -113,14 +117,15 @@ const Header = () => {
                 {item.hasDropdown ? (
                   <div className="relative group">
                     <Link
-                      to={item.href}
-                      className={`px-3 py-2 rounded-full font-medium transition-all duration-200 flex items-center ${isActive(item.href)
-                        ? 'bg-primary text-white shadow-lg transform scale-105'
-                        : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20'
-                        }`}
+                      href={item.href}
+                      className={`px-3 py-2 rounded-full font-medium transition-all duration-200 flex items-center ${
+                        isActive(item.href)
+                          ? 'bg-primary text-white shadow-lg transform scale-105'
+                          : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20'
+                      }`}
                     >
                       {item.name}
-                      <ChevronDownIcon className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:rotate-180" />
+                      <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:rotate-180" />
                     </Link>
 
                     {/* Dropdown Menu */}
@@ -128,11 +133,11 @@ const Header = () => {
                       {/* Arrow pointer */}
                       <div className="dropdown-arrow"></div>
                       <div className="py-2">
-                        {item.dropdown?.map((dropdownItem) => (
+                        {item.dropdown?.map(dropdownItem => (
                           <Link
                             key={dropdownItem.name}
-                            to={dropdownItem.href}
-                            onClick={(e) => handleSectionClick(dropdownItem.href, e)}
+                            href={dropdownItem.href}
+                            onClick={e => handleSectionClick(dropdownItem.href, e)}
                             className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-primary hover:text-white transition-colors duration-200"
                           >
                             {dropdownItem.name}
@@ -143,11 +148,12 @@ const Header = () => {
                   </div>
                 ) : (
                   <Link
-                    to={item.href}
-                    className={`px-3 py-2 rounded-full font-medium transition-all duration-200 ${isActive(item.href)
-                      ? 'bg-primary text-white shadow-lg transform scale-105'
-                      : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20'
-                      }`}
+                    href={item.href}
+                    className={`px-3 py-2 rounded-full font-medium transition-all duration-200 ${
+                      isActive(item.href)
+                        ? 'bg-primary text-white shadow-lg transform scale-105'
+                        : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20'
+                    }`}
                   >
                     {item.name}
                   </Link>
@@ -164,13 +170,16 @@ const Header = () => {
             <ThemeToggle />
             <button
               type="button"
-              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200"
               onClick={() => setIsOpen(!isOpen)}
+              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200"
+              aria-label={isOpen ? 'Đóng menu' : 'Mở menu'}
+              aria-expanded={isOpen}
+              aria-controls="mobile-navigation"
             >
               {isOpen ? (
-                <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                <X className="h-6 w-6" aria-hidden="true" />
               ) : (
-                <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+                <Menu className="h-6 w-6" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -178,29 +187,30 @@ const Header = () => {
 
         {/* Mobile Navigation Menu */}
         {isOpen && (
-          <div className="md:hidden animate-fade-in">
+          <div className="md:hidden animate-fade-in" id="mobile-navigation">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
               {navigation.map(item => (
                 <div key={item.name}>
                   {item.hasDropdown ? (
                     <div>
                       <Link
-                        to={item.href}
-                        className={`block px-4 py-3 text-base font-medium rounded-lg transition-all duration-200 ${isActive(item.href)
-                          ? 'text-white bg-primary shadow-md transform scale-105'
-                          : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700'
-                          }`}
+                        href={item.href}
+                        className={`block px-4 py-3 text-base font-medium rounded-lg transition-all duration-200 ${
+                          isActive(item.href)
+                            ? 'text-white bg-primary shadow-md transform scale-105'
+                            : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700'
+                        }`}
                         onClick={() => setIsOpen(false)}
                       >
                         {item.name}
                       </Link>
                       {/* Mobile Dropdown Items */}
                       <div className="ml-4 mt-1 space-y-1">
-                        {item.dropdown?.map((dropdownItem) => (
+                        {item.dropdown?.map(dropdownItem => (
                           <Link
                             key={dropdownItem.name}
-                            to={dropdownItem.href}
-                            onClick={(e) => {
+                            href={dropdownItem.href}
+                            onClick={e => {
                               handleSectionClick(dropdownItem.href, e);
                               setIsOpen(false);
                             }}
@@ -213,11 +223,12 @@ const Header = () => {
                     </div>
                   ) : (
                     <Link
-                      to={item.href}
-                      className={`block px-4 py-3 text-base font-medium rounded-lg transition-all duration-200 ${isActive(item.href)
-                        ? 'text-white bg-primary shadow-md transform scale-105'
-                        : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700'
-                        }`}
+                      href={item.href}
+                      className={`block px-4 py-3 text-base font-medium rounded-lg transition-all duration-200 ${
+                        isActive(item.href)
+                          ? 'text-white bg-primary shadow-md transform scale-105'
+                          : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700'
+                      }`}
                       onClick={() => setIsOpen(false)}
                     >
                       {item.name}

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Class } from '../../types';
 import { calculateDiscountedPrice, formatCurrency, hasValidDiscount } from '../../utils/helpers';
 import LazyImage from './LazyImage';
@@ -11,16 +11,8 @@ interface ClassCardProps {
 }
 
 const ClassCard = ({ class: classData }: ClassCardProps) => {
-  const {
-    id,
-    name,
-    description,
-    targetAudience,
-    price,
-    discount,
-    discountEndDate,
-    imageUrl,
-  } = classData;
+  const { id, name, description, targetAudience, price, discount, discountEndDate, imageUrl } =
+    classData;
 
   const hasValidDiscountValue = hasValidDiscount(discount, discountEndDate);
   const finalPrice = hasValidDiscountValue ? calculateDiscountedPrice(price, discount) : price;
@@ -37,7 +29,9 @@ const ClassCard = ({ class: classData }: ClassCardProps) => {
       </div>
 
       <div className="p-5">
-        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 line-clamp-2">{name}</h3>
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 line-clamp-2">
+          {name}
+        </h3>
 
         <div className="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-3">
           {parseMarkdown(description)}
@@ -59,11 +53,17 @@ const ClassCard = ({ class: classData }: ClassCardProps) => {
           <div>
             {hasValidDiscountValue ? (
               <div className="flex flex-col">
-                <span className="text-gray-500 dark:text-gray-400 line-through text-sm">{formatCurrency(price)}</span>
-                <span className="text-primary dark:text-blue-400 font-bold">{formatCurrency(finalPrice)}</span>
+                <span className="text-gray-500 dark:text-gray-400 line-through text-sm">
+                  {formatCurrency(price)}
+                </span>
+                <span className="text-primary dark:text-blue-400 font-bold">
+                  {formatCurrency(finalPrice)}
+                </span>
               </div>
             ) : (
-              <span className="text-primary dark:text-blue-400 font-bold">{formatCurrency(price)}</span>
+              <span className="text-primary dark:text-blue-400 font-bold">
+                {formatCurrency(price)}
+              </span>
             )}
           </div>
 
@@ -77,7 +77,7 @@ const ClassCard = ({ class: classData }: ClassCardProps) => {
 
         <div className="flex space-x-2">
           <Link
-            to={`/classes/${id}`}
+            href={`/classes/${id}`}
             className="btn-primary flex-1 text-center"
             onClick={() => {
               trackClassView(id.toString(), name);
@@ -94,7 +94,7 @@ const ClassCard = ({ class: classData }: ClassCardProps) => {
           </Link>
 
           <Link
-            to={`/classes/${id}/register`}
+            href={`/classes/${id}/register`}
             className="btn-outline-primary text-center px-4 py-2 rounded-lg"
             onClick={() => {
               trackAddToCart({

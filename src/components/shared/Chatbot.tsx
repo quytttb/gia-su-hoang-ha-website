@@ -2,9 +2,12 @@ import { useState, useEffect, useRef, FormEvent } from 'react';
 import {
   trackChatbotOpen,
   trackChatbotClose,
-  trackQuickReplyClick
+  trackQuickReplyClick,
 } from '../../utils/chatbotAnalytics';
-import { parseMarkdown } from '../../utils/parseMarkdown';
+import { defaultFAQs, ChatbotFAQ } from '../chatbot/defaultFAQs';
+import ChatbotToggle from '../chatbot/ChatbotToggle';
+import ChatbotMessage from '../chatbot/ChatbotMessage';
+import { CENTER_INFO } from '../../constants/centerInfo';
 
 export type ChatMessage = {
   id: string;
@@ -14,83 +17,9 @@ export type ChatMessage = {
   quickReplies?: string[];
 };
 
-export type ChatbotFAQ = {
-  keywords: string[];
-  question: string;
-  answer: string;
-  type?: 'text' | 'contact' | 'facebook';
-  quickReplies?: string[];
-};
-
 interface ChatbotProps {
   faqs?: ChatbotFAQ[];
 }
-
-const defaultFAQs: ChatbotFAQ[] = [
-  {
-    keywords: ['giờ', 'làm việc', 'mở cửa', 'đóng cửa', 'thời gian'],
-    question: 'Trung tâm mở cửa những giờ nào?',
-    answer: `🕐 **Giờ làm việc của trung tâm:**\n\n📅 **Thứ 2 - Thứ 6:** 7:30 - 20:00\n📅 **Thứ 7 - Chủ nhật:** 8:00 - 17:00\n\n💡 *Bạn có thể đến trực tiếp hoặc gọi điện trong giờ làm việc!*`,
-    quickReplies: ['Xem lớp học', 'Liên hệ ngay', 'Địa chỉ trung tâm'],
-  },
-  {
-    keywords: ['học phí', 'giá', 'tiền', 'thanh toán', 'phí', 'chi phí'],
-    question: 'Học phí các lớp học là bao nhiêu?',
-    answer: `💰 **Bảng học phí tham khảo:**\n\n📚 **Luyện thi THPT:** 2.500.000đ - 4.000.000đ\n📖 **Ôn thi Đại học:** 3.000.000đ - 4.500.000đ\n✏️ **Bổ trợ kiến thức:** 1.800.000đ - 2.800.000đ\n👥 **Gia sư 1-1:** 3.500.000đ - 5.000.000đ\n\n🎁 *Hiện có nhiều chương trình ưu đãi hấp dẫn!*`,
-    quickReplies: ['Xem chi tiết lớp học', 'Đăng ký tư vấn', 'Chương trình ưu đãi'],
-  },
-  {
-    keywords: ['đăng ký', 'tham gia', 'ghi danh', 'đăng kí'],
-    question: 'Làm thế nào để đăng ký lớp học?',
-    answer: `📝 **3 cách đăng ký dễ dàng:**\n\n🌐 **Online:** Đăng ký trực tuyến trên website\n📞 **Hotline:** 0385.510.892 - 0962.390.161\n🏢 **Trực tiếp:** Đến trung tâm tại Thanh Hóa\n\n✨ *Đăng ký ngay để nhận ưu đãi đặc biệt!*`,
-    type: 'contact',
-    quickReplies: ['Đăng ký online', 'Gọi hotline', 'Xem địa chỉ'],
-  },
-  {
-    keywords: ['địa chỉ', 'nơi', 'vị trí', 'đâu', 'chỗ nào'],
-    question: 'Trung tâm nằm ở đâu?',
-    answer: `📍 **Địa chỉ trung tâm:**\n\n🏢 265 - Đường 06 - Mặt Bằng 08\nPhường Nam Ngạn, TP Thanh Hóa\nTỉnh Thanh Hóa\n\n🚗 *Gần trung tâm thành phố, dễ dàng di chuyển!*`,
-    quickReplies: ['Xem bản đồ', 'Hướng dẫn đường đi', 'Liên hệ'],
-  },
-  {
-    keywords: ['liên hệ', 'gọi', 'số', 'email', 'facebook', 'fb'],
-    question: 'Làm thế nào để liên hệ với trung tâm?',
-    answer: `📞 **Thông tin liên hệ:**\n\n☎️ **Hotline:** 0385.510.892 - 0962.390.161\n📧 **Email:** lienhe@giasuhoangha.com\n📱 **Facebook:** Gia Sư Hoàng Hà Official\n🏢 **Địa chỉ:** 265 Đường 06, Nam Ngạn, Thanh Hóa\n\n💬 *Chúng tôi luôn sẵn sàng hỗ trợ bạn!*`,
-    type: 'facebook',
-    quickReplies: ['Gọi ngay', 'Gửi email', 'Nhắn Facebook', 'Đến trung tâm'],
-  },
-  {
-    keywords: ['giáo viên', 'giảng viên', 'gia sư', 'thầy', 'cô'],
-    question: 'Giáo viên tại trung tâm có kinh nghiệm không?',
-    answer: `👨‍🏫 **Đội ngũ giáo viên chất lượng:**\n\n🎓 **Trình độ:** Thạc sĩ, Tiến sĩ các trường ĐH hàng đầu\n⭐ **Kinh nghiệm:** 5-15 năm giảng dạy\n🏆 **Thành tích:** Nhiều học sinh đỗ ĐH top đầu\n💡 **Phương pháp:** Hiện đại, phù hợp từng học sinh\n\n✨ *100% giáo viên được tuyển chọn kỹ lưỡng!*`,
-    quickReplies: ['Xem giáo viên', 'Đăng ký học thử', 'Tư vấn lớp học'],
-  },
-  {
-    keywords: ['lịch học', 'thời khóa biểu', 'ca học', 'buổi học'],
-    question: 'Lịch học được sắp xếp như thế nào?',
-    answer: `📅 **Lịch học linh hoạt:**\n\n🌅 **Sáng:** 7:30 - 11:30 (Chủ nhật)\n🌇 **Chiều:** 13:30 - 17:30 (Thứ 7 - CN)\n🌃 **Tối:** 18:00 - 21:00 (T2 - T6)\n\n⚡ **Đặc biệt:** Có thể sắp xếp lịch riêng theo yêu cầu\n\n📱 *Xem lịch chi tiết trên website!*`,
-    quickReplies: ['Xem lịch học', 'Đăng ký lịch riêng', 'Tư vấn thời gian'],
-  },
-  {
-    keywords: ['hỗ trợ', 'thêm', 'bổ trợ', 'dịch vụ'],
-    question: 'Trung tâm có các dịch vụ hỗ trợ học tập nào?',
-    answer: `🎯 **Dịch vụ hỗ trợ đa dạng:**\n\n👨‍🎓 **Gia sư 1-1:** Học riêng với giáo viên\n📚 **Lớp bổ trợ:** Củng cố kiến thức\n💻 **Tài liệu online:** Học mọi lúc mọi nơi\n📝 **Ôn tập định kỳ:** Kiểm tra tiến độ\n🎯 **Tư vấn học tập:** Lộ trình cá nhân hóa\n\n🌟 *Cam kết hỗ trợ tối đa cho học sinh!*`,
-    quickReplies: ['Gia sư 1-1', 'Lớp bổ trợ', 'Tài liệu online'],
-  },
-  {
-    keywords: ['hoàn tiền', 'đổi khóa', 'hủy', 'chính sách'],
-    question: 'Chính sách hoàn tiền của trung tâm là gì?',
-    answer: `💯 **Chính sách linh hoạt:**\n\n✅ **Hoàn tiền 100%** nếu không hài lòng sau 3 buổi đầu\n🔄 **Đổi lớp học** miễn phí (cùng giá trị)\n⏰ **Bảo lưu học phí** đến 6 tháng\n📞 **Hỗ trợ 24/7** giải quyết thắc mắc\n\n🤝 *Cam kết minh bạch, uy tín!*`,
-    quickReplies: ['Tìm hiểu thêm', 'Liên hệ tư vấn', 'Đăng ký ngay'],
-  },
-  {
-    keywords: ['facebook', 'fb', 'fanpage', 'mạng xã hội'],
-    question: 'Facebook của trung tâm là gì?',
-    answer: `📱 **Kết nối với chúng tôi trên Facebook:**\n\n👍 **Fanpage chính thức:** Gia Sư Hoàng Hà\n📢 **Cập nhật:** Tin tức, khuyến mãi mới nhất\n💬 **Tương tác:** Hỏi đáp trực tiếp\n📸 **Hình ảnh:** Hoạt động học tập tại trung tâm\n\n🔗 *Nhấn nút bên dưới để truy cập Facebook!*`,
-    type: 'facebook',
-    quickReplies: ['Truy cập Facebook', 'Nhắn tin Facebook', 'Theo dõi fanpage'],
-  },
-];
 
 const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -183,7 +112,7 @@ const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
     if (lowercaseInput.includes('gọi ngay') || lowercaseInput.includes('hotline')) {
       return {
         id: Date.now().toString(),
-        content: `📞 **Liên hệ ngay với chúng tôi:**\n\n☎️ **Hotline 1:** 0385.510.892\n☎️ **Hotline 2:** 0962.390.161\n\n🕐 **Giờ hỗ trợ:**\n• T2-T6: 7:30 - 20:00\n• T7-CN: 8:00 - 17:00\n\n💡 *Gọi ngay để được tư vấn miễn phí!*`,
+        content: `📞 **Liên hệ ngay với chúng tôi:**\n\n☎️ **Hotline 1:** ${CENTER_INFO.phonePrimary}\n☎️ **Hotline 2:** ${CENTER_INFO.phoneSecondary}\n\n🕐 **Giờ hỗ trợ:**\n• T2-T6: 7:30 - 20:00\n• T7-CN: 8:00 - 17:00\n\n💡 *Gọi ngay để được tư vấn miễn phí!*`,
         isBot: true,
         type: 'contact',
         quickReplies: ['Gửi email', 'Xem địa chỉ', 'Facebook', 'Menu chính'],
@@ -225,7 +154,7 @@ const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
     if (lowercaseInput.includes('cảm ơn') || lowercaseInput.includes('thank')) {
       return {
         id: Date.now().toString(),
-        content: `🙏 **Không có gì! Rất vui được giúp đỡ bạn.**\n\n✨ **Nếu bạn cần hỗ trợ thêm:**\n• 📞 Gọi hotline: 0385.510.892\n• 📱 Nhắn tin Facebook\n• 🏢 Đến trực tiếp trung tâm\n\n💪 **Chúc bạn học tập hiệu quả!**`,
+        content: `🙏 **Không có gì! Rất vui được giúp đỡ bạn.**\n\n✨ **Nếu bạn cần hỗ trợ thêm:**\n• 📞 Gọi hotline: ${CENTER_INFO.phonePrimary}\n• 📱 Nhắn tin Facebook\n• 🏢 Đến trực tiếp trung tâm\n\n💪 **Chúc bạn học tập hiệu quả!**`,
         isBot: true,
         type: 'quick-reply',
         quickReplies: ['Hỏi thêm', 'Liên hệ', 'Facebook', 'Kết thúc'],
@@ -266,55 +195,6 @@ const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
     setIsChatOpen(!isChatOpen);
   };
 
-  const renderMessage = (message: ChatMessage) => {
-    const isBot = message.isBot;
-
-    return (
-      <div key={message.id} className="space-y-2">
-        <div
-          className={`max-w-[85%] p-3 rounded-lg ${isBot
-            ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 text-gray-800 dark:text-gray-200 border border-blue-100 dark:border-gray-700'
-            : 'bg-gradient-to-r from-primary to-blue-600 text-white rounded-bl-none ml-auto'
-            }`}
-        >
-          <div className="whitespace-pre-line text-sm leading-relaxed">
-            {parseMarkdown(message.content)}
-          </div>
-        </div>
-
-        {/* Quick Replies */}
-        {isBot && message.quickReplies && (
-          <div className="flex flex-wrap gap-2 max-w-[85%]">
-            {message.quickReplies.map((reply, index) => (
-              <button
-                key={index}
-                onClick={() => handleQuickReply(reply)}
-                className="px-3 py-1.5 text-xs bg-white dark:bg-gray-900 border border-primary text-primary dark:text-primary hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white rounded-full"
-              >
-                {reply}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Facebook Button */}
-        {isBot && message.type === 'facebook' && (
-          <div className="max-w-[85%]">
-            <button
-              onClick={openFacebookPage}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              <span>Truy cập Facebook Fanpage</span>
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className={`fixed bottom-6 right-6 z-50 ${isChatOpen ? 'w-80 md:w-96' : 'w-16 h-16'}`}>
       {isChatOpen ? (
@@ -333,8 +213,10 @@ const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
               </div>
             </div>
             <button
+              type="button"
               onClick={toggleChat}
               className="text-white hover:text-blue-200 transition-colors duration-200"
+              aria-label="Đóng trợ lý ảo"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -349,7 +231,14 @@ const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
 
           {/* Chat Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800">
-            {chatMessages.map(renderMessage)}
+            {chatMessages.map(message => (
+              <ChatbotMessage
+                key={message.id}
+                message={message}
+                onQuickReply={handleQuickReply}
+                onOpenFacebook={openFacebookPage}
+              />
+            ))}
             {chatLoading && (
               <div className="flex space-x-1 p-3 max-w-[85%] bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-lg border border-blue-100 dark:border-gray-700">
                 <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
@@ -394,29 +283,7 @@ const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
           </div>
         </div>
       ) : (
-        /* Enhanced Chat Toggle Button */
-        <button
-          onClick={toggleChat}
-          className="w-16 h-16 bg-gradient-to-r from-primary to-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center group"
-        >
-          <svg
-            className="w-8 h-8 group-hover:scale-110 transition-transform duration-200"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-            />
-          </svg>
-          {/* Notification dot */}
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-            <span className="text-xs text-white font-bold">!</span>
-          </div>
-        </button>
+        <ChatbotToggle onClick={toggleChat} />
       )}
     </div>
   );

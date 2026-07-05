@@ -4,66 +4,60 @@
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
-  <!-- Homepage -->
   <url>
     <loc>https://giasuhoangha.com/</loc>
-    <lastmod>2024-01-01</lastmod>
+    <lastmod>2026-07-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
-  <!-- About Page -->
   <url>
     <loc>https://giasuhoangha.com/about</loc>
-    <lastmod>2024-01-01</lastmod>
+    <lastmod>2026-07-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- Courses Page -->
   <url>
-    <loc>https://giasuhoangha.com/courses</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://giasuhoangha.com/classes</loc>
+    <lastmod>2026-07-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- Individual Course Pages -->
   <url>
-    <loc>https://giasuhoangha.com/courses/toan-lop-10</loc>
-    <lastmod>2024-01-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://giasuhoangha.com/courses/ly-lop-11</loc>
-    <lastmod>2024-01-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://giasuhoangha.com/courses/hoa-lop-12</loc>
-    <lastmod>2024-01-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Schedule Page -->
-  <url>
-    <loc>https://giasuhoangha.com/schedule</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://giasuhoangha.com/tutor-search</loc>
+    <lastmod>2026-07-03</lastmod>
     <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://giasuhoangha.com/tutor-search/register</loc>
+    <lastmod>2026-07-03</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
-  <!-- Contact Page -->
+  <url>
+    <loc>https://giasuhoangha.com/schedule</loc>
+    <lastmod>2026-07-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <url>
     <loc>https://giasuhoangha.com/contact</loc>
-    <lastmod>2024-01-01</lastmod>
+    <lastmod>2026-07-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
-</urlset> 
+  <url>
+    <loc>https://giasuhoangha.com/blog</loc>
+    <lastmod>2026-07-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>

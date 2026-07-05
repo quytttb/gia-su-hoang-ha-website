@@ -1,14 +1,14 @@
 import emailjs from '@emailjs/browser';
+import { CENTER_INFO } from '../constants/centerInfo';
+import { env } from '@/lib/env';
 
 // EmailJS configuration
-const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_gia_su_hoang_ha';
-const EMAILJS_TEMPLATE_ID_CONTACT =
-  import.meta.env.VITE_EMAILJS_TEMPLATE_ID_CONTACT || 'template_contact';
+const EMAILJS_SERVICE_ID = env.emailJsServiceId || 'service_gia_su_hoang_ha';
+const EMAILJS_TEMPLATE_ID_CONTACT = env.emailJsTemplateIdContact || 'template_contact';
 const EMAILJS_TEMPLATE_ID_REGISTRATION =
-  import.meta.env.VITE_EMAILJS_TEMPLATE_ID_REGISTRATION || 'template_registration';
-const EMAILJS_TEMPLATE_ID_AUTO_REPLY =
-  import.meta.env.VITE_EMAILJS_TEMPLATE_ID_AUTO_REPLY || 'template_auto_reply';
-const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'your_public_key';
+  env.emailJsTemplateIdRegistration || 'template_registration';
+const EMAILJS_TEMPLATE_ID_AUTO_REPLY = env.emailJsTemplateIdAutoReply || 'template_auto_reply';
+const EMAILJS_PUBLIC_KEY = env.emailJsPublicKey || 'your_public_key';
 
 // Initialize EmailJS
 export const initEmailJS = () => {
@@ -137,11 +137,11 @@ export const sendAutoReplyEmail = async (
     const templateParams = {
       to_name: customerName,
       to_email: customerEmail,
-      center_name: 'Trung tâm Gia Sư Hoàng Hà',
-      center_phone: '0385.510.892 - 0962.390.161',
-      center_address: '265 - Đường 06 - Mặt Bằng 08, Phường Nam Ngạn, Thanh Hóa',
+      center_name: CENTER_INFO.name,
+      center_phone: CENTER_INFO.phone,
+      center_address: CENTER_INFO.addressShort,
       message_type: isRegistration ? 'đăng ký lớp học' : 'liên hệ',
-      reply_to: 'giasuhoangha.tpth@gmail.com',
+      reply_to: CENTER_INFO.emailReply,
     };
 
     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_AUTO_REPLY, templateParams);
@@ -156,22 +156,22 @@ export const validateEmailConfig = (): { isValid: boolean; missingFields: string
   const missingFields: string[] = [];
 
   if (!EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID === 'service_gia_su_hoang_ha') {
-    missingFields.push('VITE_EMAILJS_SERVICE_ID');
+    missingFields.push('NEXT_PUBLIC_EMAILJS_SERVICE_ID');
   }
 
   if (!EMAILJS_TEMPLATE_ID_CONTACT || EMAILJS_TEMPLATE_ID_CONTACT === 'template_contact') {
-    missingFields.push('VITE_EMAILJS_TEMPLATE_ID_CONTACT');
+    missingFields.push('NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_CONTACT');
   }
 
   if (
     !EMAILJS_TEMPLATE_ID_REGISTRATION ||
     EMAILJS_TEMPLATE_ID_REGISTRATION === 'template_registration'
   ) {
-    missingFields.push('VITE_EMAILJS_TEMPLATE_ID_REGISTRATION');
+    missingFields.push('NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_REGISTRATION');
   }
 
   if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'your_public_key') {
-    missingFields.push('VITE_EMAILJS_PUBLIC_KEY');
+    missingFields.push('NEXT_PUBLIC_EMAILJS_PUBLIC_KEY');
   }
 
   return {

@@ -40,7 +40,7 @@ Website chính thức của Trung tâm Gia Sư Hoàng Hà tại Thanh Hóa - Nơ
 ```bash
 # Clone repository
 git clone <repository-url>
-cd gia-su-hoang-ha-client
+cd gia-su-hoang-ha-website
 
 # Cài đặt dependencies
 npm install
@@ -281,20 +281,24 @@ Main chunks:
 Tất cả tài liệu hướng dẫn chi tiết được tổ chức trong thư mục [`docs/`](./docs/):
 
 ### 🚀 **Deploy & DevOps**
+
 - [Deploy Guide](./docs/DEPLOYMENT_GUIDE.md) - Hướng dẫn deploy lên Vercel
 - [Deployment](./docs/DEPLOYMENT.md) - Tài liệu deployment chi tiết
 - [Monitoring](./docs/MONITORING.md) - Hướng dẫn monitoring
 
 ### 🔧 **Setup & Configuration**
+
 - [Configuration](./docs/CONFIGURATION.md) - Cấu hình dự án
 - [Firebase Setup](./docs/FIREBASE_SETUP_VI.md) - Setup Firebase (Tiếng Việt)
 - [Cloudinary Setup](./docs/CLOUDINARY_SETUP.md) - Setup Cloudinary
 
 ### 🧪 **Testing & Quality**
+
 - [Testing Guide](./docs/TESTING.md) - Hướng dẫn testing
 - [Security](./docs/SECURITY.md) - Tài liệu bảo mật
 
 ### 🎨 **SEO & Marketing**
+
 - [SEO Guide](./docs/SEO.md) - Hướng dẫn SEO chi tiết
 - [SEO Checklist](./docs/SEO_CHECKLIST.md) - SEO Checklist
 - [SEO Testing](./docs/SEO_TESTING_GUIDE.md) - Hướng dẫn test SEO

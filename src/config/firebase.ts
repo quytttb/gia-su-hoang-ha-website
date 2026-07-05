@@ -2,20 +2,25 @@ import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getAnalytics, Analytics } from 'firebase/analytics';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 import { Installations } from 'firebase/installations';
+import { env, isDevelopment } from '@/lib/env';
 
-// Kiểm tra xem có đang trong môi trường phát triển không
-const isDevelopment = import.meta.env.DEV === true;
+// Debug token cho App Check khi dev (lấy từ Firebase Console → App Check → Manage debug tokens)
+if (isDevelopment && typeof window !== 'undefined') {
+  (self as unknown as { FIREBASE_APPCHECK_DEBUG_TOKEN?: boolean }).FIREBASE_APPCHECK_DEBUG_TOKEN =
+    true;
+}
 
 // Firebase configuration
 const firebaseConfig = {
-     apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'dummy-key',
-     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'dummy-domain.firebaseapp.com',
-     projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'dummy-project',
-     storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'dummy-bucket.appspot.com',
-     messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '123456789012',
-     appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:123456789012:web:abcdef123456',
-     measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || 'G-ABCDEFGHIJ',
+  apiKey: env.firebaseApiKey || 'dummy-key',
+  authDomain: env.firebaseAuthDomain || 'dummy-domain.firebaseapp.com',
+  projectId: env.firebaseProjectId || 'dummy-project',
+  storageBucket: env.firebaseStorageBucket || 'dummy-bucket.appspot.com',
+  messagingSenderId: env.firebaseMessagingSenderId || '123456789012',
+  appId: env.firebaseAppId || '1:123456789012:web:abcdef123456',
+  measurementId: env.firebaseMeasurementId || 'G-ABCDEFGHIJ',
 };
 
 // Initialize Firebase (conditionally)
@@ -26,45 +31,63 @@ let analytics: Analytics | null = null;
 let installations: Installations | null = null;
 
 try {
-     // Khởi tạo app
-     app = initializeApp(firebaseConfig);
+  // Khởi tạo app
+  app = initializeApp(firebaseConfig);
 
-     // Khởi tạo Auth
-     auth = getAuth(app);
+  // App Check — bảo vệ Firestore/Auth API khỏi abuse (bật enforce từ từ trên Firebase Console)
+  if (typeof window !== 'undefined') {
+    const siteKey = env.recaptchaSiteKey;
+    if (siteKey) {
+      try {
+        initializeAppCheck(app, {
+          provider: new ReCaptchaEnterpriseProvider(siteKey),
+          isTokenAutoRefreshEnabled: true,
+        });
+        console.log('Firebase App Check initialized');
+      } catch (appCheckError) {
+        console.warn('Firebase App Check initialization failed:', appCheckError);
+      }
+    } else if (!isDevelopment) {
+      console.warn('NEXT_PUBLIC_RECAPTCHA_SITE_KEY chưa cấu hình — App Check chưa bật');
+    }
+  }
 
-     // Khởi tạo Firestore
-     db = getFirestore(app);
+  // Khởi tạo Auth
+  auth = getAuth(app);
 
-     // Khởi tạo Analytics chỉ khi không ở môi trường phát triển
-     if (!isDevelopment && typeof window !== 'undefined') {
-          try {
-               analytics = getAnalytics(app);
-               console.log('Firebase Analytics initialized');
-          } catch {
-               // Analytics may not be available in some environments (e.g., localhost)
-               console.warn('Firebase Analytics not available');
-          }
-     } else {
-          console.log('Firebase Analytics initialized (data collection disabled)');
-          analytics = null;
-     }
+  // Khởi tạo Firestore
+  db = getFirestore(app);
 
-     // Không sử dụng Installations vì gây lỗi 403
-     installations = null;
-     console.log('Firebase Installations skipped (to avoid 403 errors)');
+  // Khởi tạo Analytics chỉ khi không ở môi trường phát triển
+  if (!isDevelopment && typeof window !== 'undefined') {
+    try {
+      analytics = getAnalytics(app);
+      console.log('Firebase Analytics initialized');
+    } catch {
+      // Analytics may not be available in some environments (e.g., localhost)
+      console.warn('Firebase Analytics not available');
+    }
+  } else {
+    console.log('Firebase Analytics initialized (data collection disabled)');
+    analytics = null;
+  }
 
-     console.log('Firebase initialized successfully');
+  // Không sử dụng Installations vì gây lỗi 403
+  installations = null;
+  console.log('Firebase Installations skipped (to avoid 403 errors)');
+
+  console.log('Firebase initialized successfully');
 } catch (error) {
-     console.error('Firebase initialization error:', error);
-     // Create dummy objects to prevent app crashes
-     app = null;
-     auth = null;
-     db = null;
-     analytics = null;
-     installations = null;
+  console.error('Firebase initialization error:', error);
+  // Create dummy objects to prevent app crashes
+  app = null;
+  auth = null;
+  db = null;
+  analytics = null;
+  installations = null;
 }
 
 // Export the services
 export { auth, db, analytics, installations };
 
-export default app; 
+export default app;

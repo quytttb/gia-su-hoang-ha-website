@@ -7,17 +7,24 @@ Sitemap: https://giasuhoangha.com/sitemap.xml
 # Crawl-delay for polite crawling
 Crawl-delay: 1
 
-# Block admin and private areas
+# Block admin, panel, auth, test and private areas
 Disallow: /admin
 Disallow: /admin/*
+Disallow: /panel
+Disallow: /panel/*
+Disallow: /login
 Disallow: /api/
 Disallow: /*.json$
 Disallow: /src/
 
-# Allow important pages
+# Allow important public pages
 Allow: /
 Allow: /about
-Allow: /courses
-Allow: /courses/*
+Allow: /classes
+Allow: /classes/*
+Allow: /tutor-search
+Allow: /tutor-search/*
 Allow: /schedule
-Allow: /contact 
+Allow: /contact
+Allow: /blog
+Allow: /blog/*

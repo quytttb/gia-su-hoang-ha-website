@@ -200,9 +200,9 @@ export const generateClassStructuredData = (classData: any) => {
       validFrom: new Date().toISOString(),
       ...(classData.discount &&
         classData.discountEndDate && {
-        priceValidUntil: classData.discountEndDate,
-        discount: classData.discount,
-      }),
+          priceValidUntil: classData.discountEndDate,
+          discount: classData.discount,
+        }),
     },
     image: classData.imageUrl,
     url: `https://giasuhoangha.com/classes/${classData.id}`,
@@ -221,6 +221,70 @@ export const generateClassStructuredData = (classData: any) => {
         },
       },
       schedule: 'Thứ 2 đến 4, 19:30 - 21:30',
+    },
+  };
+};
+
+/**
+ * Generate SEO data for a blog post
+ */
+export const generateBlogSEO = (post: {
+  title: string;
+  excerpt?: string;
+  slug?: string;
+  imageUrl?: string;
+}): SEOData => {
+  const slug = post.slug || '';
+  return {
+    title: `${post.title} - Blog Gia Sư Hoàng Hà`,
+    description: post.excerpt || post.title,
+    keywords: 'blog gia sư, tin tức giáo dục, gia sư thanh hóa',
+    ogTitle: post.title,
+    ogDescription: post.excerpt || post.title,
+    ogImage: post.imageUrl,
+    canonical: `https://giasuhoangha.com/blog/${slug}`,
+  };
+};
+
+/**
+ * Generate structured data (BlogPosting) for a blog post
+ */
+export const generateBlogStructuredData = (post: {
+  title: string;
+  excerpt?: string;
+  slug?: string;
+  imageUrl?: string;
+  author?: string;
+  publishedAt?: string | { seconds?: number };
+  updatedAt?: string | { seconds?: number };
+}) => {
+  const toISO = (dateValue?: string | { seconds?: number }) => {
+    if (!dateValue) return new Date().toISOString();
+    if (typeof dateValue === 'string') return new Date(dateValue).toISOString();
+    if (dateValue.seconds) return new Date(dateValue.seconds * 1000).toISOString();
+    return new Date().toISOString();
+  };
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt || post.title,
+    image: post.imageUrl,
+    author: {
+      '@type': 'Organization',
+      name: post.author || 'Trung tâm Gia Sư Hoàng Hà',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Trung tâm Gia Sư Hoàng Hà',
+      url: 'https://giasuhoangha.com',
+    },
+    datePublished: toISO(post.publishedAt),
+    dateModified: toISO(post.updatedAt || post.publishedAt),
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://giasuhoangha.com/blog/${post.slug || ''}`,
     },
   };
 };

@@ -1,11 +1,10 @@
 #!/bin/bash
 
-# Script deploy nhanh lên Vercel (bỏ qua tests và linting)
+# Deploy nhanh Next.js app lên Vercel (bỏ qua lint/test)
 # Sử dụng: ./scripts/deploy-quick.sh [--production]
 
-set -e
+set -euo pipefail
 
-# Colors
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m'
@@ -18,25 +17,27 @@ log_success() {
     echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
-# Check if vercel CLI is installed
 if ! command -v vercel &> /dev/null; then
     echo "❌ Vercel CLI chưa được cài đặt. Vui lòng cài đặt bằng: npm i -g vercel"
     exit 1
 fi
 
+if [ ! -f "next.config.ts" ]; then
+    echo "❌ Không tìm thấy next.config.ts. Hãy chạy script từ thư mục root của dự án."
+    exit 1
+fi
+
 log_info "⚡ Deploy nhanh lên Vercel..."
 
-# Check for production flag
 PRODUCTION_FLAG=""
-if [ "$1" = "--production" ] || [ "$1" = "-p" ]; then
+if [ "${1:-}" = "--production" ] || [ "${1:-}" = "-p" ]; then
     PRODUCTION_FLAG="--prod"
     log_info "📦 Deploy lên PRODUCTION"
 else
     log_info "🧪 Deploy lên PREVIEW"
 fi
 
-# Build and deploy
-log_info "🔨 Build..."
+log_info "🔨 Build Next.js app..."
 npm run build
 
 log_info "🚀 Deploy..."
@@ -46,4 +47,4 @@ else
     vercel --yes
 fi
 
-log_success "✅ Deploy thành công!" 
+log_success "✅ Deploy thành công!"

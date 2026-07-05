@@ -1,5 +1,7 @@
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import Logo from '../shared/Logo';
+import LazyIframe from '../shared/LazyIframe';
+import { CENTER_INFO } from '../../constants/centerInfo';
 
 interface FooterProps {
   isContactPage?: boolean;
@@ -12,45 +14,72 @@ const Footer = ({ isContactPage = false }: FooterProps) => {
         <div className="grid grid-cols-1 md:grid-cols-[400px_320px_1fr] gap-8">
           <div>
             <Logo variant="text" size="lg" linkTo="/" className="mb-4" />
-            <p className="text-gray-600 dark:text-gray-300 mb-2">Trung tâm gia sư uy tín tại Thanh Hóa</p>
-            <p className="text-gray-600 dark:text-gray-300">Mang đến kiến thức và kỹ năng cho thế hệ trẻ</p>
+            <p className="text-gray-600 dark:text-gray-300 mb-2">
+              Trung tâm gia sư uy tín tại Thanh Hóa
+            </p>
+            <p className="text-gray-600 dark:text-gray-300">
+              Mang đến kiến thức và kỹ năng cho thế hệ trẻ
+            </p>
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Liên kết nhanh</h4>
+            <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              Liên kết nhanh
+            </h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+                <Link
+                  href="/"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                >
                   Trang chủ
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+                <Link
+                  href="/about"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                >
                   Về chúng tôi
                 </Link>
               </li>
               <li>
-                <Link to="/classes" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+                <Link
+                  href="/classes"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                >
                   Khóa học
                 </Link>
               </li>
               <li>
-                <Link to="/tutor-search" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+                <Link
+                  href="/tutor-search"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                >
                   Tìm gia sư
                 </Link>
               </li>
               <li>
-                <Link to="/schedule" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+                <Link
+                  href="/schedule"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                >
                   Lịch học
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+                <Link
+                  href="/blog"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                >
                   Blog
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+                <Link
+                  href="/contact"
+                  className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                >
                   Liên hệ
                 </Link>
               </li>
@@ -60,24 +89,20 @@ const Footer = ({ isContactPage = false }: FooterProps) => {
           <div>
             <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Liên hệ</h4>
             <address className="not-italic text-gray-600 dark:text-gray-300 mb-4">
-              <p className="mb-2">
-                265 - ĐƯỜNG 06 - MẶT BẰNG 08, PHƯỜNG NAM NGẠN, THÀNH PHỐ THANH HOÁ, TỈNH THANH HOÁ
-              </p>
-              <p className="mb-2">Điện thoại: 0385.510.892 - 0962.390.161</p>
-              <p className="mb-2">Email: giasuhoangha.tpth@gmail.com</p>
+              <p className="mb-2">{CENTER_INFO.address}</p>
+              <p className="mb-2">Điện thoại: {CENTER_INFO.phone}</p>
+              <p className="mb-2">Email: {CENTER_INFO.emailReply}</p>
             </address>
             {!isContactPage && (
               <div className="mt-4 rounded overflow-hidden shadow">
-                <iframe
+                <LazyIframe
                   title="Facebook Page - Gia Sư Hoàng Hà"
                   src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fprofile.php%3Fid%3D61575087818708&tabs=timeline&width=430&height=380&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId"
-                  width="100%"
-                  height="380"
-                  style={{ border: 0, minHeight: 150 }}
+                  height={380}
+                  style={{ minHeight: 150 }}
                   allowFullScreen
-                  loading="lazy"
                   allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                ></iframe>
+                />
               </div>
             )}
           </div>

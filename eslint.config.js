@@ -6,7 +6,7 @@ import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
 
 export default [
-  { ignores: ['dist', 'node_modules', 'scripts/**/*'] },
+  { ignores: ['dist', '.next', 'node_modules', 'scripts/**/*', 'next-env.d.ts'] },
   // JavaScript files
   {
     files: ['**/*.{js,jsx}'],
@@ -62,10 +62,14 @@ export default [
   },
   // UI components and contexts - allow utility exports
   {
-    files: [
-      'src/components/ui/**/*.{ts,tsx}',
-      'src/contexts/**/*.{ts,tsx}'
-    ],
+    files: ['src/components/ui/**/*.{ts,tsx}', 'src/contexts/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  // Next.js app router pages export metadata alongside components
+  {
+    files: ['src/app/**/*.{ts,tsx}'],
     rules: {
       'react-refresh/only-export-components': 'off',
     },
