@@ -10,7 +10,7 @@ import {
 } from '../services/emailService';
 import { saveContactMessage } from '../services/contactService';
 import { defaultRateLimiter, getClientIdentifier } from '../utils/security';
-import { useToastContext } from '../contexts/ToastContext';
+import { toast } from 'sonner';
 import Chatbot from '../components/shared/Chatbot';
 import ContactInfoSection from '../components/contact/ContactInfoSection';
 import ContactFormSection from '../components/contact/ContactFormSection';
@@ -19,7 +19,6 @@ import { ContactFormValues } from '@/lib/validations/contact';
 import { useState } from 'react';
 
 const ContactPage = () => {
-  const toast = useToastContext();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -31,53 +30,42 @@ const ContactPage = () => {
     }
   }, []);
 
-  const handleSubmit = useCallback(
-    async (data: ContactFormValues) => {
-      const clientId = getClientIdentifier();
-      if (!defaultRateLimiter.isAllowed(clientId)) {
-        const remaining = defaultRateLimiter.getRemainingRequests(clientId);
-        toast.warning(
-          'Quá nhiều yêu cầu',
-          `Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau. Còn lại: ${remaining} yêu cầu.`
-        );
-        return;
+  const handleSubmit = useCallback(async (data: ContactFormValues) => {
+    const clientId = getClientIdentifier();
+    if (!defaultRateLimiter.isAllowed(clientId)) {
+      const remaining = defaultRateLimiter.getRemainingRequests(clientId);
+      toast.warning('Quá nhiều yêu cầu', {
+        description: `Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau. Còn lại: ${remaining} yêu cầu.`,
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const saveResult = await saveContactMessage(data.name, data.email, data.phone, data.message);
+      if (!saveResult.success) {
+        console.warn('Failed to save to Firestore:', saveResult.error);
       }
 
-      try {
-        setLoading(true);
-        const saveResult = await saveContactMessage(
-          data.name,
-          data.email,
-          data.phone,
-          data.message
-        );
-        if (!saveResult.success) {
-          console.warn('Failed to save to Firestore:', saveResult.error);
-        }
-
-        const emailResult = await sendContactEmail(data.name, data.email, data.phone, data.message);
-        if (emailResult.success) {
-          await sendAutoReplyEmail(data.name, data.email, false);
-          setSuccess(true);
-          toast.success(
-            'Gửi tin nhắn thành công!',
-            'Chúng tôi đã nhận được tin nhắn và sẽ phản hồi trong thời gian sớm nhất.'
-          );
-        } else {
-          toast.error('Gửi tin nhắn thất bại', emailResult.message);
-        }
-      } catch (err) {
-        console.error('Error submitting inquiry:', err);
-        toast.error(
-          'Có lỗi xảy ra',
-          'Vui lòng thử lại sau hoặc liên hệ trực tiếp qua số điện thoại.'
-        );
-      } finally {
-        setLoading(false);
+      const emailResult = await sendContactEmail(data.name, data.email, data.phone, data.message);
+      if (emailResult.success) {
+        await sendAutoReplyEmail(data.name, data.email, false);
+        setSuccess(true);
+        toast.success('Gửi tin nhắn thành công!', {
+          description: 'Chúng tôi đã nhận được tin nhắn và sẽ phản hồi trong thời gian sớm nhất.',
+        });
+      } else {
+        toast.error('Gửi tin nhắn thất bại', { description: emailResult.message });
       }
-    },
-    [toast]
-  );
+    } catch (err) {
+      console.error('Error submitting inquiry:', err);
+      toast.error('Có lỗi xảy ra', {
+        description: 'Vui lòng thử lại sau hoặc liên hệ trực tiếp qua số điện thoại.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   return (
     <Layout>

@@ -15,7 +15,7 @@ import { sendRegistrationEmail, sendAutoReplyEmail, initEmailJS } from '../servi
 import confetti from 'canvas-confetti';
 import ClassRegistrationForm from '../components/classes/ClassRegistrationForm';
 import ClassRegistrationSummary from '../components/classes/ClassRegistrationSummary';
-import ClassRegistrationDialogs from '../components/classes/ClassRegistrationDialogs';
+import RegistrationConfirmDialogs from '../components/shared/RegistrationConfirmDialogs';
 import { ClassRegistrationFormValues } from '@/lib/validations/class-registration';
 import { Button } from '@/components/ui/button';
 
@@ -164,8 +164,9 @@ const ClassRegistrationPage = () => {
         </div>
       </div>
       <Chatbot />
-      <ClassRegistrationDialogs
-        courseName={course.name}
+      <RegistrationConfirmDialogs
+        variant="class"
+        entityName={course.name}
         showConfirmDialog={showConfirmDialog}
         showSuccessDialog={showSuccessDialog}
         submitting={submitting}

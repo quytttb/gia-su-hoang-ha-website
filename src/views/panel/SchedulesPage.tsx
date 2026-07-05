@@ -1,14 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '../../components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '../../components/ui/dialog';
-import { Loader2, Plus, Calendar, Filter, Search } from 'lucide-react';
+import { Plus, Calendar, Filter, Search } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import {
   Select,
@@ -17,19 +10,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../components/ui/select';
-import SkeletonLoading from '../../components/shared/SkeletonLoading';
+import { Card, CardContent } from '@/components/ui/card';
+import PanelPageHeader from '@/components/panel/shared/PanelPageHeader';
+import PanelTableSkeleton from '@/components/panel/shared/PanelTableSkeleton';
+import DeleteConfirmDialog from '@/components/panel/shared/DeleteConfirmDialog';
 import ScheduleTable from '../../components/panel/schedules/ScheduleTable';
 import ScheduleForm from '../../components/panel/schedules/ScheduleForm';
 import schedulesService from '../../services/firestore/schedulesService';
 import { Schedule } from '../../types';
 import { formatDate } from '../../utils/helpers';
+import { useAvailableScheduleDates, useSchedules } from '@/hooks/useSchedules';
+import { queryKeys } from '@/lib/queryKeys';
 
 const PAGE_SIZE = 10;
 
 const SchedulesPage: React.FC = () => {
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const queryClient = useQueryClient();
+  const { data: schedules = [], isLoading: loading, refetch } = useSchedules();
+  const { data: availableDates = [] } = useAvailableScheduleDates();
   const [filteredSchedules, setFilteredSchedules] = useState<Schedule[]>([]);
-  const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
   // Pagination
@@ -40,7 +39,6 @@ const SchedulesPage: React.FC = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filterDate, setFilterDate] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [availableDates, setAvailableDates] = useState<string[]>([]);
 
   // Modal states
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -48,38 +46,23 @@ const SchedulesPage: React.FC = () => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [scheduleToDelete, setScheduleToDelete] = useState<Schedule | null>(null);
 
-  // Load initial data
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      // Load schedules
-      const schedulesData = await schedulesService.getAll();
-      setSchedules(schedulesData);
-      setTotalSchedules(schedulesData.length);
-
-      // Load available dates
-      const dates = await schedulesService.getAvailableDates();
-      setAvailableDates(dates);
-
-      // Apply initial filtering
-      applyFilters(schedulesData, searchKeyword, filterDate, filterStatus);
-    } catch (err) {
-      console.error('Error loading data:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchKeyword, filterDate, filterStatus]);
+  useEffect(() => {
+    applyFilters(schedules, searchKeyword, filterDate, filterStatus);
+  }, [schedules, searchKeyword, filterDate, filterStatus]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  // Global refresh listener
-  useEffect(() => {
-    const handler = () => loadData();
+    const handler = () => {
+      void refetch();
+    };
     window.addEventListener('panel-global-refresh', handler as EventListener);
     return () => window.removeEventListener('panel-global-refresh', handler as EventListener);
-  }, [loadData]);
+  }, [refetch]);
+
+  const invalidateSchedules = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.schedules.all });
+    queryClient.invalidateQueries({ queryKey: queryKeys.schedules.dates });
+    void refetch();
+  };
 
   // Apply filters
   const applyFilters = (scheduleList: Schedule[], search: string, date: string, status: string) => {
@@ -167,13 +150,9 @@ const SchedulesPage: React.FC = () => {
         return;
       }
 
-      // Update local state
-      const updatedSchedules = schedules.filter(s => s.id !== scheduleToDelete.id);
-      setSchedules(updatedSchedules);
-      applyFilters(updatedSchedules, searchKeyword, filterDate, filterStatus);
-
       setDeleteConfirmOpen(false);
       setScheduleToDelete(null);
+      invalidateSchedules();
     } catch (err) {
       console.error('Error deleting schedule:', err);
       alert('Không thể xóa lịch học. Vui lòng thử lại.');
@@ -228,7 +207,7 @@ const SchedulesPage: React.FC = () => {
       }
 
       // Reload data
-      await loadData();
+      invalidateSchedules();
       setIsFormOpen(false);
       setEditingSchedule(undefined);
     } catch (err) {
@@ -246,14 +225,10 @@ const SchedulesPage: React.FC = () => {
     <>
       <div className="space-y-6">
         {/* Page Header */}
-        <div className="bg-card rounded-lg p-6 border">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">Quản lý Lịch Học</h2>
-              <p className="text-muted-foreground">
-                Thêm, chỉnh sửa và quản lý lịch học của trung tâm.
-              </p>
-            </div>
+        <PanelPageHeader
+          title="Quản lý Lịch Học"
+          description="Thêm, chỉnh sửa và quản lý lịch học của trung tâm."
+          action={
             <Button
               onClick={() => {
                 setEditingSchedule(undefined);
@@ -263,63 +238,65 @@ const SchedulesPage: React.FC = () => {
               <Plus className="h-4 w-4 mr-2" />
               Thêm lịch học
             </Button>
-          </div>
-        </div>
+          }
+        />
 
-        {/* Filters and Search */}
-        <div className="bg-card rounded-lg p-6 border">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Tìm kiếm lịch học..."
-                value={searchKeyword}
-                onChange={e => handleSearch(e.target.value)}
-                className="pl-10"
-              />
+        <Card>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Tìm kiếm lịch học..."
+                  value={searchKeyword}
+                  onChange={e => handleSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select
+                value={filterDate}
+                onValueChange={value => handleFilterChange({ date: value })}
+              >
+                <SelectTrigger>
+                  <Calendar className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Chọn ngày" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả ngày</SelectItem>
+                  {availableDates.map(date => (
+                    <SelectItem key={date} value={date}>
+                      {formatDate(date)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={filterStatus}
+                onValueChange={value => handleFilterChange({ status: value })}
+              >
+                <SelectTrigger>
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Trạng thái" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value="past">Đã qua</SelectItem>
+                  <SelectItem value="today">Hôm nay</SelectItem>
+                  <SelectItem value="future">Sắp tới</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="text-sm text-muted-foreground flex items-center">
+                Tổng: {totalSchedules} lịch học
+              </div>
             </div>
-            <Select value={filterDate} onValueChange={value => handleFilterChange({ date: value })}>
-              <SelectTrigger>
-                <Calendar className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Chọn ngày" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả ngày</SelectItem>
-                {availableDates.map(date => (
-                  <SelectItem key={date} value={date}>
-                    {formatDate(date)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={filterStatus}
-              onValueChange={value => handleFilterChange({ status: value })}
-            >
-              <SelectTrigger>
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Trạng thái" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
-                <SelectItem value="past">Đã qua</SelectItem>
-                <SelectItem value="today">Hôm nay</SelectItem>
-                <SelectItem value="future">Sắp tới</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="text-sm text-muted-foreground flex items-center">
-              Tổng: {totalSchedules} lịch học
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Schedule Table */}
         {loading ? (
-          <div className="bg-card rounded-lg p-6 border">
-            <SkeletonLoading type="table-row" count={10} />
-          </div>
+          <PanelTableSkeleton />
         ) : (
-          <div className="bg-card rounded-lg border">
+          <Card>
             <ScheduleTable
               schedules={paginatedSchedules.map(schedule => ({
                 id: schedule.id,
@@ -345,9 +322,8 @@ const SchedulesPage: React.FC = () => {
               }}
             />
 
-            {/* Pagination */}
             {totalSchedules > PAGE_SIZE && (
-              <div className="p-4 border-t flex justify-between items-center">
+              <CardContent className="p-4 border-t flex justify-between items-center">
                 <div className="text-sm text-muted-foreground">
                   Hiển thị {(page - 1) * PAGE_SIZE + 1} -{' '}
                   {Math.min(page * PAGE_SIZE, totalSchedules)} trong {totalSchedules} kết quả
@@ -373,9 +349,9 @@ const SchedulesPage: React.FC = () => {
                     Sau
                   </Button>
                 </div>
-              </div>
+              </CardContent>
             )}
-          </div>
+          </Card>
         )}
 
         {/* Schedule Form Modal */}
@@ -402,33 +378,20 @@ const SchedulesPage: React.FC = () => {
           }
         />
 
-        {/* Delete Confirmation Dialog */}
-        <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Xác nhận xóa lịch học</DialogTitle>
-              <DialogDescription>
-                Bạn có chắc chắn muốn xóa lịch học "{scheduleToDelete?.className} -{' '}
-                {scheduleToDelete ? formatDate(scheduleToDelete.startDate) : ''}"? Hành động này
-                không thể hoàn tác.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                className="text-foreground"
-                onClick={() => setDeleteConfirmOpen(false)}
-                disabled={actionLoading}
-              >
-                Hủy
-              </Button>
-              <Button variant="destructive" onClick={handleDeleteConfirm} disabled={actionLoading}>
-                {actionLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Xóa
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <DeleteConfirmDialog
+          open={deleteConfirmOpen}
+          onOpenChange={setDeleteConfirmOpen}
+          title="Xác nhận xóa lịch học"
+          description={
+            <>
+              Bạn có chắc chắn muốn xóa lịch học &quot;{scheduleToDelete?.className} -{' '}
+              {scheduleToDelete ? formatDate(scheduleToDelete.startDate) : ''}&quot;? Hành động này
+              không thể hoàn tác.
+            </>
+          }
+          onConfirm={handleDeleteConfirm}
+          loading={actionLoading}
+        />
       </div>
     </>
   );

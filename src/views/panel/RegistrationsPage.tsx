@@ -8,7 +8,7 @@ import { Registration } from '../../types';
 import registrationsService from '../../services/firestore/registrationsService';
 import classesService from '../../services/firestore/classesService';
 import { useAuth } from '../../contexts/AuthContext';
-import { useToast } from '../../hooks/useToast';
+import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { convertFirestoreClass } from '../../utils/classHelpers';
@@ -35,7 +35,6 @@ const RegistrationsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(true);
   const { user } = useAuth();
-  const { error } = useToast();
   const [activeTab, setActiveTab] = useState<'class' | 'tutor'>('class');
 
   const classId = searchParams?.get('classId') ?? null;
@@ -66,7 +65,7 @@ const RegistrationsPage: React.FC = () => {
       }
 
       if (result.error) {
-        error('Lỗi', result.error);
+        toast.error('Lỗi', { description: result.error });
         return;
       }
 
@@ -98,7 +97,7 @@ const RegistrationsPage: React.FC = () => {
 
       setRegistrations(convertedRegistrations);
     } catch {
-      error('Lỗi', 'Không thể tải danh sách đăng ký');
+      toast.error('Lỗi', { description: 'Không thể tải danh sách đăng ký' });
     } finally {
       setLoading(false);
     }

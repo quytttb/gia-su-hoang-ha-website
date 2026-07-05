@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '../../ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import {
   Dialog,
@@ -9,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../ui/dialog';
-import { useToast } from '../../../hooks/useToast';
+import { toast } from 'sonner';
 
 interface BulkActionsProps {
   selectedIds: string[];
@@ -28,17 +29,15 @@ const BulkActions: React.FC<BulkActionsProps> = ({
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [loading, setLoading] = useState(false);
-  const { success, error } = useToast();
-
   const handleApproveMultiple = async () => {
     try {
       setLoading(true);
       await onApproveMultiple(selectedIds);
-      success('Thành công', `Đã duyệt ${selectedIds.length} đăng ký`);
+      toast.success('Thành công', { description: `Đã duyệt ${selectedIds.length} đăng ký` });
       setShowApproveDialog(false);
       onClearSelection();
     } catch {
-      error('Lỗi', 'Không thể duyệt đăng ký');
+      toast.error('Lỗi', { description: 'Không thể duyệt đăng ký' });
     } finally {
       setLoading(false);
     }
@@ -46,19 +45,19 @@ const BulkActions: React.FC<BulkActionsProps> = ({
 
   const handleRejectMultiple = async () => {
     if (!rejectionReason.trim()) {
-      error('Lỗi', 'Vui lòng nhập lý do từ chối');
+      toast.error('Lỗi', { description: 'Vui lòng nhập lý do từ chối' });
       return;
     }
 
     try {
       setLoading(true);
       await onRejectMultiple(selectedIds, rejectionReason);
-      success('Thành công', `Đã từ chối ${selectedIds.length} đăng ký`);
+      toast.success('Thành công', { description: `Đã từ chối ${selectedIds.length} đăng ký` });
       setShowRejectDialog(false);
       setRejectionReason('');
       onClearSelection();
     } catch {
-      error('Lỗi', 'Không thể từ chối đăng ký');
+      toast.error('Lỗi', { description: 'Không thể từ chối đăng ký' });
     } finally {
       setLoading(false);
     }
@@ -70,39 +69,41 @@ const BulkActions: React.FC<BulkActionsProps> = ({
 
   return (
     <>
-      <div className="bg-card border rounded-lg p-4 mb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-foreground">
-              Đã chọn {selectedIds.length} đăng ký
-            </span>
+      <Card className="mb-4">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-foreground">
+                Đã chọn {selectedIds.length} đăng ký
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowApproveDialog(true)}
+                className="text-green-600 border-green-600 hover:bg-green-50"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Duyệt tất cả
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowRejectDialog(true)}
+                className="text-red-600 border-red-600 hover:bg-red-50"
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                Từ chối tất cả
+              </Button>
+              <Button variant="outline" size="sm" onClick={onClearSelection}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Bỏ chọn
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowApproveDialog(true)}
-              className="text-green-600 border-green-600 hover:bg-green-50"
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Duyệt tất cả
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowRejectDialog(true)}
-              className="text-red-600 border-red-600 hover:bg-red-50"
-            >
-              <XCircle className="h-4 w-4 mr-2" />
-              Từ chối tất cả
-            </Button>
-            <Button variant="outline" size="sm" onClick={onClearSelection}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              Bỏ chọn
-            </Button>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Approve Multiple Dialog */}
       <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>

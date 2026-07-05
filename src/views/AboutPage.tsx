@@ -2,9 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
-import { CenterInfo, Tutor } from '../types';
-import tutorsService from '../services/firestore/tutorsService';
-import settingsService from '../services/firestore/settingsService';
+import { CenterInfo } from '../types';
 import Chatbot from '../components/shared/Chatbot';
 import ErrorDisplay from '../components/shared/ErrorDisplay';
 import SkeletonLoading from '../components/shared/SkeletonLoading';
@@ -16,6 +14,8 @@ import AboutServicesSection from '../components/about/AboutServicesSection';
 import AboutTeamSection from '../components/about/AboutTeamSection';
 import AboutGallerySection from '../components/about/AboutGallerySection';
 import AboutLetterSection from '../components/about/AboutLetterSection';
+import { useCenterInfo } from '@/hooks/useCenterInfo';
+import { useTutors } from '@/hooks/useTutors';
 
 const DEFAULT_CENTER_INFO: CenterInfo = {
   id: '1',
@@ -39,11 +39,18 @@ const DEFAULT_CENTER_INFO: CenterInfo = {
 };
 
 const AboutPage = () => {
-  const [centerInfo, setCenterInfo] = useState<CenterInfo | null>(null);
-  const [tutors, setTutors] = useState<Tutor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [previewImg, setPreviewImg] = useState<string | null>(null);
+  const {
+    data: centerInfoData,
+    isLoading: centerLoading,
+    error: centerError,
+    refetch: refetchCenterInfo,
+  } = useCenterInfo();
+  const { data: tutors = [], error: tutorsError } = useTutors(true);
+
+  const centerInfo = centerInfoData ?? (centerError ? DEFAULT_CENTER_INFO : null);
+  const loading = centerLoading;
+  const partialError = centerError?.message || tutorsError?.message || null;
 
   const scrollToSection = useCallback((sectionId: string) => {
     setTimeout(() => {
@@ -57,34 +64,9 @@ const AboutPage = () => {
   useEffect(() => {
     const hash = window.location.hash;
     if (hash && !loading) {
-      const sectionId = hash.replace('#', '');
-      scrollToSection(sectionId);
+      scrollToSection(hash.replace('#', ''));
     }
   }, [loading, scrollToSection]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const [centerInfoData, tutorsData] = await Promise.all([
-          settingsService.getCenterInfo(),
-          tutorsService.getActiveTutors(),
-        ]);
-        setCenterInfo(centerInfoData);
-        setTutors(tutorsData);
-      } catch (err: unknown) {
-        console.error('Error fetching about page data:', err);
-        setError(err instanceof Error ? err.message : 'Không thể tải dữ liệu trang giới thiệu');
-        setCenterInfo(DEFAULT_CENTER_INFO);
-        setTutors([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   if (loading) {
     return (
@@ -111,6 +93,7 @@ const AboutPage = () => {
         <ErrorDisplay
           message="Không thể tải thông tin trung tâm"
           details="Vui lòng thử lại sau hoặc liên hệ với chúng tôi qua số điện thoại: 0385.510.892"
+          onRetry={() => refetchCenterInfo()}
           retryLabel="Thử lại"
         />
       </Layout>
@@ -119,7 +102,7 @@ const AboutPage = () => {
 
   return (
     <Layout>
-      {error && (
+      {partialError && (
         <div className="container-custom my-4">
           <ErrorDisplay
             message="Thông báo"

@@ -1,13 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import Layout from '../components/layout/Layout';
 import SectionHeading from '../components/shared/SectionHeading';
-import { Class, Schedule } from '../types';
-import classesService from '../services/firestore/classesService';
-import schedulesService from '../services/firestore/schedulesService';
 import {
   calculateDiscountedPrice,
   formatCurrency,
@@ -15,44 +12,30 @@ import {
   hasValidDiscount,
 } from '../utils/helpers';
 import { generateClassStructuredData } from '../utils/seo';
-import { convertFirestoreClass } from '../utils/classHelpers';
 import Breadcrumb from '../components/shared/Breadcrumb';
 import Chatbot from '../components/shared/Chatbot';
 import { parseMarkdown } from '../utils/parseMarkdown';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useClass } from '@/hooks/useClasses';
+import { useClassSchedules } from '@/hooks/useSchedules';
 
 const CourseDetailPage = () => {
   const params = useParams<{ id: string }>();
   const id = typeof params?.id === 'string' ? params.id : '';
-  const [course, setCourse] = useState<Class | undefined>(undefined);
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: course, isLoading: classLoading } = useClass(id);
+  const { data: schedules = [], isLoading: schedulesLoading } = useClassSchedules(id);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!id) return;
+  const loading = classLoading || schedulesLoading;
 
-      try {
-        setLoading(true);
-
-        // Get course from Firestore
-        const courseResult = await classesService.getById(id);
-        const schedulesData = await schedulesService.getByClassId(id);
-
-        if (courseResult.data) {
-          setCourse(convertFirestoreClass(courseResult.data));
-        }
-        setSchedules(schedulesData);
-      } catch (error) {
-        console.error('Error fetching course details:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id]);
-
-  // Scroll to top when component mounts or id changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
@@ -75,9 +58,9 @@ const CourseDetailPage = () => {
           <p className="text-gray-600 mb-8">
             Lớp học bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
           </p>
-          <Link href="/classes" className="btn-primary">
-            Quay lại danh sách lớp học
-          </Link>
+          <Button asChild>
+            <Link href="/classes">Quay lại danh sách lớp học</Link>
+          </Button>
         </div>
       </Layout>
     );
@@ -90,16 +73,13 @@ const CourseDetailPage = () => {
 
   return (
     <Layout>
-      {course && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(generateClassStructuredData(course)),
-          }}
-        />
-      )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateClassStructuredData(course)),
+        }}
+      />
 
-      {/* Hero Section */}
       <section className="bg-gray-100 dark:bg-gray-900 py-16">
         <div className="container-custom">
           <Breadcrumb
@@ -118,53 +98,51 @@ const CourseDetailPage = () => {
                 {parseMarkdown(course.description)}
               </div>
 
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                <div className="mb-4 space-y-2">
-                  <p className="text-gray-700 dark:text-gray-200">
-                    <strong>Lịch học:</strong> thứ 2 đến 4
-                  </p>
-                  <p className="text-gray-700 dark:text-gray-200">
-                    <strong>Giờ học:</strong> 19:30 đến 21:30
-                  </p>
-                  <p className="text-gray-700 dark:text-gray-200">
-                    <strong>Số lượng:</strong> 12
-                  </p>
-                </div>
+              <Card className="shadow-md">
+                <CardContent className="p-6">
+                  <div className="mb-4 space-y-2">
+                    <p className="text-gray-700 dark:text-gray-200">
+                      <strong>Lịch học:</strong> thứ 2 đến 4
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-200">
+                      <strong>Giờ học:</strong> 19:30 đến 21:30
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-200">
+                      <strong>Số lượng:</strong> 12
+                    </p>
+                  </div>
 
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    {hasValidDiscountValue ? (
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400 line-through text-sm block">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      {hasValidDiscountValue ? (
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400 line-through text-sm block">
+                            {formatCurrency(course.price)}
+                          </span>
+                          <span className="text-primary font-bold text-2xl dark:text-gray-200">
+                            {formatCurrency(finalPrice)}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-primary font-bold text-2xl dark:text-gray-200">
                           {formatCurrency(course.price)}
                         </span>
-                        <span className="text-primary font-bold text-2xl dark:text-gray-200">
-                          {formatCurrency(finalPrice)}
-                        </span>
+                      )}
+                    </div>
+
+                    {hasValidDiscountValue && (
+                      <div className="bg-primary text-white px-3 py-1 rounded-lg dark:bg-gray-700">
+                        Giảm {course.discount}% đến{' '}
+                        {course.discountEndDate && formatDate(course.discountEndDate)}
                       </div>
-                    ) : (
-                      <span className="text-primary font-bold text-2xl dark:text-gray-200">
-                        {formatCurrency(course.price)}
-                      </span>
                     )}
                   </div>
 
-                  {hasValidDiscountValue && (
-                    <div className="bg-primary text-white px-3 py-1 rounded-lg dark:bg-gray-700">
-                      Giảm {course.discount}% đến{' '}
-                      {course.discountEndDate && formatDate(course.discountEndDate)}
-                    </div>
-                  )}
-                </div>
-
-                {/* Registration Button */}
-                <Link
-                  href={`/classes/${course.id}/register`}
-                  className="btn-primary w-full text-center inline-block"
-                >
-                  Đăng ký lớp học
-                </Link>
-              </div>
+                  <Button asChild className="w-full">
+                    <Link href={`/classes/${course.id}/register`}>Đăng ký lớp học</Link>
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
 
             <div className="rounded-lg overflow-hidden shadow-lg flex items-center justify-center bg-white dark:bg-gray-800">
@@ -178,7 +156,6 @@ const CourseDetailPage = () => {
         </div>
       </section>
 
-      {/* Schedule Section */}
       {schedules.length > 0 && (
         <section className="section-padding">
           <div className="container-custom">
@@ -187,43 +164,33 @@ const CourseDetailPage = () => {
               subtitle="Các buổi học được lên lịch cho lớp học này"
             />
 
-            <div className="overflow-x-auto">
-              <table className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-md">
-                <thead className="bg-gray-100 dark:bg-gray-900">
-                  <tr>
-                    <th className="py-3 px-4 text-left text-gray-800 dark:text-gray-200">
-                      Ngày học
-                    </th>
-                    <th className="py-3 px-4 text-left text-gray-800 dark:text-gray-200">
-                      Thời gian
-                    </th>
-                    <th className="py-3 px-4 text-left text-gray-800 dark:text-gray-200">
-                      Giáo viên
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {schedules.map(schedule => (
-                    <tr key={schedule.id} className="border-t border-gray-200 dark:border-gray-700">
-                      <td className="py-3 px-4 text-gray-700 dark:text-gray-200">
-                        {formatDate(schedule.startDate)}
-                      </td>
-                      <td className="py-3 px-4 text-gray-700 dark:text-gray-200">
-                        {schedule.startTime} - {schedule.endTime}
-                      </td>
-                      <td className="py-3 px-4 text-gray-700 dark:text-gray-200">
-                        {schedule.tutorName}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Card className="shadow-md">
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted hover:bg-muted">
+                      <TableHead>Ngày học</TableHead>
+                      <TableHead>Thời gian</TableHead>
+                      <TableHead>Giáo viên</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {schedules.map(schedule => (
+                      <TableRow key={schedule.id}>
+                        <TableCell>{formatDate(schedule.startDate)}</TableCell>
+                        <TableCell>
+                          {schedule.startTime} - {schedule.endTime}
+                        </TableCell>
+                        <TableCell>{schedule.tutorName}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           </div>
         </section>
       )}
-
-      {/* Related Courses - would be implemented in a real app */}
 
       <Chatbot />
     </Layout>

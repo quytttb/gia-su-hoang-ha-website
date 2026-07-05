@@ -129,9 +129,8 @@ const Header = () => {
                     </Link>
 
                     {/* Dropdown Menu */}
-                    <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 dropdown-menu">
-                      {/* Arrow pointer */}
-                      <div className="dropdown-arrow"></div>
+                    <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 translate-y-[-10px] group-hover:translate-y-0">
+                      <div className="absolute top-[-4px] left-5 w-2 h-2 bg-white dark:bg-gray-800 border-l border-t border-gray-200 dark:border-gray-700 rotate-45" />
                       <div className="py-2">
                         {item.dropdown?.map(dropdownItem => (
                           <Link
@@ -187,7 +186,7 @@ const Header = () => {
 
         {/* Mobile Navigation Menu */}
         {isOpen && (
-          <div className="md:hidden animate-fade-in" id="mobile-navigation">
+          <div className="md:hidden animate-in fade-in duration-300" id="mobile-navigation">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
               {navigation.map(item => (
                 <div key={item.name}>

@@ -2,6 +2,7 @@
 
 import { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
+import { motion } from 'framer-motion';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -23,12 +24,15 @@ const Layout = ({ children }: LayoutProps) => {
         Bỏ qua đến nội dung chính
       </a>
       <Header />
-      <main
+      <motion.main
         id="main-content"
-        className={`flex-grow page-transition relative z-10 pt-28 ${isHomePage ? 'pb-0' : 'pb-16'}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className={`flex-grow relative z-10 pt-28 ${isHomePage ? 'pb-0' : 'pb-16'}`}
       >
         {children}
-      </main>
+      </motion.main>
       <Footer isContactPage={isContactPage} />
     </div>
   );

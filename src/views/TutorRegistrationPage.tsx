@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Layout from '../components/layout/Layout';
 import Chatbot from '../components/shared/Chatbot';
@@ -10,7 +11,7 @@ import registrationsService from '../services/firestore/registrationsService';
 import confetti from 'canvas-confetti';
 import TutorRegistrationForm from '../components/tutor-registration/TutorRegistrationForm';
 import TutorInfoSidebar from '../components/tutor-registration/TutorInfoSidebar';
-import TutorRegistrationDialogs from '../components/tutor-registration/TutorRegistrationDialogs';
+import RegistrationConfirmDialogs from '../components/shared/RegistrationConfirmDialogs';
 import { TutorTypeInfo } from '../components/tutor-registration/tutorRegistrationTypes';
 import { TutorRegistrationFormValues } from '@/lib/validations/tutor-registration';
 
@@ -107,9 +108,9 @@ const TutorRegistrationPage = () => {
           <p className="text-gray-600 dark:text-gray-400 mb-8">
             Vui lòng chọn loại Gia sư từ trang tìm Gia sư.
           </p>
-          <Link href="/tutor-search" className="btn-primary">
-            Quay lại trang tìm Gia sư
-          </Link>
+          <Button asChild>
+            <Link href="/tutor-search">Quay lại trang tìm Gia sư</Link>
+          </Button>
         </div>
       </Layout>
     );
@@ -135,8 +136,9 @@ const TutorRegistrationPage = () => {
         </div>
       </div>
       <Chatbot />
-      <TutorRegistrationDialogs
-        tutorName={currentTutorInfo.name}
+      <RegistrationConfirmDialogs
+        variant="tutor"
+        entityName={currentTutorInfo.name}
         showConfirmDialog={showConfirmDialog}
         showSuccessDialog={showSuccessDialog}
         submitting={submitting}

@@ -11,6 +11,14 @@ import {
   DialogTitle,
 } from '../../ui/dialog';
 import { Edit, Trash2, Eye, EyeOff, GripVertical, ExternalLink } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface BannerListProps {
   banners: Banner[];
@@ -112,37 +120,37 @@ const BannerList: React.FC<BannerListProps> = ({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border bg-background">
-      <table className="min-w-full text-sm">
-        <thead>
-          <tr className="bg-muted">
-            <th className="p-3 text-left font-semibold text-foreground">Thứ tự</th>
-            <th className="p-3 text-left font-semibold text-foreground">Hình ảnh</th>
-            <th className="p-3 text-left font-semibold text-foreground">Tiêu đề</th>
-            <th className="p-3 text-left font-semibold text-foreground">Trạng thái</th>
-            <th className="p-3 text-left font-semibold text-foreground">Cập nhật</th>
-            <th className="p-3 text-left font-semibold text-foreground">Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="rounded-lg border bg-background">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted hover:bg-muted">
+            <TableHead className="font-semibold">Thứ tự</TableHead>
+            <TableHead className="font-semibold">Hình ảnh</TableHead>
+            <TableHead className="font-semibold">Tiêu đề</TableHead>
+            <TableHead className="font-semibold">Trạng thái</TableHead>
+            <TableHead className="font-semibold">Cập nhật</TableHead>
+            <TableHead className="font-semibold">Thao tác</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {banners
             .sort((a, b) => a.order - b.order)
             .map(banner => (
-              <tr
+              <TableRow
                 key={banner.id}
-                className="border-b last:border-0 hover:bg-accent/40 transition-colors"
+                className="hover:bg-accent/40"
                 draggable
                 onDragStart={e => handleDragStart(e, banner)}
                 onDragOver={handleDragOver}
                 onDrop={e => handleDrop(e, banner)}
               >
-                <td className="p-3 align-middle">
+                <TableCell>
                   <div className="flex items-center space-x-2">
                     <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
                     <span className="font-medium text-foreground">{banner.order}</span>
                   </div>
-                </td>
-                <td className="p-3 align-middle">
+                </TableCell>
+                <TableCell>
                   <img
                     src={banner.imageUrl}
                     alt={banner.title}
@@ -151,8 +159,8 @@ const BannerList: React.FC<BannerListProps> = ({
                       e.currentTarget.src = '/placeholder-image.jpg';
                     }}
                   />
-                </td>
-                <td className="p-3 align-middle">
+                </TableCell>
+                <TableCell>
                   <div>
                     <p className="font-semibold text-foreground text-base line-clamp-2">
                       {banner.title}
@@ -165,8 +173,8 @@ const BannerList: React.FC<BannerListProps> = ({
                       </div>
                     )}
                   </div>
-                </td>
-                <td className="p-3 align-middle">
+                </TableCell>
+                <TableCell>
                   <div className="flex items-center space-x-2">
                     <Switch
                       checked={banner.isActive}
@@ -182,11 +190,11 @@ const BannerList: React.FC<BannerListProps> = ({
                       </span>
                     )}
                   </div>
-                </td>
-                <td className="p-3 align-middle text-muted-foreground">
+                </TableCell>
+                <TableCell className="text-muted-foreground">
                   {banner.updatedAt ? formatDate(banner.updatedAt) : '-'}
-                </td>
-                <td className="p-3 align-middle space-x-2">
+                </TableCell>
+                <TableCell className="space-x-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -198,11 +206,11 @@ const BannerList: React.FC<BannerListProps> = ({
                   <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(banner)}>
                     <Trash2 className="h-4 w-4 mr-1" /> Xóa
                   </Button>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
       {/* Xác nhận xóa */}
       <Dialog
         open={deleteConfirm.isOpen}

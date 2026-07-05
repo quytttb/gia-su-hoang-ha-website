@@ -1,5 +1,7 @@
 import React from 'react';
 import { Users, CheckCircle, XCircle, Clock, TrendingUp } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import SkeletonLoading from '@/components/shared/SkeletonLoading';
 
 interface RegistrationStatsProps {
   stats: {
@@ -16,15 +18,7 @@ const RegistrationStats: React.FC<RegistrationStatsProps> = ({ stats, loading })
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-card rounded-lg border p-6">
-            <div className="animate-pulse">
-              <div className="w-8 h-8 bg-muted rounded mb-2"></div>
-              <div className="h-6 bg-muted rounded w-3/4 mb-2"></div>
-              <div className="h-4 bg-muted rounded w-1/2"></div>
-            </div>
-          </div>
-        ))}
+        <SkeletonLoading type="stats-grid" />
       </div>
     );
   }
@@ -72,17 +66,21 @@ const RegistrationStats: React.FC<RegistrationStatsProps> = ({ stats, loading })
       {cards.map((card, index) => {
         const Icon = card.icon;
         return (
-          <div key={index} className="bg-card rounded-lg border p-6">
-            <div className="flex items-center">
-              <div className={`p-2 rounded-lg ${card.bgColor}`}>
-                <Icon className={`h-6 w-6 ${card.color}`} />
+          <Card key={index}>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className={`p-2 rounded-lg ${card.bgColor}`}>
+                  <Icon className={`h-6 w-6 ${card.color}`} />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-muted-foreground">{card.title}</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {card.value.toLocaleString()}
+                  </p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-muted-foreground">{card.title}</p>
-                <p className="text-2xl font-bold text-foreground">{card.value.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         );
       })}
     </div>

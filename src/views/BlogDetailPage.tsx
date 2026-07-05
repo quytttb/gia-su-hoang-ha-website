@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import Layout from '../components/layout/Layout';
@@ -23,11 +23,11 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { blogCategories } from '../constants/blogData';
 import { BlogService } from '../services/blogService';
 import ErrorDisplay from '../components/shared/ErrorDisplay';
 import Breadcrumb from '../components/shared/Breadcrumb';
 import { generateBlogStructuredData } from '../utils/seo';
+import { useBlogPost, useRelatedBlogPosts } from '@/hooks/useBlogPosts';
 
 // Minimal X (Twitter) icon
 const XIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
@@ -45,83 +45,24 @@ const BlogDetailPage: React.FC = () => {
   const params = useParams<{ slug: string }>();
   const slug = typeof params?.slug === 'string' ? params.slug : '';
   const router = useRouter();
-  const [post, setPost] = useState<any | null>(null);
-  const [latestPosts, setLatestPosts] = useState<any[]>([]);
-  const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: post, isLoading: loading } = useBlogPost(slug);
+  const postAny = post as (typeof post & { categoryId?: string }) | null;
+  const { data: relatedData } = useRelatedBlogPosts(
+    post?.id ?? '',
+    postAny?.categoryId || postAny?.category?.id,
+    postAny?.tags
+  );
+  const latestPosts = relatedData?.latestPosts ?? [];
+  const relatedPosts = relatedData?.relatedPosts ?? [];
 
   useEffect(() => {
-    let active = true;
-    const run = async () => {
-      if (!slug) return;
-      const normalizedSlug = decodeURIComponent(slug).trim();
-      setLoading(true);
-      try {
-        let p: any | null = null;
-        try {
-          p = await BlogService.getPostBySlug(normalizedSlug);
-        } catch {
-          p = null;
-        }
-        // Fallback: if no post found by slug, try interpret param as document ID
-        if (!p) {
-          try {
-            // Try as published id first
-            p = await BlogService.getPostById(normalizedSlug, false);
-          } catch {
-            p = null;
-          }
-          if (!p) {
-            try {
-              // Finally try including drafts (may be denied by rules for public users)
-              p = await BlogService.getPostById(normalizedSlug, true);
-            } catch {
-              p = null;
-            }
-          }
-        }
-        if (!active) return;
-        if (p) {
-          // map category object if available
-          const pAny: any = p;
-          const catId = pAny.categoryId || pAny.category?.id;
-          const category = pAny.category || blogCategories.find(c => c.id === catId);
-          setPost({ ...pAny, category });
-          // latest posts
-          const latestRes = await BlogService.listPosts({ pageSize: 8 });
-          const others = latestRes.posts.filter(x => x.id !== p.id);
-          setLatestPosts(others.slice(0, 4));
-          // related simple: same category or overlapping tags
-          const related = others
-            .filter(r => {
-              const rAny: any = r;
-              const rCat = rAny.categoryId || rAny.category?.id;
-              const pCat = pAny.categoryId || pAny.category?.id;
-              return (
-                (rCat && pCat && rCat === pCat) ||
-                (rAny.tags && pAny.tags && rAny.tags.some((t: string) => pAny.tags.includes(t)))
-              );
-            })
-            .slice(0, 3);
-          setRelatedPosts(related);
-          // Increment view count (session guard)
-          const viewedKey = `viewedPost:${p.id}`;
-          if (!sessionStorage.getItem(viewedKey)) {
-            sessionStorage.setItem(viewedKey, '1');
-            BlogService.incrementViewCount(p.id).catch(() => {});
-          }
-        } else {
-          setPost(null);
-        }
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-    run();
-    return () => {
-      active = false;
-    };
-  }, [slug]);
+    if (!post?.id) return;
+    const viewedKey = `viewedPost:${post.id}`;
+    if (!sessionStorage.getItem(viewedKey)) {
+      sessionStorage.setItem(viewedKey, '1');
+      BlogService.incrementViewCount(post.id).catch(() => {});
+    }
+  }, [post?.id]);
 
   // Scroll to top when component mounts or ID changes
   useEffect(() => {
@@ -155,6 +96,12 @@ const BlogDetailPage: React.FC = () => {
     );
   }
 
+  if (!post) {
+    return null;
+  }
+
+  const article = post;
+
   const formatDate = (dateValue: any) => {
     let d: Date;
     if (!dateValue) d = new Date();
@@ -166,7 +113,7 @@ const BlogDetailPage: React.FC = () => {
 
   const handleShare = (platform: string) => {
     const url = window.location.href;
-    const title = post.title;
+    const title = article.title;
 
     let shareUrl = '';
     switch (platform) {
@@ -175,7 +122,7 @@ const BlogDetailPage: React.FC = () => {
         break;
       case 'x':
         // X (formerly Twitter)
-        shareUrl = `https://x.com/intent/post?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+        shareUrl = `https://x.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
         break;
       case 'linkedin':
         shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
@@ -192,19 +139,19 @@ const BlogDetailPage: React.FC = () => {
 
   return (
     <Layout>
-      {post && (
+      {article && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(
               generateBlogStructuredData({
-                title: post.title,
-                excerpt: post.excerpt,
-                slug: post.slug || slug,
-                imageUrl: post.coverImage?.url || post.imageUrl,
-                author: post.author,
-                publishedAt: post.publishedAt,
-                updatedAt: post.updatedAt,
+                title: article.title,
+                excerpt: article.excerpt,
+                slug: article.slug || slug,
+                imageUrl: article.coverImage?.url || article.imageUrl,
+                author: article.author,
+                publishedAt: article.publishedAt,
+                updatedAt: article.updatedAt,
               })
             ),
           }}
@@ -216,15 +163,15 @@ const BlogDetailPage: React.FC = () => {
             items={[
               { label: 'Trang chủ', href: '/' },
               { label: 'Blog', href: '/blog' },
-              { label: post?.title || 'Bài viết' },
+              { label: article?.title || 'Bài viết' },
             ]}
           />
         </div>
         {/* Hero Image */}
         <div className="relative h-[60vh] overflow-hidden">
           <img
-            src={post?.coverImage?.url || post?.imageUrl || '/images/placeholder-logo.svg'}
-            alt={post?.title || 'Bài viết'}
+            src={article?.coverImage?.url || article?.imageUrl || '/images/placeholder-logo.svg'}
+            alt={article?.title || 'Bài viết'}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -250,38 +197,38 @@ const BlogDetailPage: React.FC = () => {
               <div className="max-w-4xl">
                 <Badge
                   className="mb-4 font-medium"
-                  style={{ backgroundColor: post?.category?.color, color: 'white' }}
+                  style={{ backgroundColor: article?.category?.color, color: 'white' }}
                 >
-                  {post?.category?.name || 'Chủ đề'}
+                  {article?.category?.name || 'Chủ đề'}
                 </Badge>
 
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight text-white drop-shadow-md dark:text-white">
-                  {post?.title || ''}
+                  {article?.title || ''}
                 </h1>
 
-                {post?.subtitle && (
+                {article?.subtitle && (
                   <p className="text-lg md:text-xl text-gray-200 mb-6 leading-relaxed">
-                    {post.subtitle}
+                    {article.subtitle}
                   </p>
                 )}
 
                 <div className="flex flex-wrap items-center gap-6 text-sm text-gray-300">
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4" />
-                    <span>{post?.author || post?.authorName || 'Ẩn danh'}</span>
+                    <span>{article?.author || article?.authorName || 'Ẩn danh'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    <span>{post?.publishedAt ? formatDate(post.publishedAt) : ''}</span>
+                    <span>{article?.publishedAt ? formatDate(article.publishedAt) : ''}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4" />
-                    <span>{post?.readTime || 0} phút đọc</span>
+                    <span>{article?.readTime || 0} phút đọc</span>
                   </div>
-                  {post?.viewCount != null && (
+                  {article?.viewCount != null && (
                     <div className="flex items-center gap-2">
                       <Eye className="w-4 h-4" />
-                      <span>{post?.viewCount?.toLocaleString()} lượt xem</span>
+                      <span>{article?.viewCount?.toLocaleString()} lượt xem</span>
                     </div>
                   )}
                 </div>
@@ -304,14 +251,16 @@ const BlogDetailPage: React.FC = () => {
                       prose-p:leading-relaxed
                       prose-strong:text-gray-900 dark:prose-strong:text-gray-100
                       prose-a:text-primary hover:prose-a:text-primary-600"
-                    dangerouslySetInnerHTML={{ __html: post?.contentHtml || post?.content || '' }}
+                    dangerouslySetInnerHTML={{
+                      __html: article?.contentHtml || article?.content || '',
+                    }}
                   />
 
                   {/* Tags */}
                   <div className="mt-8 pt-6 border-t">
                     <h4 className="text-sm font-medium text-muted-foreground mb-3">Tags:</h4>
                     <div className="flex flex-wrap gap-2">
-                      {(post.tags || []).map((tag: string) => (
+                      {(article.tags || []).map((tag: string) => (
                         <Link key={tag} href={`/blog?search=${encodeURIComponent(tag)}`}>
                           <Badge
                             variant="secondary"
@@ -400,8 +349,8 @@ const BlogDetailPage: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     {(() => {
-                      const displayAuthor = (post?.author ||
-                        post?.authorName ||
+                      const displayAuthor = (article?.author ||
+                        article?.authorName ||
                         'Ẩn danh') as string;
                       return (
                         <div className="flex items-center gap-3">

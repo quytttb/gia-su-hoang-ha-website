@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import classesService from '../../services/firestore/classesService';
 import { Class } from '../../types';
 import { FirestoreClass } from '../../types/firestore';
@@ -7,27 +8,24 @@ import { extractClassCategories, convertFirestoreClass } from '../../utils/class
 import ClassTable from '../../components/panel/classes/ClassTable';
 import ClassForm from '../../components/panel/classes/ClassForm';
 import { Button } from '../../components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '../../components/ui/dialog';
-import { Loader2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { PartialWithFieldValue } from 'firebase/firestore';
-import SkeletonLoading from '../../components/shared/SkeletonLoading';
+import PanelPageHeader from '@/components/panel/shared/PanelPageHeader';
+import PanelTableSkeleton from '@/components/panel/shared/PanelTableSkeleton';
+import DeleteConfirmDialog from '@/components/panel/shared/DeleteConfirmDialog';
+import { useAdminClasses } from '@/hooks/useClasses';
+import { queryKeys } from '@/lib/queryKeys';
 
 const PAGE_SIZE = 10;
 
 const ClassesPage: React.FC = () => {
   const router = useRouter();
-  const [classes, setClasses] = useState<Class[]>([]);
+  const queryClient = useQueryClient();
+  const { data: rawClasses, isLoading: loading, refetch } = useAdminClasses();
+  const classes = useMemo(() => (rawClasses ?? []).map(convertFirestoreClass), [rawClasses]);
   const [filteredClasses, setFilteredClasses] = useState<Class[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [totalClasses, setTotalClasses] = useState(0);
-  const [loading, setLoading] = useState(true);
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -44,40 +42,31 @@ const ClassesPage: React.FC = () => {
   const [classToDelete, setClassToDelete] = useState<Class | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Load classes from Firebase
-  const loadClasses = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await classesService.getAll();
-      const data = res.data.map(convertFirestoreClass);
-
-      setClasses(data);
-      setTotalClasses(data.length);
-
-      // Extract unique categories
-      const cats = extractClassCategories();
-      setCategories(cats);
-
-      // Apply initial filtering
-      applyFilters(data, searchKeyword, filterCategory, filterStatus);
-    } catch (err) {
-      console.error('Error loading classes:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchKeyword, filterCategory, filterStatus]);
-
-  // Load classes on mount
+  // Apply filters when classes or filter state changes
   useEffect(() => {
-    loadClasses();
-  }, [loadClasses]);
+    if (classes.length === 0) {
+      setFilteredClasses([]);
+      setTotalClasses(0);
+      return;
+    }
+    const cats = extractClassCategories();
+    setCategories(cats);
+    applyFilters(classes, searchKeyword, filterCategory, filterStatus);
+  }, [classes, searchKeyword, filterCategory, filterStatus]);
 
   // Global refresh listener
   useEffect(() => {
-    const handler = () => loadClasses();
+    const handler = () => {
+      void refetch();
+    };
     window.addEventListener('panel-global-refresh', handler as EventListener);
     return () => window.removeEventListener('panel-global-refresh', handler as EventListener);
-  }, [loadClasses]);
+  }, [refetch]);
+
+  const invalidateClasses = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.classes.all });
+    void refetch();
+  };
 
   // Apply filters
   const applyFilters = (classList: Class[], search: string, category: string, status: string) => {
@@ -164,13 +153,9 @@ const ClassesPage: React.FC = () => {
         return;
       }
 
-      // Update local state
-      setClasses(prev => prev.filter(c => c.id !== classToDelete.id));
-      setFilteredClasses(prev => prev.filter(c => c.id !== classToDelete.id));
-      setTotalClasses(prev => prev - 1);
-
       setDeleteConfirmOpen(false);
       setClassToDelete(null);
+      invalidateClasses();
     } catch (err) {
       console.error('Error deleting class:', err);
       alert('Không thể xóa lớp học. Vui lòng thử lại.');
@@ -197,11 +182,7 @@ const ClassesPage: React.FC = () => {
         }
 
         if (result.data) {
-          const convertedClass = convertFirestoreClass(result.data);
-          setClasses(prev => prev.map(c => (c.id === convertedClass.id ? convertedClass : c)));
-          setFilteredClasses(prev =>
-            prev.map(c => (c.id === convertedClass.id ? convertedClass : c))
-          );
+          invalidateClasses();
         }
       } else {
         // Create new class
@@ -215,10 +196,7 @@ const ClassesPage: React.FC = () => {
         }
 
         if (result.data) {
-          const convertedClass = convertFirestoreClass(result.data);
-          setClasses(prev => [...prev, convertedClass]);
-          // Re-apply filters
-          applyFilters([...classes, convertedClass], searchKeyword, filterCategory, filterStatus);
+          invalidateClasses();
         }
       }
 
@@ -239,29 +217,24 @@ const ClassesPage: React.FC = () => {
     <>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-card rounded-lg p-6 border flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Quản lý Lớp học</h2>
-            <p className="text-muted-foreground">
-              Thêm, chỉnh sửa và quản lý các lớp học của trung tâm.
-            </p>
-          </div>
-          <Button
-            onClick={() => {
-              setEditingClass(undefined);
-              setIsFormOpen(true);
-            }}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Thêm lớp học
-          </Button>
-        </div>
+        <PanelPageHeader
+          title="Quản lý Lớp học"
+          description="Thêm, chỉnh sửa và quản lý các lớp học của trung tâm."
+          action={
+            <Button
+              onClick={() => {
+                setEditingClass(undefined);
+                setIsFormOpen(true);
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Thêm lớp học
+            </Button>
+          }
+        />
 
-        {/* Class Table */}
         {loading ? (
-          <div className="bg-card rounded-lg p-6 border">
-            <SkeletonLoading type="table-row" count={10} />
-          </div>
+          <PanelTableSkeleton />
         ) : (
           <ClassTable
             classes={paginatedClasses}
@@ -290,32 +263,19 @@ const ClassesPage: React.FC = () => {
           categories={categories}
         />
 
-        {/* Delete Confirmation Dialog */}
-        <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Xác nhận xóa lớp học</DialogTitle>
-              <DialogDescription>
-                Bạn có chắc chắn muốn xóa lớp học "{classToDelete?.name}"? Hành động này không thể
-                hoàn tác.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                className="text-foreground"
-                onClick={() => setDeleteConfirmOpen(false)}
-                disabled={actionLoading}
-              >
-                Hủy
-              </Button>
-              <Button variant="destructive" onClick={handleDeleteConfirm} disabled={actionLoading}>
-                {actionLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Xóa
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <DeleteConfirmDialog
+          open={deleteConfirmOpen}
+          onOpenChange={setDeleteConfirmOpen}
+          title="Xác nhận xóa lớp học"
+          description={
+            <>
+              Bạn có chắc chắn muốn xóa lớp học &quot;{classToDelete?.name}&quot;? Hành động này
+              không thể hoàn tác.
+            </>
+          }
+          onConfirm={handleDeleteConfirm}
+          loading={actionLoading}
+        />
       </div>
     </>
   );

@@ -1,4 +1,5 @@
 import { Loader2 } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface LoadingProps {
   message?: string;
@@ -8,22 +9,22 @@ interface LoadingProps {
 
 const Loading = ({ message = 'Đang tải...', fullPage = true, description }: LoadingProps) => {
   const content = (
-    <div className="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-xl shadow-lg px-8 py-12 border border-gray-200 dark:border-gray-700 animate-fade-in max-w-md mx-auto">
-      <div className="flex justify-center mb-8">
-        <Loader2 className="h-24 w-24 text-primary animate-spin" />
-      </div>
+    <Card className="max-w-md mx-auto shadow-lg animate-in fade-in duration-500">
+      <CardContent className="flex flex-col items-center justify-center p-12">
+        <div className="flex justify-center mb-8">
+          <Loader2 className="h-24 w-24 text-primary animate-spin" />
+        </div>
 
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 text-center">
-        {message}
-      </h2>
+        <h2 className="text-2xl font-bold text-foreground mb-4 text-center">{message}</h2>
 
-      {description && <p className="text-gray-600 dark:text-gray-300 text-center">{description}</p>}
-    </div>
+        {description && <p className="text-muted-foreground text-center">{description}</p>}
+      </CardContent>
+    </Card>
   );
 
   if (fullPage) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      <div className="min-h-screen flex items-center justify-center bg-muted/30 transition-colors duration-200">
         {content}
       </div>
     );

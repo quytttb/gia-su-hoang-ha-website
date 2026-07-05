@@ -139,19 +139,20 @@ export class CloudinaryService {
   // Delete image from Cloudinary
   static async deleteImage(publicId: string): Promise<void> {
     try {
-      if (!CLOUDINARY_CONFIG.cloudName || !CLOUDINARY_CONFIG.apiKey) {
-        throw new Error('Cloudinary is not configured for deletion');
+      const response = await fetch('/api/cloudinary/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ publicId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Delete failed');
       }
-
-      // Note: Image deletion requires server-side API call with API secret
-      // For security, this should be implemented in your backend
-      console.warn('Image deletion should be handled by backend API');
-
-      // For now, we'll just log the public_id
-      console.log('Image to delete:', publicId);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Delete failed';
       console.error('Error deleting image:', error);
-      throw new Error(`Delete failed: ${error.message}`);
+      throw new Error(`Delete failed: ${message}`);
     }
   }
 

@@ -1,5 +1,15 @@
 import { Schedule } from '../../types';
 import { formatDate } from '../../utils/helpers';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface ScheduleTableViewProps {
   availableDates: string[];
@@ -22,67 +32,58 @@ const ScheduleTableView = ({
     <div className="mb-8">
       <div className="flex flex-wrap gap-2 mb-6">
         {availableDates.map(date => (
-          <button
+          <Button
             key={date}
             type="button"
+            variant={selectedDate === date ? 'default' : 'secondary'}
             onClick={() => onDateChange(date)}
-            className={`px-4 py-2 rounded-md transition-colors ${
-              selectedDate === date
-                ? 'bg-primary text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
-            }`}
           >
             {formatDate(date)}
-          </button>
+          </Button>
         ))}
       </div>
     </div>
 
     {schedules.length > 0 ? (
-      <div className="overflow-x-auto">
-        <table className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-md">
-          <thead className="bg-gray-100 dark:bg-gray-700">
-            <tr>
-              <th className="py-3 px-4 text-left text-gray-800 dark:text-gray-200">Lớp học</th>
-              <th className="py-3 px-4 text-left text-gray-800 dark:text-gray-200">Thời gian</th>
-              <th className="py-3 px-4 text-left text-gray-800 dark:text-gray-200">Giáo viên</th>
-            </tr>
-          </thead>
-          <tbody>
-            {schedules.map(schedule => (
-              <tr
-                key={schedule.id}
-                className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-              >
-                <td className="py-3 px-4 font-medium text-gray-800 dark:text-gray-200">
-                  {schedule.className}
-                </td>
-                <td className="py-3 px-4 text-gray-800 dark:text-gray-200">
-                  {schedule.startTime} - {schedule.endTime}
-                </td>
-                <td className="py-3 px-4 text-gray-800 dark:text-gray-200">{schedule.tutorName}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Card className="overflow-x-auto shadow-md">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted hover:bg-muted">
+                <TableHead>Lớp học</TableHead>
+                <TableHead>Thời gian</TableHead>
+                <TableHead>Giáo viên</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {schedules.map(schedule => (
+                <TableRow key={schedule.id}>
+                  <TableCell className="font-medium">{schedule.className}</TableCell>
+                  <TableCell>
+                    {schedule.startTime} - {schedule.endTime}
+                  </TableCell>
+                  <TableCell>{schedule.tutorName}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     ) : (
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md text-center">
-        <p className="text-gray-500 dark:text-gray-400">
-          {hasActiveFilters
-            ? 'Không tìm thấy lịch học phù hợp với bộ lọc.'
-            : 'Không có lịch học nào vào ngày đã chọn.'}
-        </p>
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={onClearFilters}
-            className="mt-4 text-primary hover:text-primary/80 dark:text-primary-400 dark:hover:text-primary-300"
-          >
-            Xóa bộ lọc
-          </button>
-        )}
-      </div>
+      <Card className="shadow-md">
+        <CardContent className="p-8 text-center">
+          <p className="text-gray-500 dark:text-gray-400">
+            {hasActiveFilters
+              ? 'Không tìm thấy lịch học phù hợp với bộ lọc.'
+              : 'Không có lịch học nào vào ngày đã chọn.'}
+          </p>
+          {hasActiveFilters && (
+            <Button type="button" variant="link" onClick={onClearFilters} className="mt-4">
+              Xóa bộ lọc
+            </Button>
+          )}
+        </CardContent>
+      </Card>
     )}
   </>
 );

@@ -13,20 +13,35 @@ import { Separator } from '@/components/ui/separator';
 import { Calendar, TrendingUp, BookOpen, Filter } from 'lucide-react';
 import { blogCategories } from '../constants/blogData';
 import SkeletonLoading from '../components/shared/SkeletonLoading';
-import { BlogService } from '../services/blogService';
+import { useInfiniteBlogPosts } from '@/hooks/useBlogPosts';
+
+const getPublishedTime = (publishedAt: unknown) => {
+  if (typeof publishedAt === 'object' && publishedAt && 'seconds' in publishedAt) {
+    return (publishedAt as { seconds: number }).seconds * 1000;
+  }
+  return Date.parse(String(publishedAt || '0'));
+};
 
 const BlogPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'latest' | 'popular' | 'readTime'>('latest');
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [posts, setPosts] = useState<any[]>([]);
-  const [latestPosts, setLatestPosts] = useState<any[]>([]);
-  const [featuredPosts, setFeaturedPosts] = useState<any[]>([]);
-  const [cursor, setCursor] = useState<any | null>(null);
-  const [hasMore, setHasMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const { data, isLoading, isFetchingNextPage, error, fetchNextPage, hasNextPage, refetch } =
+    useInfiniteBlogPosts({ pageSize: 12 });
+
+  const posts = useMemo(() => data?.pages.flatMap(page => page.posts) ?? [], [data]);
+
+  const featuredPosts = useMemo(() => posts.filter(p => p.featured).slice(0, 4), [posts]);
+
+  const latestPosts = useMemo(
+    () =>
+      posts
+        .filter(p => p.status === 'published')
+        .sort((a, b) => getPublishedTime(b.publishedAt) - getPublishedTime(a.publishedAt))
+        .slice(0, 3),
+    [posts]
+  );
 
   const scrollToSection = useCallback((sectionId: string) => {
     setTimeout(() => {
@@ -36,65 +51,14 @@ const BlogPage = () => {
 
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash && !loading) {
+    if (hash && !isLoading) {
       scrollToSection(hash.replace('#', ''));
     }
-  }, [loading, scrollToSection]);
-
-  const loadInitial = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await BlogService.listPosts({ pageSize: 12 });
-      setPosts(res.posts);
-      setCursor(res.cursor);
-      setHasMore(!!res.cursor);
-      setFeaturedPosts(res.posts.filter(p => p.featured).slice(0, 4));
-      setLatestPosts(
-        res.posts
-          .filter(p => p.status === 'published')
-          .sort((a, b) => {
-            const bp = a.publishedAt;
-            const ap = b.publishedAt;
-            const bTime =
-              typeof bp === 'object' && bp && 'seconds' in bp
-                ? (bp as { seconds: number }).seconds * 1000
-                : Date.parse(String(bp || '0'));
-            const aTime =
-              typeof ap === 'object' && ap && 'seconds' in ap
-                ? (ap as { seconds: number }).seconds * 1000
-                : Date.parse(String(ap || '0'));
-            return bTime - aTime;
-          })
-          .slice(0, 3)
-      );
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Không thể tải bài viết.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const loadMore = useCallback(async () => {
-    if (!cursor) return;
-    setLoadingMore(true);
-    setError(null);
-    try {
-      const res = await BlogService.listPosts({ pageSize: 12, cursor });
-      setPosts(prev => [...prev, ...res.posts]);
-      setCursor(res.cursor);
-      setHasMore(!!res.cursor);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Không thể tải thêm bài viết.');
-    } finally {
-      setLoadingMore(false);
-    }
-  }, [cursor]);
+  }, [isLoading, scrollToSection]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    loadInitial();
-  }, [loadInitial]);
+  }, []);
 
   const filteredAndSortedPosts = useMemo(() => {
     const filtered = posts.filter(post => {
@@ -108,8 +72,8 @@ const BlogPage = () => {
         );
       const matchesCategory =
         selectedCategory === 'all' ||
-        post.categoryId === selectedCategory ||
-        post.category?.id === selectedCategory;
+        post.category?.id === selectedCategory ||
+        (post as { categoryId?: string }).categoryId === selectedCategory;
       return matchesSearch && matchesCategory;
     });
 
@@ -119,15 +83,8 @@ const BlogPage = () => {
           return (b.viewCount || 0) - (a.viewCount || 0);
         case 'readTime':
           return a.readTime - b.readTime;
-        default: {
-          const bTime = b.publishedAt?.seconds
-            ? b.publishedAt.seconds * 1000
-            : Date.parse(b.publishedAt || '0');
-          const aTime = a.publishedAt?.seconds
-            ? a.publishedAt.seconds * 1000
-            : Date.parse(a.publishedAt || '0');
-          return bTime - aTime;
-        }
+        default:
+          return getPublishedTime(b.publishedAt) - getPublishedTime(a.publishedAt);
       }
     });
   }, [searchTerm, selectedCategory, sortBy, posts]);
@@ -162,9 +119,9 @@ const BlogPage = () => {
         </PageHero>
 
         <div className="container-custom py-12">
-          <BlogFeaturedSection loading={loading} featuredPosts={featuredPosts} />
+          <BlogFeaturedSection loading={isLoading} featuredPosts={featuredPosts} />
 
-          {loading ? (
+          {isLoading ? (
             <section className="mb-12">
               <SkeletonLoading type="button" count={6} />
             </section>
@@ -178,18 +135,18 @@ const BlogPage = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <BlogPostGrid
-              loading={loading}
-              loadingMore={loadingMore}
-              error={error}
+              loading={isLoading}
+              loadingMore={isFetchingNextPage}
+              error={error?.message ?? null}
               posts={filteredAndSortedPosts}
               searchTerm={searchTerm}
               selectedCategory={selectedCategory}
               sortBy={sortBy}
-              hasMore={hasMore}
+              hasMore={!!hasNextPage}
               onSearchChange={setSearchTerm}
               onSortChange={setSortBy}
-              onLoadMore={loadMore}
-              onRetry={loadInitial}
+              onLoadMore={() => fetchNextPage()}
+              onRetry={() => refetch()}
             />
 
             <div id="sidebar" className="lg:col-span-1">
@@ -223,7 +180,8 @@ const BlogPage = () => {
                       {blogCategories.map(category => {
                         const postsCount = posts.filter(
                           p =>
-                            (p.categoryId === category.id || p.category?.id === category.id) &&
+                            (p.category?.id === category.id ||
+                              (p as { categoryId?: string }).categoryId === category.id) &&
                             p.status === 'published'
                         ).length;
                         return (

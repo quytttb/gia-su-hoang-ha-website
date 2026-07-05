@@ -1,49 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import AnalyticsDashboard from '../../components/panel/AnalyticsDashboard';
 import ClassesStats from '../../components/panel/ClassesStats';
 import SkeletonLoading from '../../components/shared/SkeletonLoading';
+import PanelPageHeader from '@/components/panel/shared/PanelPageHeader';
+import { Card, CardContent } from '@/components/ui/card';
 
-const AnalyticsPage: React.FC = () => {
+const AnalyticsPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading for analytics data
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-
+    const timer = setTimeout(() => setLoading(false), 1000);
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <>
-      <div className="space-y-6">
-        {/* Page Header */}
-        <div className="bg-card rounded-lg p-6 border">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Analytics</h2>
-          <p className="text-muted-foreground">
-            Xem báo cáo chi tiết và phân tích dữ liệu hoạt động của trung tâm.
-          </p>
-        </div>
+    <div className="space-y-6">
+      <PanelPageHeader
+        title="Analytics"
+        description="Xem báo cáo chi tiết và phân tích dữ liệu hoạt động của trung tâm."
+      />
 
-        {/* Analytics Components */}
-        {loading ? (
-          <div className="space-y-6">
-            <div className="bg-card rounded-lg p-6 border">
+      {loading ? (
+        <div className="space-y-6">
+          <Card>
+            <CardContent className="p-6">
               <SkeletonLoading type="text" count={3} />
-            </div>
-            <div className="bg-card rounded-lg p-6 border">
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
               <SkeletonLoading type="text" count={5} />
-            </div>
-          </div>
-        ) : (
-          <>
-            <ClassesStats />
-            <AnalyticsDashboard />
-          </>
-        )}
-      </div>
-    </>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <>
+          <ClassesStats />
+          <AnalyticsDashboard />
+        </>
+      )}
+    </div>
   );
 };
 

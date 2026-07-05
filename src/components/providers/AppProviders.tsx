@@ -1,12 +1,14 @@
 'use client';
 
 import { Suspense } from 'react';
+import { Toaster } from 'sonner';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import AnalyticsTracker from '@/components/shared/AnalyticsTracker';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { ToastProvider } from '@/contexts/ToastContext';
-import { NotificationProvider } from '@/contexts/NotificationContext';
+import { QueryProvider } from '@/components/providers/QueryProvider';
+import ThemeInitializer from '@/components/providers/ThemeInitializer';
+import NotificationInitializer from '@/components/providers/NotificationInitializer';
 import '@/utils/firebaseCheck';
 import '@/config/analyticsConfig';
 
@@ -16,18 +18,19 @@ interface AppProvidersProps {
 
 const AppProviders = ({ children }: AppProvidersProps) => (
   <ErrorBoundary>
-    <ThemeProvider>
-      <AuthProvider>
-        <NotificationProvider>
-          <ToastProvider>
-            <Suspense fallback={null}>
-              <AnalyticsTracker />
-            </Suspense>
-            {children}
-          </ToastProvider>
-        </NotificationProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <QueryProvider>
+      <NuqsAdapter>
+        <ThemeInitializer />
+        <NotificationInitializer />
+        <AuthProvider>
+          <Suspense fallback={null}>
+            <AnalyticsTracker />
+          </Suspense>
+          {children}
+          <Toaster richColors position="top-right" />
+        </AuthProvider>
+      </NuqsAdapter>
+    </QueryProvider>
   </ErrorBoundary>
 );
 

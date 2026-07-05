@@ -5,6 +5,8 @@ import LazyImage from './LazyImage';
 import { trackClassView, trackUserEngagement } from '../../utils/analytics';
 import { trackClassViewEcommerce, trackAddToCart } from '../../utils/ecommerce';
 import { parseMarkdown } from '../../utils/parseMarkdown';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface ClassCardProps {
   class: Class;
@@ -18,7 +20,7 @@ const ClassCard = ({ class: classData }: ClassCardProps) => {
   const finalPrice = hasValidDiscountValue ? calculateDiscountedPrice(price, discount) : price;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-lg overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-lg dark:hover:shadow-xl border border-gray-200 dark:border-gray-700 max-w-[400px] w-full mx-auto">
+    <Card className="overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-lg max-w-[400px] w-full mx-auto">
       <div className="aspect-[1180/800] w-full flex items-center justify-center bg-white dark:bg-gray-800">
         <LazyImage
           src={imageUrl}
@@ -28,7 +30,7 @@ const ClassCard = ({ class: classData }: ClassCardProps) => {
         />
       </div>
 
-      <div className="p-5">
+      <CardContent className="p-5">
         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 line-clamp-2">
           {name}
         </h3>
@@ -67,7 +69,6 @@ const ClassCard = ({ class: classData }: ClassCardProps) => {
             )}
           </div>
 
-          {/* Only render the discount badge if there is a valid discount */}
           {hasValidDiscountValue ? (
             <div className="bg-primary text-white text-sm px-2 py-1 rounded-lg">
               Giảm {discount}%
@@ -76,41 +77,43 @@ const ClassCard = ({ class: classData }: ClassCardProps) => {
         </div>
 
         <div className="flex space-x-2">
-          <Link
-            href={`/classes/${id}`}
-            className="btn-primary flex-1 text-center"
-            onClick={() => {
-              trackClassView(id.toString(), name);
-              trackClassViewEcommerce({
-                id: id.toString(),
-                name,
-                price: finalPrice,
-                category: targetAudience,
-              });
-              trackUserEngagement('click', 'class_detail_button');
-            }}
-          >
-            Xem chi tiết
-          </Link>
+          <Button asChild className="flex-1">
+            <Link
+              href={`/classes/${id}`}
+              onClick={() => {
+                trackClassView(id.toString(), name);
+                trackClassViewEcommerce({
+                  id: id.toString(),
+                  name,
+                  price: finalPrice,
+                  category: targetAudience,
+                });
+                trackUserEngagement('click', 'class_detail_button');
+              }}
+            >
+              Xem chi tiết
+            </Link>
+          </Button>
 
-          <Link
-            href={`/classes/${id}/register`}
-            className="btn-outline-primary text-center px-4 py-2 rounded-lg"
-            onClick={() => {
-              trackAddToCart({
-                id: id.toString(),
-                name,
-                price: finalPrice,
-                category: targetAudience,
-              });
-              trackUserEngagement('click', 'class_register_button');
-            }}
-          >
-            Đăng ký
-          </Link>
+          <Button asChild variant="outline">
+            <Link
+              href={`/classes/${id}/register`}
+              onClick={() => {
+                trackAddToCart({
+                  id: id.toString(),
+                  name,
+                  price: finalPrice,
+                  category: targetAudience,
+                });
+                trackUserEngagement('click', 'class_register_button');
+              }}
+            >
+              Đăng ký
+            </Link>
+          </Button>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

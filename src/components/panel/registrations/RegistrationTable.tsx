@@ -3,6 +3,17 @@ import { Registration } from '../../../types';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Badge } from '../../ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import PanelTableSkeleton from '@/components/panel/shared/PanelTableSkeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Eye, CheckCircle, XCircle, Phone, User, Book, Calendar } from 'lucide-react';
 import { formatDate } from '../../../utils/helpers';
 import {
@@ -14,7 +25,7 @@ import {
   DialogTitle,
 } from '../../ui/dialog';
 import { Textarea } from '../../../components/ui/textarea';
-import { useToast } from '../../../hooks/useToast';
+import { toast } from 'sonner';
 import RegistrationDetail from './RegistrationDetail';
 import BulkActions from './BulkActions';
 
@@ -61,7 +72,6 @@ const RegistrationTable: React.FC<RegistrationTableProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const { success, error: showError } = useToast();
 
   // Filter registrations
   const filteredRegistrations = registrations.filter(registration => {
@@ -84,10 +94,10 @@ const RegistrationTable: React.FC<RegistrationTableProps> = ({
   const handleApprove = async (registration: Registration) => {
     try {
       await onApprove(registration.id);
-      success('Thành công', 'Đã duyệt đăng ký thành công');
+      toast.success('Thành công', { description: 'Đã duyệt đăng ký thành công' });
       onRefresh();
     } catch {
-      showError('Lỗi', 'Không thể duyệt đăng ký');
+      toast.error('Lỗi', { description: 'Không thể duyệt đăng ký' });
     }
   };
 
@@ -96,13 +106,13 @@ const RegistrationTable: React.FC<RegistrationTableProps> = ({
 
     try {
       await onReject(selectedRegistration.id, rejectionReason);
-      success('Thành công', 'Đã từ chối đăng ký');
+      toast.success('Thành công', { description: 'Đã từ chối đăng ký' });
       setShowRejectDialog(false);
       setRejectionReason('');
       setSelectedRegistration(null);
       onRefresh();
     } catch {
-      showError('Lỗi', 'Không thể từ chối đăng ký');
+      toast.error('Lỗi', { description: 'Không thể từ chối đăng ký' });
     }
   };
 
@@ -149,22 +159,7 @@ const RegistrationTable: React.FC<RegistrationTableProps> = ({
   };
 
   if (loading) {
-    return (
-      <div className="bg-card rounded-lg border">
-        <div className="p-6">
-          <div className="animate-pulse space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex space-x-4">
-                <div className="h-4 bg-muted rounded w-1/4"></div>
-                <div className="h-4 bg-muted rounded w-1/4"></div>
-                <div className="h-4 bg-muted rounded w-1/4"></div>
-                <div className="h-4 bg-muted rounded w-1/4"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <PanelTableSkeleton count={5} />;
   }
 
   return (
@@ -179,9 +174,9 @@ const RegistrationTable: React.FC<RegistrationTableProps> = ({
         />
       )}
 
-      <div className="bg-card rounded-lg border">
+      <Card>
         {/* Header with filters */}
-        <div className="p-6 border-b">
+        <CardContent className="p-6 border-b">
           <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
             <div>
               <h3 className="text-lg font-semibold text-foreground">Danh sách đăng ký</h3>
@@ -196,179 +191,174 @@ const RegistrationTable: React.FC<RegistrationTableProps> = ({
                 onChange={e => setSearchTerm(e.target.value)}
                 className="w-full sm:w-64"
               />
-              <select
-                value={filterStatus}
-                onChange={e => setFilterStatus(e.target.value)}
-                className="px-3 py-2 border border-input bg-background rounded-md text-sm text-foreground"
-              >
-                <option value="all">Tất cả trạng thái</option>
-                <option value="pending">Chờ duyệt</option>
-                <option value="approved">Đã duyệt</option>
-                <option value="rejected">Đã từ chối</option>
-                <option value="cancelled">Đã hủy</option>
-              </select>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Tất cả trạng thái" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                  <SelectItem value="pending">Chờ duyệt</SelectItem>
+                  <SelectItem value="approved">Đã duyệt</SelectItem>
+                  <SelectItem value="rejected">Đã từ chối</SelectItem>
+                  <SelectItem value="cancelled">Đã hủy</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
-        </div>
+        </CardContent>
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b bg-muted/50">
-              <tr>
-                {(onApproveMultiple || onRejectMultiple) && (
-                  <th className="text-left p-4 font-medium text-foreground w-12">
-                    <input
-                      type="checkbox"
-                      checked={isAllSelected}
-                      onChange={e => handleSelectAll(e.target.checked)}
-                      className="rounded border-input"
-                    />
-                  </th>
-                )}
-                <th className="text-left p-4 font-medium text-foreground">Học viên</th>
-                <th className="text-left p-4 font-medium text-foreground">Phụ huynh</th>
-                {/* Dynamic column header */}
-                <th className="text-left p-4 font-medium text-foreground">
-                  {showTutorTab ? 'Gia sư' : 'Lớp học'}
-                </th>
-                <th className="text-left p-4 font-medium text-foreground">Ngày đăng ký</th>
-                <th className="text-left p-4 font-medium text-foreground">Trạng thái</th>
-                <th className="text-left p-4 font-medium text-foreground">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedRegistrations.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={onApproveMultiple || onRejectMultiple ? 7 : 6}
-                    className="text-center py-8 text-muted-foreground"
-                  >
-                    Không có đăng ký nào
-                  </td>
-                </tr>
-              ) : (
-                paginatedRegistrations.map(registration => (
-                  <tr key={registration.id} className="border-b hover:bg-muted/50">
-                    {(onApproveMultiple || onRejectMultiple) && (
-                      <td className="p-4">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(registration.id)}
-                          onChange={e => handleSelectOne(registration.id, e.target.checked)}
-                          className="rounded border-input"
-                        />
-                      </td>
-                    )}
-                    <td className="p-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium text-foreground">
-                            {registration.studentName}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            {registration.studentPhone}
-                          </span>
-                        </div>
-                        {registration.studentSchool && (
-                          <div className="flex items-center gap-2">
-                            <Book className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">
-                              {registration.studentSchool}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium text-foreground">
-                            {registration.parentName}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            {registration.parentPhone}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                    {/* Dynamic column: Gia sư or Lớp học */}
-                    {showTutorTab ? (
-                      <td className="p-4">
-                        <span className="text-foreground">
-                          {registration.tutorType === 'teacher' ? 'Giáo viên' : 'Sinh viên'}
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50 hover:bg-muted/50">
+              {(onApproveMultiple || onRejectMultiple) && (
+                <TableHead className="w-12">
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    onChange={e => handleSelectAll(e.target.checked)}
+                    className="rounded border-input"
+                  />
+                </TableHead>
+              )}
+              <TableHead>Học viên</TableHead>
+              <TableHead>Phụ huynh</TableHead>
+              <TableHead>{showTutorTab ? 'Gia sư' : 'Lớp học'}</TableHead>
+              <TableHead>Ngày đăng ký</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead>Thao tác</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedRegistrations.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={onApproveMultiple || onRejectMultiple ? 7 : 6}
+                  className="text-center py-8 text-muted-foreground"
+                >
+                  Không có đăng ký nào
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedRegistrations.map(registration => (
+                <TableRow key={registration.id} className="hover:bg-muted/50">
+                  {(onApproveMultiple || onRejectMultiple) && (
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(registration.id)}
+                        onChange={e => handleSelectOne(registration.id, e.target.checked)}
+                        className="rounded border-input"
+                      />
+                    </TableCell>
+                  )}
+                  <TableCell>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium text-foreground">
+                          {registration.studentName}
                         </span>
-                      </td>
-                    ) : (
-                      <td className="p-4">
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {registration.studentPhone}
+                        </span>
+                      </div>
+                      {registration.studentSchool && (
                         <div className="flex items-center gap-2">
                           <Book className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-foreground">{registration.className || 'N/A'}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {registration.studentSchool}
+                          </span>
                         </div>
-                      </td>
-                    )}
-                    <td className="p-4">
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-foreground">
-                          {formatDate(registration.registrationDate)}
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium text-foreground">
+                          {registration.parentName}
                         </span>
                       </div>
-                    </td>
-                    <td className="p-4">
-                      <Badge className={statusConfig[registration.status]?.color}>
-                        {statusConfig[registration.status]?.label}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
                       <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedRegistration(registration)}
-                        >
-                          <Eye className="h-4 w-4 text-foreground" />
-                        </Button>
-                        {registration.status === 'pending' && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleApprove(registration)}
-                              className="text-green-600 border-green-600 hover:bg-green-50"
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openRejectDialog(registration)}
-                              className="text-red-600 border-red-600 hover:bg-red-50"
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {registration.parentPhone}
+                        </span>
                       </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                  </TableCell>
+                  {showTutorTab ? (
+                    <TableCell>
+                      <span className="text-foreground">
+                        {registration.tutorType === 'teacher' ? 'Giáo viên' : 'Sinh viên'}
+                      </span>
+                    </TableCell>
+                  ) : (
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Book className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-foreground">{registration.className || 'N/A'}</span>
+                      </div>
+                    </TableCell>
+                  )}
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-foreground">
+                        {formatDate(registration.registrationDate)}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={statusConfig[registration.status]?.color}>
+                      {statusConfig[registration.status]?.label}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedRegistration(registration)}
+                      >
+                        <Eye className="h-4 w-4 text-foreground" />
+                      </Button>
+                      {registration.status === 'pending' && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleApprove(registration)}
+                            className="text-green-600 border-green-600 hover:bg-green-50"
+                          >
+                            <CheckCircle className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openRejectDialog(registration)}
+                            className="text-red-600 border-red-600 hover:bg-red-50"
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="p-4 border-t flex justify-between items-center">
+          <CardContent className="p-4 border-t flex justify-between items-center">
             <div className="text-sm text-muted-foreground">
               Hiển thị {startIndex + 1}-
               {Math.min(startIndex + itemsPerPage, filteredRegistrations.length)} của{' '}
@@ -404,9 +394,9 @@ const RegistrationTable: React.FC<RegistrationTableProps> = ({
                 Sau
               </Button>
             </div>
-          </div>
+          </CardContent>
         )}
-      </div>
+      </Card>
 
       {/* Registration Detail Dialog */}
       <Dialog open={!!selectedRegistration} onOpenChange={() => setSelectedRegistration(null)}>

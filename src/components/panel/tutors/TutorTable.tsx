@@ -3,6 +3,15 @@ import { Tutor } from '../../../types';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import TablePagination from '@/components/panel/shared/TablePagination';
 
 interface TutorTableProps {
   tutors: Tutor[];
@@ -55,45 +64,42 @@ const TutorTable: React.FC<TutorTableProps> = ({
       </form>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-lg border bg-background">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="bg-muted">
-              <th className="p-3 text-left font-semibold text-foreground">Ảnh</th>
-              <th className="p-3 text-left font-semibold text-foreground">Tên</th>
-              <th className="p-3 text-left font-semibold text-foreground">Chuyên môn</th>
-              <th className="p-3 text-left font-semibold text-foreground">Giới thiệu</th>
-              <th className="p-3 text-left font-semibold text-foreground">Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="rounded-lg border bg-background">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted hover:bg-muted">
+              <TableHead className="font-semibold">Ảnh</TableHead>
+              <TableHead className="font-semibold">Tên</TableHead>
+              <TableHead className="font-semibold">Chuyên môn</TableHead>
+              <TableHead className="font-semibold">Giới thiệu</TableHead>
+              <TableHead className="font-semibold">Hành động</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {tutors.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="text-center py-8 text-muted-foreground">
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   Không có giáo viên nào.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               tutors.map(tutor => (
-                <tr
-                  key={tutor.id}
-                  className="border-b last:border-0 hover:bg-accent/40 transition-colors"
-                >
-                  <td className="p-3 align-middle">
+                <TableRow key={tutor.id} className="hover:bg-accent/40">
+                  <TableCell>
                     <img
                       src={tutor.imageUrl}
                       alt={tutor.name}
                       className="h-12 w-12 object-cover rounded-md border"
                     />
-                  </td>
-                  <td className="p-3 align-middle font-semibold text-foreground text-base line-clamp-2">
+                  </TableCell>
+                  <TableCell className="font-semibold text-foreground text-base line-clamp-2">
                     {tutor.name}
-                  </td>
-                  <td className="p-3 align-middle text-foreground">{tutor.specialty}</td>
-                  <td className="p-3 align-middle text-foreground line-clamp-2 max-w-xs">
+                  </TableCell>
+                  <TableCell className="text-foreground">{tutor.specialty}</TableCell>
+                  <TableCell className="text-foreground line-clamp-2 max-w-xs">
                     {tutor.bio}
-                  </td>
-                  <td className="p-3 align-middle space-x-2">
+                  </TableCell>
+                  <TableCell className="space-x-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -105,38 +111,15 @@ const TutorTable: React.FC<TutorTableProps> = ({
                     <Button variant="destructive" size="sm" onClick={() => onDelete(tutor)}>
                       Xóa
                     </Button>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-end items-center gap-2 mt-4">
-        <Button
-          variant="outline"
-          size="sm"
-          className="text-foreground"
-          onClick={() => onPageChange(page - 1)}
-          disabled={page === 1}
-        >
-          Trước
-        </Button>
-        <span className="text-sm text-muted-foreground">
-          Trang {page} / {totalPages}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          className="text-foreground"
-          onClick={() => onPageChange(page + 1)}
-          disabled={page === totalPages}
-        >
-          Sau
-        </Button>
-      </div>
+      <TablePagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
     </div>
   );
 };

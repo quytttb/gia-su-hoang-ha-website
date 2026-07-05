@@ -4,8 +4,8 @@ import { cn } from '../../../lib/utils';
 import { Button } from '../../ui/button';
 import { Bell, Settings, LogOut, User, Moon, Sun, Mail, Clock, RefreshCcw } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { useTheme } from '../../../contexts/ThemeContext';
-import { useNotificationContext } from '../../../contexts/NotificationContext';
+import { useThemeStore } from '@/stores/useThemeStore';
+import { useNotificationStore } from '@/stores/useNotificationStore';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,10 +33,12 @@ const routeTitles: Record<string, string> = {
 
 const PanelHeader: React.FC<PanelHeaderProps> = ({ className }) => {
   const { user, signOut } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const resolvedTheme = useThemeStore(state => state.resolvedTheme);
+  const toggleTheme = useThemeStore(state => state.toggleTheme);
   const router = useRouter();
   const pathname = usePathname() ?? '/panel';
-  const { newMessagesCount, recentMessages } = useNotificationContext();
+  const newMessagesCount = useNotificationStore(state => state.newMessagesCount);
+  const recentMessages = useNotificationStore(state => state.recentMessages);
 
   const currentTitle = routeTitles[pathname] || 'Dashboard';
 
@@ -151,7 +153,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({ className }) => {
 
         {/* Theme Toggle */}
         <Button variant="ghost" size="icon" onClick={toggleTheme}>
-          {theme === 'dark' ? (
+          {resolvedTheme === 'dark' ? (
             <Sun className="h-5 w-5 text-foreground" />
           ) : (
             <Moon className="h-5 w-5 text-foreground" />

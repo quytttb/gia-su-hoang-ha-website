@@ -108,5 +108,11 @@ service cloud.firestore {
       allow read: if true; // Public read for tutor display
       allow create, update, delete: if isStaff();
     }
+
+    // Blog posts collection
+    match /blogPosts/{postId} {
+      allow read: if resource.data.status == 'published' || isStaff();
+      allow create, update, delete: if isStaff();
+    }
   }
 } 

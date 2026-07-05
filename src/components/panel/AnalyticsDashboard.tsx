@@ -8,6 +8,14 @@ import {
   Clock,
   Trophy,
 } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface AnalyticsMetrics {
   totalUsers: number;
@@ -211,42 +219,34 @@ const AnalyticsDashboard: React.FC = () => {
             Lớp học phổ biến
           </h3>
           <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
-                    Lớp học
-                  </th>
-                  <th className="text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
-                    Lượt xem
-                  </th>
-                  <th className="text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
-                    Đăng ký
-                  </th>
-                  <th className="text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
-                    Tỷ lệ
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="uppercase text-xs">Lớp học</TableHead>
+                  <TableHead className="text-right uppercase text-xs">Lượt xem</TableHead>
+                  <TableHead className="text-right uppercase text-xs">Đăng ký</TableHead>
+                  <TableHead className="text-right uppercase text-xs">Tỷ lệ</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {topCourses.map((course, index) => (
-                  <tr key={index}>
-                    <td className="py-2 text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {course.name}
-                    </td>
-                    <td className="py-2 text-sm text-gray-500 text-right">{course.views}</td>
-                    <td className="py-2 text-sm text-gray-500 text-right">
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{course.name}</TableCell>
+                    <TableCell className="text-right text-muted-foreground">
+                      {course.views}
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground">
                       {course.registrations}
-                    </td>
-                    <td className="py-2 text-sm text-right">
+                    </TableCell>
+                    <TableCell className="text-right">
                       <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                         {course.conversionRate}%
                       </span>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>

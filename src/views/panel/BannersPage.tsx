@@ -8,6 +8,7 @@ import { Plus, RefreshCw, Image } from 'lucide-react';
 import ErrorDisplay from '../../components/shared/ErrorDisplay';
 import { UploadService } from '../../services/uploadService';
 import SkeletonLoading from '../../components/shared/SkeletonLoading';
+import { Card, CardContent } from '@/components/ui/card';
 
 const BannersPage: React.FC = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
@@ -190,60 +191,68 @@ const BannersPage: React.FC = () => {
     <>
       <div className="space-y-6">
         {/* Page Header */}
-        <div className="bg-card rounded-lg p-6 border">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">Quản lý Banner</h2>
-              <p className="text-muted-foreground">
-                Thêm, chỉnh sửa và quản lý banner hiển thị trên trang chủ.
-              </p>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-2">Quản lý Banner</h2>
+                <p className="text-muted-foreground">
+                  Thêm, chỉnh sửa và quản lý banner hiển thị trên trang chủ.
+                </p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Button onClick={() => setIsFormOpen(true)} disabled={actionLoading !== null}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Thêm Banner
+                </Button>
+              </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <Button onClick={() => setIsFormOpen(true)} disabled={actionLoading !== null}>
-                <Plus className="h-4 w-4 mr-2" />
-                Thêm Banner
-              </Button>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-card rounded-lg p-6 border">
-            <div className="flex items-center">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Image className="h-6 w-6 text-primary" />
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Image className="h-6 w-6 text-primary" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-muted-foreground">Tổng banner</p>
+                  <p className="text-2xl font-bold text-foreground">{totalBannersCount}</p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-muted-foreground">Tổng banner</p>
-                <p className="text-2xl font-bold text-foreground">{totalBannersCount}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Image className="h-6 w-6 text-green-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-muted-foreground">Đang hiển thị</p>
+                  <p className="text-2xl font-bold text-foreground">{activeBannersCount}</p>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="bg-card rounded-lg p-6 border">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Image className="h-6 w-6 text-green-600" />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-gray-100 rounded-lg">
+                  <Image className="h-6 w-6 text-gray-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-muted-foreground">Đang ẩn</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {totalBannersCount - activeBannersCount}
+                  </p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-muted-foreground">Đang hiển thị</p>
-                <p className="text-2xl font-bold text-foreground">{activeBannersCount}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-card rounded-lg p-6 border">
-            <div className="flex items-center">
-              <div className="p-2 bg-gray-100 rounded-lg">
-                <Image className="h-6 w-6 text-gray-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-muted-foreground">Đang ẩn</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {totalBannersCount - activeBannersCount}
-                </p>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Error Display */}
@@ -253,12 +262,14 @@ const BannersPage: React.FC = () => {
 
         {/* Banner List */}
         {loading ? (
-          <div className="bg-card rounded-lg p-6 border">
-            <SkeletonLoading type="table-row" count={8} />
-          </div>
+          <Card>
+            <CardContent className="p-6">
+              <SkeletonLoading type="table-row" count={8} />
+            </CardContent>
+          </Card>
         ) : banners.length === 0 ? (
-          <div className="bg-card rounded-lg border p-12">
-            <div className="text-center">
+          <Card>
+            <CardContent className="p-12 text-center">
               <Image className="h-16 w-16 mx-auto mb-6 text-muted-foreground opacity-50" />
               <h3 className="text-lg font-semibold text-foreground mb-2">Chưa có banner nào</h3>
               <p className="text-muted-foreground mb-6">
@@ -281,8 +292,8 @@ const BannersPage: React.FC = () => {
                   Khởi Tạo Banner Mẫu
                 </Button>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ) : (
           <BannerList
             banners={banners}

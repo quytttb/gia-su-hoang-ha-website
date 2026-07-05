@@ -5,6 +5,14 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 import { Badge } from '../../ui/badge';
 import { format } from 'date-fns';
 import { Edit, Trash2, Star } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface BlogPostTableProps {
   posts: any[]; // BlogPost
@@ -95,34 +103,31 @@ export const BlogPostTable: React.FC<BlogPostTableProps> = ({
           Lọc
         </Button>
       </form>
-      <div className="overflow-x-auto border rounded-lg bg-background">
-        <table className="min-w-full text-sm table-auto text-black dark:text-white">
-          <thead>
-            <tr className="bg-muted/70 text-xs uppercase tracking-wide text-black dark:text-white">
-              <th className="p-2 text-left font-semibold w-24">Ảnh</th>
-              <th className="p-2 text-left font-semibold">Bài viết</th>
-              <th className="p-2 text-center font-semibold w-24">Chủ đề</th>
-              <th className="p-2 text-center font-semibold w-28">Trạng thái</th>
-              <th className="p-2 text-center font-semibold w-28">Nổi bật</th>
-              <th className="p-2 text-center font-semibold w-20">Views</th>
-              <th className="p-2 text-center font-semibold w-24">Ngày</th>
-              <th className="p-2 text-center font-semibold w-28">Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="border rounded-lg bg-background">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/70 text-xs uppercase tracking-wide">
+              <TableHead className="font-semibold w-24">Ảnh</TableHead>
+              <TableHead className="font-semibold">Bài viết</TableHead>
+              <TableHead className="font-semibold text-center w-24">Chủ đề</TableHead>
+              <TableHead className="font-semibold text-center w-28">Trạng thái</TableHead>
+              <TableHead className="font-semibold text-center w-28">Nổi bật</TableHead>
+              <TableHead className="font-semibold text-center w-20">Views</TableHead>
+              <TableHead className="font-semibold text-center w-24">Ngày</TableHead>
+              <TableHead className="font-semibold text-center w-28">Hành động</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {posts.length === 0 && (
-              <tr>
-                <td colSpan={8} className="text-center p-6 text-muted-foreground">
+              <TableRow>
+                <TableCell colSpan={8} className="text-center p-6 text-muted-foreground">
                   Chưa có bài viết
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
             {posts.map(p => (
-              <tr
-                key={p.id}
-                className="border-b last:border-0 hover:bg-accent/30 transition-colors group"
-              >
-                <td className="p-2 align-top">
+              <TableRow key={p.id} className="hover:bg-accent/30 group">
+                <TableCell className="align-top">
                   {p.coverImage?.url ? (
                     <img
                       src={p.coverImage.url}
@@ -134,8 +139,8 @@ export const BlogPostTable: React.FC<BlogPostTableProps> = ({
                   ) : (
                     <div className="h-12 w-16 bg-muted rounded-md border" />
                   )}
-                </td>
-                <td className="p-2 align-top max-w-lg">
+                </TableCell>
+                <TableCell className="align-top max-w-lg">
                   <div className="space-y-1">
                     <p
                       className="font-semibold leading-snug text-black dark:text-white line-clamp-2"
@@ -162,11 +167,11 @@ export const BlogPostTable: React.FC<BlogPostTableProps> = ({
                       )}
                     </div>
                   </div>
-                </td>
-                <td className="p-2 align-top text-center text-xs font-medium">
+                </TableCell>
+                <TableCell className="align-top text-center text-xs font-medium">
                   {p.categoryId || '-'}
-                </td>
-                <td className="p-2 align-top text-center min-w-[7rem]">
+                </TableCell>
+                <TableCell className="align-top text-center min-w-[7rem]">
                   {p.status === 'published' ? (
                     <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-green-600 text-white dark:bg-green-500 dark:text-black">
                       Xuất bản
@@ -180,8 +185,8 @@ export const BlogPostTable: React.FC<BlogPostTableProps> = ({
                       Lưu trữ
                     </span>
                   )}
-                </td>
-                <td className="p-2 align-top text-center">
+                </TableCell>
+                <TableCell className="align-top text-center">
                   {p.featured ? (
                     <span
                       className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] rounded-full bg-yellow-400 text-black dark:bg-yellow-600 dark:text-black"
@@ -192,14 +197,16 @@ export const BlogPostTable: React.FC<BlogPostTableProps> = ({
                   ) : (
                     <span className="text-xs text-muted-foreground">-</span>
                   )}
-                </td>
-                <td className="p-2 align-top text-center font-medium">{p.viewCount || 0}</td>
-                <td className="p-2 align-top text-center text-[11px]">
+                </TableCell>
+                <TableCell className="align-top text-center font-medium">
+                  {p.viewCount || 0}
+                </TableCell>
+                <TableCell className="align-top text-center text-[11px]">
                   {p.publishedAt?.seconds
                     ? format(new Date(p.publishedAt.seconds * 1000), 'dd/MM/yyyy')
                     : '-'}
-                </td>
-                <td className="p-2 align-top text-center">
+                </TableCell>
+                <TableCell className="align-top text-center">
                   <div className="flex items-start justify-center gap-1">
                     <Button
                       size="sm"
@@ -220,11 +227,11 @@ export const BlogPostTable: React.FC<BlogPostTableProps> = ({
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
       {hasMore && (
         <div className="flex justify-center">

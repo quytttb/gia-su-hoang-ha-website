@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginCredentials } from '../types/auth';
 import { Eye, EyeOff } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const LoginPage: React.FC = () => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -93,138 +94,140 @@ const LoginPage: React.FC = () => {
         </div>
 
         {/* Login Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Error Message */}
-            {displayError && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg
-                      className="h-5 w-5 text-red-400 dark:text-red-500"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-red-800 dark:text-red-300">{displayError}</p>
+        <Card className="shadow-lg">
+          <CardContent className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Error Message */}
+              {displayError && (
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg
+                        className="h-5 w-5 text-red-400 dark:text-red-500"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-red-800 dark:text-red-300">{displayError}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Email Field */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={credentials.email}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-primary focus:border-primary"
-                placeholder="Nhập email của bạn"
-                disabled={isLoading}
-              />
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Mật khẩu
-              </label>
-              <div className="relative">
+              {/* Email Field */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  Email
+                </label>
                 <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
                   required
-                  value={credentials.password}
+                  value={credentials.email}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-primary focus:border-primary"
-                  placeholder="Nhập mật khẩu"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-primary focus:border-primary"
+                  placeholder="Nhập email của bạn"
                   disabled={isLoading}
                 />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                  disabled={isLoading}
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  Mật khẩu
+                </label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    required
+                    value={credentials.password}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-primary focus:border-primary"
+                    placeholder="Nhập mật khẩu"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isLoading}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Đang đăng nhập...
+                    </div>
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                    'Đăng nhập'
                   )}
                 </button>
               </div>
-            </div>
 
-            {/* Submit Button */}
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <div className="flex items-center">
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Đang đăng nhập...
-                  </div>
-                ) : (
-                  'Đăng nhập'
-                )}
-              </button>
-            </div>
-
-            {/* Forgot Password Link */}
-            <div className="text-center">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-primary hover:text-blue-700 dark:text-primary dark:hover:text-blue-400"
-              >
-                Quên mật khẩu?
-              </Link>
-            </div>
-          </form>
-        </div>
+              {/* Forgot Password Link */}
+              <div className="text-center">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-primary hover:text-blue-700 dark:text-primary dark:hover:text-blue-400"
+                >
+                  Quên mật khẩu?
+                </Link>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
 
         {/* Back to Home */}
         <div className="text-center">

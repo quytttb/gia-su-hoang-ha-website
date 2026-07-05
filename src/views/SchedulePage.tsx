@@ -3,8 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import SectionHeading from '../components/shared/SectionHeading';
-import { Schedule } from '../types';
-import schedulesService from '../services/firestore/schedulesService';
 import { format, parseISO } from 'date-fns';
 import Chatbot from '../components/shared/Chatbot';
 import PageHero from '../components/shared/PageHero';
@@ -15,74 +13,50 @@ import ScheduleCalendarView from '../components/schedule/ScheduleCalendarView';
 import PersonalSchedulePanel from '../components/schedule/PersonalSchedulePanel';
 import { CalendarValue, ViewType } from '../components/schedule/scheduleTypes';
 import { filterSchedules } from '../components/schedule/scheduleUtils';
+import { Schedule } from '../types';
+import {
+  useAvailableScheduleDates,
+  usePersonalSchedules,
+  useSchedulesByDate,
+} from '@/hooks/useSchedules';
 
 const SchedulePage = () => {
-  const [filteredSchedules, setFilteredSchedules] = useState<Schedule[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string>('');
-  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState('');
   const [personalSchedules, setPersonalSchedules] = useState<Schedule[]>([]);
   const [showPersonalSchedules, setShowPersonalSchedules] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [phoneSubmitted, setPhoneSubmitted] = useState(false);
   const [calendarValue, setCalendarValue] = useState<CalendarValue>(null);
   const [viewType, setViewType] = useState<ViewType>('table');
-  const [error, setError] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showCalendarEvents, setShowCalendarEvents] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filterTutor, setFilterTutor] = useState('all');
-  const [availableTutors, setAvailableTutors] = useState<string[]>([]);
+
+  const {
+    data: availableDates = [],
+    isLoading: datesLoading,
+    error: datesError,
+  } = useAvailableScheduleDates();
+
+  const {
+    data: filteredSchedules = [],
+    isLoading: schedulesLoading,
+    error: schedulesError,
+  } = useSchedulesByDate(selectedDate);
+
+  const personalSchedulesMutation = usePersonalSchedules();
 
   useEffect(() => {
-    const fetchSchedules = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const uniqueDates = await schedulesService.getAvailableDates();
-        setAvailableDates(uniqueDates);
-
-        if (uniqueDates.length > 0) {
-          setSelectedDate(uniqueDates[0]);
-          if (uniqueDates[0]) {
-            setCalendarValue(parseISO(uniqueDates[0]));
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching schedules:', err);
-        setError('Không thể tải dữ liệu lịch học. Vui lòng thử lại sau.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSchedules();
-  }, []);
-
-  useEffect(() => {
-    const fetchSchedulesByDate = async () => {
-      if (!selectedDate) return;
-
-      try {
-        setLoading(true);
-        setError(null);
-        const filtered = await schedulesService.getByDate(selectedDate);
-        setFilteredSchedules(filtered);
-      } catch (err) {
-        console.error('Error fetching schedules by date:', err);
-        setError('Không thể tải dữ liệu lịch học cho ngày đã chọn. Vui lòng thử lại sau.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSchedulesByDate();
-  }, [selectedDate]);
-
-  useEffect(() => {
-    if (filteredSchedules.length > 0) {
-      const tutors = Array.from(new Set(filteredSchedules.map(s => s.tutorName))).filter(Boolean);
-      setAvailableTutors(tutors);
+    if (availableDates.length > 0 && !selectedDate) {
+      const firstDate = availableDates[0];
+      setSelectedDate(firstDate);
+      setCalendarValue(parseISO(firstDate));
     }
+  }, [availableDates, selectedDate]);
+
+  const availableTutors = useMemo(() => {
+    if (filteredSchedules.length === 0) return [];
+    return Array.from(new Set(filteredSchedules.map(s => s.tutorName))).filter(Boolean);
   }, [filteredSchedules]);
 
   const displaySchedules = useMemo(
@@ -91,6 +65,12 @@ const SchedulePage = () => {
   );
 
   const hasActiveFilters = searchKeyword !== '' || filterTutor !== 'all';
+  const loading = datesLoading || (selectedDate ? schedulesLoading : datesLoading);
+  const error =
+    datesError?.message ||
+    schedulesError?.message ||
+    personalSchedulesMutation.error?.message ||
+    null;
 
   const handleDateChange = useCallback((date: string) => {
     setSelectedDate(date);
@@ -99,32 +79,26 @@ const SchedulePage = () => {
   const handleCalendarChange = useCallback((value: CalendarValue) => {
     setCalendarValue(value);
     if (value instanceof Date) {
-      const formattedDate = format(value, 'yyyy-MM-dd');
-      setSelectedDate(formattedDate);
+      setSelectedDate(format(value, 'yyyy-MM-dd'));
     }
   }, []);
 
-  const handlePhoneSubmit = useCallback(async (phone: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const personalSchedulesData = await schedulesService.getByUserPhone(phone);
+  const handlePhoneSubmit = useCallback(
+    async (phone: string) => {
+      const personalSchedulesData = await personalSchedulesMutation.mutateAsync(phone);
       setPersonalSchedules(personalSchedulesData);
       setShowPersonalSchedules(true);
       setPhoneSubmitted(true);
-    } catch (err) {
-      console.error('Error fetching personal schedules:', err);
-      setError('Không thể tải dữ liệu lịch học cá nhân. Vui lòng thử lại sau.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [personalSchedulesMutation]
+  );
 
   const resetPersonalSchedules = useCallback(() => {
     setShowPersonalSchedules(false);
     setPersonalSchedules([]);
     setPhoneSubmitted(false);
-  }, []);
+    personalSchedulesMutation.reset();
+  }, [personalSchedulesMutation]);
 
   const toggleView = useCallback((type: ViewType) => {
     setViewType(type);
@@ -267,7 +241,7 @@ const SchedulePage = () => {
           </div>
 
           <PersonalSchedulePanel
-            loading={loading}
+            loading={personalSchedulesMutation.isPending}
             showPersonalSchedules={showPersonalSchedules}
             personalSchedules={personalSchedules}
             onPhoneSubmit={handlePhoneSubmit}

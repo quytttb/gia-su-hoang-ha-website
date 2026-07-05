@@ -5,6 +5,15 @@ import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import TablePagination from '@/components/panel/shared/TablePagination';
 
 interface ClassTableProps {
   classes: Class[];
@@ -112,26 +121,26 @@ const ClassTable: React.FC<ClassTableProps> = ({
       </form>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-lg border bg-background">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="bg-muted">
-              <th className="p-3 text-left font-semibold text-foreground">Ảnh</th>
-              <th className="p-3 text-left font-semibold text-foreground">Tên</th>
-              <th className="p-3 text-left font-semibold text-foreground">Giá</th>
-              <th className="p-3 text-left font-semibold text-foreground">Thể loại</th>
-              <th className="p-3 text-left font-semibold text-foreground">Giảm giá</th>
-              <th className="p-3 text-left font-semibold text-foreground">Trạng thái</th>
-              <th className="p-3 text-left font-semibold text-foreground">Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="rounded-lg border bg-background">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted hover:bg-muted">
+              <TableHead className="font-semibold">Ảnh</TableHead>
+              <TableHead className="font-semibold">Tên</TableHead>
+              <TableHead className="font-semibold">Giá</TableHead>
+              <TableHead className="font-semibold">Thể loại</TableHead>
+              <TableHead className="font-semibold">Giảm giá</TableHead>
+              <TableHead className="font-semibold">Trạng thái</TableHead>
+              <TableHead className="font-semibold">Hành động</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {classes.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="text-center py-8 text-muted-foreground">
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   Không có lớp học nào.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               classes.map(classItem => {
                 const hasDiscountValue = hasValidDiscount(
@@ -139,23 +148,20 @@ const ClassTable: React.FC<ClassTableProps> = ({
                   classItem.discountEndDate
                 );
                 return (
-                  <tr
-                    key={classItem.id}
-                    className="border-b last:border-0 hover:bg-accent/40 transition-colors"
-                  >
-                    <td className="p-3 align-middle">
+                  <TableRow key={classItem.id} className="hover:bg-accent/40">
+                    <TableCell>
                       <img
                         src={classItem.imageUrl}
                         alt={classItem.name}
                         className="h-12 w-12 object-cover rounded-md border"
                       />
-                    </td>
-                    <td className="p-3 align-middle">
+                    </TableCell>
+                    <TableCell>
                       <span className="font-semibold text-foreground text-base line-clamp-2">
                         {classItem.name}
                       </span>
-                    </td>
-                    <td className="p-3 align-middle">
+                    </TableCell>
+                    <TableCell>
                       {hasDiscountValue ? (
                         <div className="flex flex-col gap-1">
                           <span className="line-through text-muted-foreground text-xs">
@@ -172,9 +178,9 @@ const ClassTable: React.FC<ClassTableProps> = ({
                           {formatCurrency(classItem.price)}
                         </span>
                       )}
-                    </td>
-                    <td className="p-3 align-middle text-foreground">{classItem.category}</td>
-                    <td className="p-3 align-middle">
+                    </TableCell>
+                    <TableCell className="text-foreground">{classItem.category}</TableCell>
+                    <TableCell>
                       {hasDiscountValue ? (
                         <span className="inline-block px-2 py-1 text-xs rounded bg-green-600 text-white font-semibold">
                           Giảm {classItem.discount}%<br />
@@ -183,8 +189,8 @@ const ClassTable: React.FC<ClassTableProps> = ({
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
-                    </td>
-                    <td className="p-3 align-middle">
+                    </TableCell>
+                    <TableCell>
                       {classItem.featured && (
                         <span className="inline-block px-2 py-1 text-xs rounded bg-yellow-400 text-black dark:bg-yellow-600 dark:text-black mr-1">
                           Nổi bật
@@ -199,8 +205,8 @@ const ClassTable: React.FC<ClassTableProps> = ({
                           Đã ẩn
                         </span>
                       )}
-                    </td>
-                    <td className="p-3 align-middle space-x-2">
+                    </TableCell>
+                    <TableCell className="space-x-2">
                       <Button
                         variant="outline"
                         size="sm"
@@ -220,39 +226,16 @@ const ClassTable: React.FC<ClassTableProps> = ({
                       <Button variant="destructive" size="sm" onClick={() => onDelete(classItem)}>
                         Xóa
                       </Button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-end items-center gap-2 mt-4">
-        <Button
-          variant="outline"
-          size="sm"
-          className="text-foreground"
-          onClick={() => onPageChange(page - 1)}
-          disabled={page === 1}
-        >
-          Trước
-        </Button>
-        <span className="text-sm text-muted-foreground">
-          Trang {page} / {totalPages}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          className="text-foreground"
-          onClick={() => onPageChange(page + 1)}
-          disabled={page === totalPages}
-        >
-          Sau
-        </Button>
-      </div>
+      <TablePagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
     </div>
   );
 };

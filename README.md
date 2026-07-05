@@ -52,7 +52,7 @@ cp .env.example .env
 # Chạy development server
 npm run dev
 
-# Mở http://localhost:5173
+# Mở http://localhost:3000
 ```
 
 ### **Build Production**
@@ -77,10 +77,10 @@ npm run preview
 ### **Bước 2: Cập nhật .env**
 
 ```env
-VITE_EMAILJS_SERVICE_ID=your_service_id
-VITE_EMAILJS_TEMPLATE_ID_CONTACT=your_contact_template
-VITE_EMAILJS_TEMPLATE_ID_REGISTRATION=your_registration_template
-VITE_EMAILJS_PUBLIC_KEY=your_public_key
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_service_id
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_CONTACT=your_contact_template
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_REGISTRATION=your_registration_template
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_public_key
 ```
 
 ### **Bước 3: Test Email**
@@ -171,8 +171,9 @@ npm run deploy:quick # Deploy nhanh
 │   │   └── ui/           # Reusable UI components
 │   ├── config/           # Configuration files
 │   ├── constants/        # Constants and static data
-│   ├── contexts/         # React contexts
-│   ├── hooks/            # Custom React hooks
+│   ├── contexts/         # React contexts (Auth)
+│   ├── hooks/            # Custom React hooks + TanStack Query hooks
+│   ├── stores/           # Zustand stores (theme, notifications)
 │   ├── lib/              # External libraries setup
 │   ├── pages/            # Page components
 │   ├── services/         # API services and external integrations
@@ -187,9 +188,10 @@ npm run deploy:quick # Deploy nhanh
 ### **Core**
 
 - ⚛️ **React 18** với TypeScript
-- 🏗️ **Vite** build tool
-- 🎨 **Tailwind CSS** cho styling
-- 🧭 **React Router** cho navigation
+- ▲ **Next.js 16** (App Router)
+- 🎨 **Tailwind CSS v4** + **Shadcn/ui**
+- 🔥 **Firebase** (Firestore, Auth)
+- 📦 **Zustand** (client state) + **TanStack Query** (server state)
 
 ### **Integrations**
 

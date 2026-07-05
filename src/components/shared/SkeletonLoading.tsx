@@ -1,4 +1,7 @@
 import React from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 type SkeletonType =
   | 'banner'
@@ -8,7 +11,8 @@ type SkeletonType =
   | 'button'
   | 'table-row'
   | 'stats-grid'
-  | 'action-grid';
+  | 'action-grid'
+  | 'dashboard';
 
 interface SkeletonLoadingProps {
   type: SkeletonType;
@@ -29,8 +33,8 @@ const SkeletonLoading: React.FC<SkeletonLoadingProps> = ({
     switch (type) {
       case 'banner':
         return (
-          <div
-            className={`h-[400px] w-full bg-gray-200 dark:bg-gray-800 animate-pulse rounded-xl ${className}`}
+          <Skeleton
+            className={cn('h-[400px] w-full rounded-xl', className)}
             style={{ width, height }}
           />
         );
@@ -39,18 +43,17 @@ const SkeletonLoading: React.FC<SkeletonLoadingProps> = ({
         return Array(count)
           .fill(0)
           .map((_, i) => (
-            <div
+            <Card
               key={i}
-              className={`bg-gray-100 dark:bg-gray-700 rounded-lg h-72 w-full max-w-[400px] mx-auto ${className}`}
-              style={{ width, height }}
+              className={cn('h-72 w-full max-w-[400px] mx-auto overflow-hidden', className)}
             >
-              <div className="h-40 bg-gray-200 dark:bg-gray-800 rounded-t-lg" />
-              <div className="p-4 space-y-3">
-                <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-3/4" />
-                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/2" />
-                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-full" />
-              </div>
-            </div>
+              <Skeleton className="h-40 w-full rounded-none rounded-t-lg" />
+              <CardContent className="p-4 space-y-3">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-full" />
+              </CardContent>
+            </Card>
           ));
 
       case 'stats-grid':
@@ -59,14 +62,13 @@ const SkeletonLoading: React.FC<SkeletonLoadingProps> = ({
             {Array(4)
               .fill(0)
               .map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 animate-pulse"
-                >
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 mb-2"></div>
-                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-1"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                </div>
+                <Card key={i}>
+                  <CardContent className="p-6 space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-8 w-16" />
+                    <Skeleton className="h-3 w-24" />
+                  </CardContent>
+                </Card>
               ))}
           </div>
         );
@@ -77,12 +79,9 @@ const SkeletonLoading: React.FC<SkeletonLoadingProps> = ({
             {Array(4)
               .fill(0)
               .map((_, i) => (
-                <div
-                  key={i}
-                  className="flex flex-col items-center p-4 rounded-lg border border-gray-200 dark:border-gray-600 animate-pulse"
-                >
-                  <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-lg mb-2"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                <div key={i} className="flex flex-col items-center p-4 rounded-lg border">
+                  <Skeleton className="h-12 w-12 rounded-lg mb-2" />
+                  <Skeleton className="h-4 w-20" />
                 </div>
               ))}
           </div>
@@ -92,25 +91,25 @@ const SkeletonLoading: React.FC<SkeletonLoadingProps> = ({
         return Array(count)
           .fill(0)
           .map((_, i) => (
-            <div
+            <Skeleton
               key={i}
-              className={`h-6 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2 ${className}`}
+              className={cn('h-6 w-full mb-2', className)}
               style={{ width, height }}
             />
           ));
 
       case 'avatar':
         return (
-          <div
-            className={`rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse ${className}`}
+          <Skeleton
+            className={cn('rounded-full', className)}
             style={{ width: width || '48px', height: height || '48px' }}
           />
         );
 
       case 'button':
         return (
-          <div
-            className={`h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse ${className}`}
+          <Skeleton
+            className={cn('h-10 rounded-lg', className)}
             style={{ width: width || '120px', height }}
           />
         );
@@ -119,16 +118,86 @@ const SkeletonLoading: React.FC<SkeletonLoadingProps> = ({
         return Array(count)
           .fill(0)
           .map((_, i) => (
-            <div key={i} className={`flex space-x-2 mb-2 ${className}`}>
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
+            <div key={i} className={cn('flex space-x-2 mb-2', className)}>
+              <Skeleton className="h-10 w-1/4" />
+              <Skeleton className="h-10 w-1/4" />
+              <Skeleton className="h-10 w-1/4" />
+              <Skeleton className="h-10 w-1/4" />
             </div>
           ));
 
+      case 'dashboard':
+        return (
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="p-6 space-y-2">
+                <Skeleton className="h-8 w-64" />
+                <Skeleton className="h-4 w-full max-w-md" />
+              </CardContent>
+            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {Array(4)
+                .fill(0)
+                .map((_, i) => (
+                  <Card key={i}>
+                    <CardContent className="p-6 space-y-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-8 w-16" />
+                      <Skeleton className="h-3 w-24" />
+                    </CardContent>
+                  </Card>
+                ))}
+            </div>
+            <Card>
+              <CardContent className="p-6">
+                <Skeleton className="h-6 w-32 mb-4" />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {Array(4)
+                    .fill(0)
+                    .map((_, i) => (
+                      <div key={i} className="flex flex-col items-center p-4 rounded-lg border">
+                        <Skeleton className="h-12 w-12 rounded-lg mb-2" />
+                        <Skeleton className="h-4 w-20" />
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <Skeleton className="h-6 w-32 mb-4" />
+                  <div className="space-y-3">
+                    {Array(3)
+                      .fill(0)
+                      .map((_, index) => (
+                        <div key={index} className="flex items-center space-x-3">
+                          <Skeleton className="h-8 w-8 rounded-full" />
+                          <div className="flex-1 space-y-1">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <Skeleton className="h-6 w-32 mb-4" />
+                  {Array(5)
+                    .fill(0)
+                    .map((_, i) => (
+                      <Skeleton key={i} className="h-6 w-full mb-2" />
+                    ))}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        );
+
       default:
-        return <div className="h-10 w-full bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />;
+        return <Skeleton className="h-10 w-full" />;
     }
   };
 
