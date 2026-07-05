@@ -13,7 +13,7 @@
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "preview": "next start",
     "start": "next start",
-    "prepare": "husky install",
+    "prepare": "node -e \"if (process.env.CI || process.env.VERCEL) process.exit(0)\" || husky install",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
