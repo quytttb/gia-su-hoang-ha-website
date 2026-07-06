@@ -1,0 +1,364 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  user
+  staff
+  admin
+}
+
+enum RegistrationStatus {
+  pending
+  approved
+  rejected
+  cancelled
+  completed
+  matched
+  trial_scheduled
+}
+
+enum RegistrationType {
+  class
+  tutor_teacher
+  tutor_student
+}
+
+enum ScheduleStatus {
+  scheduled
+  ongoing
+  completed
+  cancelled
+}
+
+enum BlogPostStatus {
+  draft
+  published
+  archived
+}
+
+enum ContactStatus {
+  new
+  read
+  replied
+  archived
+}
+
+enum InquiryStatus {
+  new
+  in_progress
+  resolved
+  closed
+}
+
+enum InquiryPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum TutorRequestStatus {
+  pending
+  consulting
+  searching
+  matched
+  trial_scheduled
+  confirmed
+  cancelled
+}
+
+model User {
+  id        String    @id
+  email     String    @unique
+  name      String
+  role      UserRole  @default(user)
+  phone     String?
+  avatar    String?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  lastLogin DateTime?
+
+  approvedRegistrations Registration[] @relation("ApprovedBy")
+
+  @@map("users")
+}
+
+model Class {
+  id              String   @id
+  name            String
+  description     String   @db.Text
+  category        String
+  price           Int
+  discount        Int      @default(0)
+  discountEndDate String?
+  imageUrl        String?
+  featured        Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  targetAudience  String   @default("Học sinh")
+  schedule        String   @default("Linh hoạt")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  classSchedules Schedule[]
+  registrations  Registration[]
+
+  @@index([isActive])
+  @@index([category])
+  @@map("classes")
+}
+
+model Registration {
+  id                String             @id
+  userId            String?
+  type              RegistrationType   @default(class)
+  classId           String?
+  className         String?
+  classSchedule     String?
+  studentName       String
+  studentPhone      String
+  studentSchool     String
+  parentName        String
+  parentPhone       String
+  parentAddress     String
+  preferredSchedule String             @default("")
+  notes             String?
+  status            RegistrationStatus @default(pending)
+  approvedById      String?
+  approvedByName    String?
+  approvedAt        DateTime?
+  rejectionReason   String?
+  tutorType         String?
+  tutorCriteria     String?
+  matchedTutorId    String?
+  matchedTutorName  String?
+  matchedAt         DateTime?
+  trialScheduledAt  DateTime?
+  staffNotes        String?
+  paymentStatus     String?
+  totalAmount       Int?
+  paidAmount        Int?
+  registrationDate  DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  class      Class? @relation(fields: [classId], references: [id], onDelete: SetNull)
+  approvedBy User?  @relation("ApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([classId])
+  @@map("registrations")
+}
+
+model Schedule {
+  id            String         @id
+  classId       String
+  className     String
+  tutorId       String
+  tutorName     String
+  startDate     DateTime
+  startTime     String
+  endTime       String
+  maxStudents   Int            @default(12)
+  studentPhones String[]
+  status        ScheduleStatus @default(scheduled)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  tutor Tutor @relation(fields: [tutorId], references: [id], onDelete: Restrict)
+
+  @@index([classId])
+  @@index([startDate])
+  @@map("schedules")
+}
+
+model Tutor {
+  id           String   @id
+  name         String
+  email        String?
+  phone        String?
+  specialty    String
+  bio          String   @db.Text
+  experience   String   @default("")
+  education    String   @default("")
+  imageUrl     String
+  subjects     String[]
+  availability String[]
+  isActive     Boolean  @default(true)
+  hourlyRate   Int?
+  rating       Float?
+  totalStudents Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  schedules Schedule[]
+
+  @@index([isActive])
+  @@map("tutors")
+}
+
+model Banner {
+  id        String   @id
+  imageUrl  String
+  title     String   @default("")
+  subtitle  String   @default("")
+  link      String   @default("")
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, order])
+  @@map("banners")
+}
+
+model BlogPost {
+  id              String         @id
+  slug            String         @unique
+  title           String
+  subtitle        String?
+  contentMarkdown String         @db.Text
+  contentHtml     String         @db.Text
+  excerpt         String         @db.Text
+  authorName      String
+  categoryId      String?
+  tags            String[]
+  status          BlogPostStatus @default(draft)
+  featured        Boolean        @default(false)
+  readTime        Int            @default(1)
+  viewCount       Int            @default(0)
+  coverImageUrl   String?
+  coverPublicId   String?
+  seo             Json?
+  publishedAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([status, publishedAt])
+  @@map("blog_posts")
+}
+
+model Contact {
+  id        String        @id
+  name      String
+  email     String
+  phone     String
+  message   String        @db.Text
+  status    ContactStatus @default(new)
+  userAgent String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status])
+  @@map("contacts")
+}
+
+model Inquiry {
+  id               String          @id @default(cuid())
+  userId           String?
+  name             String
+  email            String
+  phone            String
+  subject          String
+  message          String          @db.Text
+  status           InquiryStatus   @default(new)
+  priority         InquiryPriority @default(medium)
+  assignedTo       String?
+  assignedAt       DateTime?
+  responseRequired Boolean         @default(true)
+  responses        Json?
+  resolvedAt       DateTime?
+  resolvedBy       String?
+  tags             String[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([status])
+  @@map("inquiries")
+}
+
+model CenterInfo {
+  id           String @id @default("center-info")
+  name         String
+  description  String @db.Text
+  address      String
+  phone        String
+  email        String
+  history      String @db.Text
+  mission      String @db.Text
+  vision       String @db.Text
+  slogan       String
+  workingHours Json
+  updatedAt    DateTime @updatedAt
+
+  @@map("center_info")
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  title     String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, order])
+  @@map("gallery_images")
+}
+
+model SiteAsset {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  url       String
+  alt       String?
+  label     String?
+  updatedAt DateTime @updatedAt
+
+  @@map("site_assets")
+}
+
+model TutorRequest {
+  id                 String             @id @default(cuid())
+  tutorType          String
+  studentName        String
+  studentPhone       String
+  studentSchool      String
+  academicDescription String?
+  parentName         String
+  parentPhone        String
+  parentAddress      String
+  tutorCriteria      String             @db.Text
+  subjects           String[]
+  preferredSchedule  String?
+  budget             Int?
+  status             TutorRequestStatus @default(pending)
+  priority           String             @default("medium")
+  assignedStaffId    String?
+  assignedStaffName  String?
+  staffNotes         String?
+  matchedTutorId     String?
+  matchedTutorName   String?
+  matchedAt          DateTime?
+  trialScheduledAt   DateTime?
+  trialCompletedAt   DateTime?
+  trialFeedback      String?
+  confirmedAt        DateTime?
+  contractStartDate  DateTime?
+  source             String             @default("website")
+  rejectionReason    String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([status])
+  @@map("tutor_requests")
+}

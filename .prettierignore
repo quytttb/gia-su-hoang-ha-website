@@ -4,6 +4,7 @@ node_modules/
 # Build outputs
 dist/
 build/
+.next/
 
 # Generated files
 *.min.js
@@ -13,10 +14,8 @@ build/
 package-lock.json
 yarn.lock
 
-# Tools and docs
-tools/
-docs/
-scripts/
+# Migration exports at repo root (local only)
+/data/
 
 # IDE files
 .vscode/

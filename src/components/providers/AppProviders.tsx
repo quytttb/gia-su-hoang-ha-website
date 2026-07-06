@@ -9,9 +9,6 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import ThemeInitializer from '@/components/providers/ThemeInitializer';
 import NotificationInitializer from '@/components/providers/NotificationInitializer';
-import '@/utils/firebaseCheck';
-import '@/config/analyticsConfig';
-
 interface AppProvidersProps {
   children: React.ReactNode;
 }

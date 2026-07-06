@@ -23,11 +23,10 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { BlogService } from '../services/blogService';
+import { useBlogPost, useRelatedBlogPosts, useIncrementBlogView } from '@/hooks/useBlogPosts';
 import ErrorDisplay from '../components/shared/ErrorDisplay';
 import Breadcrumb from '../components/shared/Breadcrumb';
 import { generateBlogStructuredData } from '../utils/seo';
-import { useBlogPost, useRelatedBlogPosts } from '@/hooks/useBlogPosts';
 
 // Minimal X (Twitter) icon
 const XIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
@@ -55,14 +54,16 @@ const BlogDetailPage: React.FC = () => {
   const latestPosts = relatedData?.latestPosts ?? [];
   const relatedPosts = relatedData?.relatedPosts ?? [];
 
+  const { mutate: incrementView } = useIncrementBlogView();
+
   useEffect(() => {
     if (!post?.id) return;
     const viewedKey = `viewedPost:${post.id}`;
     if (!sessionStorage.getItem(viewedKey)) {
       sessionStorage.setItem(viewedKey, '1');
-      BlogService.incrementViewCount(post.id).catch(() => {});
+      incrementView(post.id);
     }
-  }, [post?.id]);
+  }, [post?.id, incrementView]);
 
   // Scroll to top when component mounts or ID changes
   useEffect(() => {
@@ -148,7 +149,7 @@ const BlogDetailPage: React.FC = () => {
                 title: article.title,
                 excerpt: article.excerpt,
                 slug: article.slug || slug,
-                imageUrl: article.coverImage?.url || article.imageUrl,
+                imageUrl: article.imageUrl,
                 author: article.author,
                 publishedAt: article.publishedAt,
                 updatedAt: article.updatedAt,
@@ -170,7 +171,7 @@ const BlogDetailPage: React.FC = () => {
         {/* Hero Image */}
         <div className="relative h-[60vh] overflow-hidden">
           <img
-            src={article?.coverImage?.url || article?.imageUrl || '/images/placeholder-logo.svg'}
+            src={article?.imageUrl || '/images/placeholder-logo.svg'}
             alt={article?.title || 'Bài viết'}
             className="w-full h-full object-cover"
           />
@@ -215,7 +216,7 @@ const BlogDetailPage: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-6 text-sm text-gray-300">
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4" />
-                    <span>{article?.author || article?.authorName || 'Ẩn danh'}</span>
+                    <span>{article?.author || 'Ẩn danh'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
@@ -252,7 +253,7 @@ const BlogDetailPage: React.FC = () => {
                       prose-strong:text-gray-900 dark:prose-strong:text-gray-100
                       prose-a:text-primary hover:prose-a:text-primary-600"
                     dangerouslySetInnerHTML={{
-                      __html: article?.contentHtml || article?.content || '',
+                      __html: article?.content || '',
                     }}
                   />
 
@@ -349,9 +350,7 @@ const BlogDetailPage: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     {(() => {
-                      const displayAuthor = (article?.author ||
-                        article?.authorName ||
-                        'Ẩn danh') as string;
+                      const displayAuthor = (article?.author || 'Ẩn danh') as string;
                       return (
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-semibold">

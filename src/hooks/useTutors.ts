@@ -1,9 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import tutorsService from '@/services/firestore/tutorsService';
+import { getAllTutors, getActiveTutors } from '@/data/tutors';
 import { queryKeys } from '@/lib/queryKeys';
 
-export const useTutors = (activeOnly = true) =>
+export const useTutors = () =>
   useQuery({
-    queryKey: queryKeys.tutors.list(activeOnly),
-    queryFn: () => (activeOnly ? tutorsService.getActiveTutors() : tutorsService.getAllTutors()),
+    queryKey: queryKeys.tutors.all,
+    queryFn: () => getAllTutors(),
+  });
+
+export const useActiveTutors = () =>
+  useQuery({
+    queryKey: queryKeys.tutors.active,
+    queryFn: () => getActiveTutors(),
+    refetchInterval: 30_000,
   });

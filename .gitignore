@@ -52,3 +52,6 @@ serviceAccountKey.json
 
 # Project exclude paths
 .vercel
+
+# Local migration exports at repo root (images already in Supabase Storage)
+/data/

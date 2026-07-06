@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Layout from '../components/layout/Layout';
 import Chatbot from '../components/shared/Chatbot';
 import { defaultRateLimiter, getClientIdentifier } from '../utils/security';
-import registrationsService from '../services/firestore/registrationsService';
+import { createRegistration } from '@/actions/registration';
 import confetti from 'canvas-confetti';
 import TutorRegistrationForm from '../components/tutor-registration/TutorRegistrationForm';
 import TutorInfoSidebar from '../components/tutor-registration/TutorInfoSidebar';
@@ -78,9 +78,9 @@ const TutorRegistrationPage = () => {
         status: 'pending' as const,
       };
 
-      const createResult = await registrationsService.createRegistration(registrationData);
-      if (createResult.error) {
-        alert(`Có lỗi xảy ra khi đăng ký: ${createResult.error}`);
+      const createResult = await createRegistration(registrationData);
+      if (!createResult.success) {
+        alert(`Có lỗi xảy ra khi đăng ký: ${createResult.error ?? 'Lỗi không xác định'}`);
         return;
       }
 

@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import ClassRegistrationPage from '@/pages/ClassRegistrationPage';
-import { hasFirebasePublicConfig } from '@/lib/env';
-import classesService from '@/services/firestore/classesService';
-import { convertFirestoreClass } from '@/utils/classHelpers';
+import { getClassById } from '@/data/classes';
 import { buildMetadata } from '@/lib/metadata';
 import { generateRegistrationSEO } from '@/utils/seo';
 
@@ -15,19 +13,9 @@ export const generateMetadata = async ({
 }: ClassRegistrationRouteProps): Promise<Metadata> => {
   const { id } = await params;
 
-  if (!hasFirebasePublicConfig) {
-    return buildMetadata({
-      title: 'Đăng ký lớp học - Trung tâm Gia Sư Hoàng Hà',
-      description:
-        'Đăng ký lớp học tại Trung tâm Gia Sư Hoàng Hà với quy trình nhanh chóng và tư vấn miễn phí.',
-      canonical: `https://giasuhoangha.com/classes/${id}/register`,
-    });
-  }
-
   try {
-    const result = await classesService.getById(id);
-    if (result.data) {
-      const classData = convertFirestoreClass(result.data);
+    const classData = await getClassById(id);
+    if (classData) {
       return buildMetadata(generateRegistrationSEO(classData.name));
     }
   } catch (error) {

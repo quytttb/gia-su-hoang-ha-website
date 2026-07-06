@@ -1,12 +1,15 @@
 import { create } from 'zustand';
-import { collection, getDocs, query, where, limit } from 'firebase/firestore';
-import { db } from '@/config/firebase';
+import {
+  getNewContactCount,
+  getRecentNewContacts,
+  type ContactMessage,
+} from '@/actions/contact-admin';
 
 export interface RecentMessage {
   id: string;
   name: string;
   message: string;
-  createdAt?: { toDate?: () => Date } | string;
+  createdAt?: string | Date;
 }
 
 interface NotificationStore {
@@ -15,41 +18,26 @@ interface NotificationStore {
   refreshNotifications: () => Promise<void>;
 }
 
-const fetchNewMessagesCount = async (): Promise<number> => {
-  if (!db) return 0;
-  const messagesQuery = query(collection(db, 'contacts'), where('status', '==', 'new'));
-  const snapshot = await getDocs(messagesQuery);
-  return snapshot.docs.length;
-};
-
-const toDate = (value: RecentMessage['createdAt']): Date => {
-  if (value && typeof value === 'object' && 'toDate' in value && value.toDate) {
-    return value.toDate();
-  }
-  return new Date((value as string) || 0);
-};
-
-const fetchRecentMessages = async (): Promise<RecentMessage[]> => {
-  if (!db) return [];
-  const messagesQuery = query(collection(db, 'contacts'), where('status', '==', 'new'), limit(5));
-  const snapshot = await getDocs(messagesQuery);
-  const messages = snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as RecentMessage[];
-  return messages.sort((a, b) => toDate(b.createdAt).getTime() - toDate(a.createdAt).getTime());
-};
+const toRecentMessage = (msg: ContactMessage): RecentMessage => ({
+  id: msg.id,
+  name: msg.name,
+  message: msg.message,
+  createdAt: msg.createdAt,
+});
 
 export const useNotificationStore = create<NotificationStore>(set => ({
   newMessagesCount: 0,
   recentMessages: [],
   refreshNotifications: async () => {
     try {
-      const [newMessagesCount, recentMessages] = await Promise.all([
-        fetchNewMessagesCount(),
-        fetchRecentMessages(),
+      const [newMessagesCount, recent] = await Promise.all([
+        getNewContactCount(),
+        getRecentNewContacts(5),
       ]);
-      set({ newMessagesCount, recentMessages });
+      set({
+        newMessagesCount,
+        recentMessages: recent.map(toRecentMessage),
+      });
     } catch (error) {
       console.error('Error refreshing notifications:', error);
     }

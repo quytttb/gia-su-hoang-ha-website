@@ -5,9 +5,12 @@ import Layout from '../components/layout/Layout';
 import Chatbot from '../components/shared/Chatbot';
 import PageHero from '../components/shared/PageHero';
 import { Button } from '@/components/ui/button';
+import { useSiteAsset } from '@/hooks/useCenterInfo';
 
 const TutorSearchPage = () => {
   const router = useRouter();
+  const { data: teacherAsset } = useSiteAsset('tutor_search_teacher');
+  const { data: studentAsset } = useSiteAsset('tutor_search_student');
 
   const handleSelectTutorType = (type: 'teacher' | 'student') => {
     router.push(`/tutor-search/register?type=${type}`);
@@ -29,7 +32,7 @@ const TutorSearchPage = () => {
                 <div className="text-center mb-6">
                   <div className="w-full flex justify-center mb-4">
                     <img
-                      src="/images/gia-su-giao-vien.jpg"
+                      src={teacherAsset?.url || '/images/gia-su-giao-vien.jpg'}
                       alt="Gia sư Giáo viên"
                       className="rounded-lg object-cover max-h-40 w-auto shadow aspect-[1.475] bg-gray-100"
                     />
@@ -130,7 +133,7 @@ const TutorSearchPage = () => {
                 <div className="text-center mb-6">
                   <div className="w-full flex justify-center mb-4">
                     <img
-                      src="/images/gia-su-sinh-vien.jpg"
+                      src={studentAsset?.url || '/images/gia-su-sinh-vien.jpg'}
                       alt="Gia sư Sinh viên"
                       className="rounded-lg object-cover max-h-40 w-auto shadow aspect-[1.475] bg-gray-100"
                     />

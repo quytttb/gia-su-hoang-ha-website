@@ -3,34 +3,29 @@ import { Class } from '../types';
 // Fixed categories list
 export const FIXED_CATEGORIES = ['Tiền tiểu học', 'Toán', 'Văn'];
 
-/**
- * Convert Firestore class data to Class type
- * Handles both old and new data structures
- */
-export const convertFirestoreClass = (firestoreClass: any): Class => {
-  if (!firestoreClass) {
-    console.error('convertFirestoreClass: firestoreClass is null or undefined');
-    throw new Error('Invalid firestore class data');
+/** Map a class record (DB or API) to the Class type. */
+export const mapClassRecord = (record: Record<string, unknown>): Class => {
+  if (!record) {
+    throw new Error('Invalid class data');
   }
 
-  if (!firestoreClass.id) {
-    console.error('convertFirestoreClass: missing ID', firestoreClass);
+  if (!record.id) {
     throw new Error('Missing class ID');
   }
 
   return {
-    id: firestoreClass.id,
-    name: firestoreClass.name || firestoreClass.title || 'Lớp học',
-    description: firestoreClass.description || '',
-    targetAudience: firestoreClass.targetAudience || 'Học sinh',
-    schedule: firestoreClass.schedule || 'Linh hoạt',
-    price: firestoreClass.price || 0,
-    imageUrl: firestoreClass.imageUrl || firestoreClass.image || '/images/default-class.jpg',
-    featured: firestoreClass.featured !== undefined ? firestoreClass.featured : false,
-    category: firestoreClass.category || 'Khác',
-    // Handle discount fields
-    discount: firestoreClass.discount,
-    discountEndDate: firestoreClass.discountEndDate,
+    id: record.id as string,
+    name: (record.name as string) || (record.title as string) || 'Lớp học',
+    description: (record.description as string) || '',
+    targetAudience: (record.targetAudience as string) || 'Học sinh',
+    schedule: (record.schedule as string) || 'Linh hoạt',
+    price: (record.price as number) || 0,
+    imageUrl:
+      (record.imageUrl as string) || (record.image as string) || '/images/default-class.jpg',
+    featured: record.featured !== undefined ? Boolean(record.featured) : false,
+    category: (record.category as string) || 'Khác',
+    discount: record.discount as number | undefined,
+    discountEndDate: record.discountEndDate as string | undefined,
   };
 };
 

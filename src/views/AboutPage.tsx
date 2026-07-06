@@ -14,8 +14,8 @@ import AboutServicesSection from '../components/about/AboutServicesSection';
 import AboutTeamSection from '../components/about/AboutTeamSection';
 import AboutGallerySection from '../components/about/AboutGallerySection';
 import AboutLetterSection from '../components/about/AboutLetterSection';
-import { useCenterInfo } from '@/hooks/useCenterInfo';
-import { useTutors } from '@/hooks/useTutors';
+import { useCenterInfo, useGalleryImages, useSiteAsset } from '@/hooks/useCenterInfo';
+import { useActiveTutors } from '@/hooks/useTutors';
 
 const DEFAULT_CENTER_INFO: CenterInfo = {
   id: '1',
@@ -46,7 +46,9 @@ const AboutPage = () => {
     error: centerError,
     refetch: refetchCenterInfo,
   } = useCenterInfo();
-  const { data: tutors = [], error: tutorsError } = useTutors(true);
+  const { data: tutors = [], error: tutorsError } = useActiveTutors();
+  const { data: galleryImages = [] } = useGalleryImages();
+  const { data: headerAsset } = useSiteAsset('about_header');
 
   const centerInfo = centerInfoData ?? (centerError ? DEFAULT_CENTER_INFO : null);
   const loading = centerLoading;
@@ -113,7 +115,7 @@ const AboutPage = () => {
 
       <section className="relative flex items-center justify-center min-h-[220px] md:min-h-[260px] bg-[#e3f0ff] dark:bg-gradient-to-b dark:from-[#182848] dark:to-[#35577d] py-8 md:py-10 overflow-hidden shadow-md border-b border-blue-200 dark:border-blue-900">
         <img
-          src="/assets/images/gia-su-hoang-ha-header.jpg"
+          src={headerAsset?.url || '/assets/images/gia-su-hoang-ha-header.jpg'}
           alt="Trung tâm Gia Sư Hoàng Hà"
           className="absolute inset-0 m-auto w-full h-full object-cover opacity-80 pointer-events-none select-none z-0"
         />
@@ -126,6 +128,7 @@ const AboutPage = () => {
       <AboutServicesSection />
       <AboutTeamSection tutors={tutors} />
       <AboutGallerySection
+        images={galleryImages}
         previewImg={previewImg}
         onPreview={setPreviewImg}
         onClosePreview={() => setPreviewImg(null)}

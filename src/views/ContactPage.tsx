@@ -8,7 +8,7 @@ import {
   initEmailJS,
   getEmailServiceStatus,
 } from '../services/emailService';
-import { saveContactMessage } from '../services/contactService';
+import { saveContactMessage } from '@/actions/contact';
 import { defaultRateLimiter, getClientIdentifier } from '../utils/security';
 import { toast } from 'sonner';
 import Chatbot from '../components/shared/Chatbot';

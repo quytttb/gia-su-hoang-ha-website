@@ -1,26 +1,16 @@
 import { Dialog, DialogContent } from '../ui/dialog';
 import SectionHeading from '../shared/SectionHeading';
-
-const GALLERY_IMAGES = [
-  '/images/real-photos/3d771690d24865163c59.jpg',
-  '/images/real-photos/786448b78c6f3b31627e.jpg',
-  '/images/real-photos/bf72059fc14776192f56.jpg',
-  '/images/real-photos/37a0735db78500db5994.jpg',
-  '/images/real-photos/e6bc4d52898a3ed4679b.jpg',
-  '/images/real-photos/cf33f8c83c108b4ed201.jpg',
-  '/images/real-photos/d7391421d0f967a73ee8.jpg',
-  '/images/real-photos/0021e9c32d1b9a45c30a.jpg',
-  '/images/real-photos/024a47b98361343f6d70.jpg',
-  '/images/real-photos/fbf5ce260afebda0e4ef.jpg',
-];
+import type { GalleryImage } from '@/data/settings';
 
 interface AboutGallerySectionProps {
+  images: GalleryImage[];
   previewImg: string | null;
   onPreview: (url: string) => void;
   onClosePreview: () => void;
 }
 
 const AboutGallerySection = ({
+  images,
   previewImg,
   onPreview,
   onClosePreview,
@@ -33,15 +23,15 @@ const AboutGallerySection = ({
     <div className="container-custom">
       <SectionHeading title="Hình ảnh thực tế" id="gallery-heading" />
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
-        {GALLERY_IMAGES.map((url, idx) => (
+        {images.map((image, idx) => (
           <div
-            key={url}
+            key={image.id}
             className="overflow-hidden rounded-lg shadow-md group relative cursor-pointer"
-            onClick={() => onPreview(url)}
+            onClick={() => onPreview(image.url)}
           >
             <img
-              src={url}
-              alt={`Hình thực tế ${idx + 1}`}
+              src={image.url}
+              alt={image.alt || `Hình thực tế ${idx + 1}`}
               className="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
             />

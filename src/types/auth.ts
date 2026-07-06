@@ -1,5 +1,3 @@
-import { User as FirebaseUser } from 'firebase/auth';
-
 // User roles in the system
 export type UserRole = 'user' | 'staff' | 'admin';
 
@@ -20,7 +18,6 @@ export interface User {
 // Authentication context state
 export interface AuthState {
   user: User | null;
-  firebaseUser: FirebaseUser | null;
   loading: boolean;
   error: string | null;
 }

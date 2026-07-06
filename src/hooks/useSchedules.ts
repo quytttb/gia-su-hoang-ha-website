@@ -1,34 +1,45 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import schedulesService from '@/services/firestore/schedulesService';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import {
+  getAllSchedules,
+  getAvailableScheduleDates,
+  getSchedulesByDate,
+  getSchedulesByPhone,
+} from '@/data/schedules';
 import { queryKeys } from '@/lib/queryKeys';
 
 export const useSchedules = () =>
   useQuery({
     queryKey: queryKeys.schedules.all,
-    queryFn: () => schedulesService.getAll(),
+    queryFn: () => getAllSchedules(),
+    refetchInterval: 30_000,
   });
 
 export const useAvailableScheduleDates = () =>
   useQuery({
     queryKey: queryKeys.schedules.dates,
-    queryFn: () => schedulesService.getAvailableDates(),
+    queryFn: () => getAvailableScheduleDates(),
+    refetchInterval: 30_000,
   });
 
 export const useSchedulesByDate = (date: string) =>
   useQuery({
     queryKey: queryKeys.schedules.byDate(date),
-    queryFn: () => schedulesService.getByDate(date),
+    queryFn: () => getSchedulesByDate(date),
     enabled: !!date,
+    refetchInterval: 30_000,
+  });
+
+export const usePersonalSchedules = () =>
+  useMutation({
+    mutationFn: (phone: string) => getSchedulesByPhone(phone),
   });
 
 export const useClassSchedules = (classId: string) =>
   useQuery({
     queryKey: queryKeys.schedules.byClass(classId),
-    queryFn: () => schedulesService.getByClassId(classId),
+    queryFn: async () => {
+      const { getSchedulesByClassId } = await import('@/data/schedules');
+      return getSchedulesByClassId(classId);
+    },
     enabled: !!classId,
-  });
-
-export const usePersonalSchedules = () =>
-  useMutation({
-    mutationFn: (phone: string) => schedulesService.getByUserPhone(phone),
   });

@@ -5,9 +5,8 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import Layout from '../components/layout/Layout';
 import { Class } from '../types';
-import classesService from '../services/firestore/classesService';
-import registrationsService from '../services/firestore/registrationsService';
-import { convertFirestoreClass } from '../utils/classHelpers';
+import { getClassById } from '@/data/classes';
+import { createRegistration } from '@/actions/registration';
 import Chatbot from '../components/shared/Chatbot';
 import DevFormHelper from '../components/dev/DevFormHelper';
 import { defaultRateLimiter, getClientIdentifier } from '../utils/security';
@@ -33,8 +32,8 @@ const ClassRegistrationPage = () => {
   useEffect(() => {
     const fetchCourse = async () => {
       if (!id) return;
-      const result = await classesService.getById(id);
-      setCourse(result.data ? convertFirestoreClass(result.data) : undefined);
+      const courseData = await getClassById(id);
+      setCourse(courseData ?? undefined);
       setLoading(false);
     };
     fetchCourse();
@@ -83,9 +82,9 @@ const ClassRegistrationPage = () => {
         status: 'pending' as const,
       };
 
-      const registrationResult = await registrationsService.createRegistration(registrationData);
-      if (registrationResult.error) {
-        alert(registrationResult.error);
+      const registrationResult = await createRegistration(registrationData);
+      if (!registrationResult.success) {
+        alert(registrationResult.error ?? 'Không thể gửi đăng ký');
         return;
       }
 

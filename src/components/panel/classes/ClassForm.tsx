@@ -17,7 +17,12 @@ import { Dialog as PreviewDialog, DialogContent as PreviewDialogContent } from '
 import { Upload, X, Loader2, CheckCircle } from 'lucide-react';
 import { classFormSchema } from '@/lib/validations/panel';
 import { mapZodErrors } from '@/lib/validations/zodHelpers';
-import { UploadService, UploadProgress } from '../../../services/uploadService';
+import { uploadFile } from '@/actions/upload';
+
+type UploadProgress = {
+  progress: number;
+  isUploading: boolean;
+};
 
 // Props cho ClassForm
 interface ClassFormProps {
@@ -99,14 +104,14 @@ const ClassForm: React.FC<ClassFormProps> = ({
     setSaved(false);
   }, [classItem, isOpen]);
 
-  // Cleanup on unmount if not saved
+  // Cleanup on unmount if not saved (temp preview URLs only)
   useEffect(() => {
     return () => {
-      if (!saved && tempUploadedUrl && tempUploadedUrl !== (classItem?.imageUrl || '')) {
-        UploadService.deleteFile(tempUploadedUrl).catch(() => {});
+      if (!saved && tempUploadedUrl && tempUploadedUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(tempUploadedUrl);
       }
     };
-  }, [saved, tempUploadedUrl, classItem]);
+  }, [saved, tempUploadedUrl]);
 
   // Xử lý thay đổi input
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -266,28 +271,23 @@ const ClassForm: React.FC<ClassFormProps> = ({
     if (!selectedFile) return null;
 
     try {
-      console.log('Starting upload for:', selectedFile.name);
-      const result = await UploadService.uploadFile(
-        selectedFile,
-        'courses',
-        setUploadProgress,
-        formData.name,
-        formData.price
-      );
-      console.log('Upload completed:', result);
-      if (
-        tempUploadedUrl &&
-        tempUploadedUrl !== result.url &&
-        tempUploadedUrl !== (classItem?.imageUrl || '')
-      ) {
-        UploadService.deleteFile(tempUploadedUrl).catch(() => {});
+      setUploadProgress({ progress: 0, isUploading: true });
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      const result = await uploadFile(formData, 'gallery');
+      setUploadProgress({ progress: 100, isUploading: false });
+
+      if (!result.success || !result.data) {
+        throw new Error(result.error ?? 'Lỗi upload hình ảnh');
       }
-      return result.url;
-    } catch (error: any) {
-      console.error('Upload error:', error);
+
+      return result.data.url;
+    } catch (error: unknown) {
+      setUploadProgress({ progress: 0, isUploading: false });
+      const message = error instanceof Error ? error.message : 'Lỗi upload hình ảnh';
       setErrors(prev => ({
         ...prev,
-        imageUrl: error.message || 'Lỗi upload hình ảnh',
+        imageUrl: message,
       }));
       return null;
     }
@@ -312,9 +312,6 @@ const ClassForm: React.FC<ClassFormProps> = ({
       open={isOpen}
       onOpenChange={open => {
         if (!open) {
-          if (!saved && tempUploadedUrl && tempUploadedUrl !== (classItem?.imageUrl || '')) {
-            UploadService.deleteFile(tempUploadedUrl).catch(() => {});
-          }
           onClose();
         }
       }}

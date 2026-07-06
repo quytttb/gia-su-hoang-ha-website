@@ -6,7 +6,7 @@ import BlogFeaturedSection from '../blog/BlogFeaturedSection';
 
 const BlogSection = () => {
   const { data, isLoading, error } = useBlogPosts({ pageSize: 6, sort: 'latest' });
-  const featuredPosts = (data?.posts ?? []).filter(p => p.featured).slice(0, 2);
+  const featuredPosts = (data ?? []).filter(p => p.featured).slice(0, 2);
 
   return (
     <section

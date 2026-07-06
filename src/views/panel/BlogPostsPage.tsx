@@ -1,16 +1,48 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import BlogPostTable from '../../components/panel/blog/BlogPostTable';
 import BlogPostForm from '../../components/panel/blog/BlogPostForm';
-import { BlogService } from '../../services/blogService';
+import { listPosts } from '@/data/blog';
+import { updatePost } from '@/actions/blog';
 import { blogCategories } from '../../constants/blogData';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
-import { useAdminBlogPosts } from '@/hooks/useBlogPosts';
 import { queryKeys } from '@/lib/queryKeys';
+
+type AdminPost = {
+  id: string;
+  title: string;
+  subtitle?: string;
+  slug?: string;
+  tags?: string[];
+  status?: string;
+  featured?: boolean;
+  viewCount?: number;
+  publishedAt?: string;
+  categoryId?: string;
+  coverImage?: { url: string };
+  contentMarkdown?: string;
+};
+
+const mapPostForAdmin = (
+  post: Awaited<ReturnType<typeof listPosts>>['posts'][number]
+): AdminPost => ({
+  id: post.id,
+  title: post.title,
+  subtitle: post.subtitle,
+  slug: post.slug,
+  tags: post.tags,
+  status: post.status,
+  featured: post.featured,
+  viewCount: post.viewCount,
+  publishedAt: post.publishedAt,
+  categoryId: post.category?.id,
+  coverImage: post.imageUrl ? { url: post.imageUrl } : undefined,
+  contentMarkdown: (post as AdminPost).contentMarkdown,
+});
 
 const BlogPostsPage: React.FC = () => {
   const [formOpen, setFormOpen] = useState(false);
-  const [editingPost, setEditingPost] = useState<any | null>(null);
+  const [editingPost, setEditingPost] = useState<AdminPost | null>(null);
   const [filter, setFilter] = useState<{ categoryId?: string; status?: string; search?: string }>(
     {}
   );
@@ -18,14 +50,25 @@ const BlogPostsPage: React.FC = () => {
 
   const catList = blogCategories.map(c => ({ id: c.id, name: c.name }));
 
-  const { data, isLoading, fetchNextPage, hasNextPage, refetch } = useAdminBlogPosts(filter);
+  const { data, isLoading, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery({
+    queryKey: queryKeys.blogPosts.admin(filter),
+    queryFn: ({ pageParam }) =>
+      listPosts({
+        pageSize: 10,
+        cursor: pageParam,
+        categoryId: filter.categoryId,
+        status: filter.status as 'draft' | 'published' | 'archived' | undefined,
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: lastPage => lastPage.cursor ?? undefined,
+  });
 
   const posts = useMemo(() => {
-    const allPosts = data?.pages.flatMap(page => page.posts) ?? [];
+    const allPosts = (data?.pages.flatMap(page => page.posts) ?? []).map(mapPostForAdmin);
     if (!filter.search) return allPosts;
     const s = filter.search.toLowerCase();
     return allPosts.filter(
-      p => p.title.toLowerCase().includes(s) || (p.tags || []).some((t: string) => t.includes(s))
+      p => p.title.toLowerCase().includes(s) || (p.tags || []).some(t => t.includes(s))
     );
   }, [data, filter.search]);
 
@@ -47,18 +90,23 @@ const BlogPostsPage: React.FC = () => {
     setFormOpen(true);
   };
 
-  const handleEdit = (post: any) => {
+  const handleEdit = (post: AdminPost) => {
     setEditingPost(post);
     setFormOpen(true);
   };
 
-  const handleDelete = async (post: any) => {
+  const handleDelete = async (post: AdminPost) => {
     try {
-      await BlogService.deletePost(post.id);
+      const result = await updatePost(post.id, { status: 'archived' });
+      if (!result.success) {
+        toast.error('Lỗi', { description: result.error ?? 'Không thể lưu trữ bài viết' });
+        return;
+      }
       toast.success('Đã lưu trữ', { description: 'Bài viết đã chuyển vào lưu trữ.' });
       invalidatePosts();
-    } catch (e: any) {
-      toast.error('Lỗi', { description: e.message });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Lỗi không xác định';
+      toast.error('Lỗi', { description: message });
     }
   };
 

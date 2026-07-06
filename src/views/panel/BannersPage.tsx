@@ -3,10 +3,10 @@ import BannerForm from '../../components/panel/banners/BannerForm';
 import BannerList from '../../components/panel/banners/BannerList';
 import { Button } from '../../components/ui/button';
 import { Banner } from '../../types';
-import { bannerService } from '../../services/bannerService';
-import { Plus, RefreshCw, Image } from 'lucide-react';
+import { getAllBanners } from '@/data/banners';
+import { createBanner, updateBanner, deleteBanner, reorderBanners } from '@/actions/banner';
+import { Plus, Image } from 'lucide-react';
 import ErrorDisplay from '../../components/shared/ErrorDisplay';
-import { UploadService } from '../../services/uploadService';
 import SkeletonLoading from '../../components/shared/SkeletonLoading';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -18,33 +18,17 @@ const BannersPage: React.FC = () => {
   const [editingBanner, setEditingBanner] = useState<Banner | undefined>(undefined);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  // Load banners
   const loadBanners = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await bannerService.getAllBanners();
+      const data = await getAllBanners();
       setBanners(data);
     } catch (err) {
       console.error('Error loading banners:', err);
       setError('Không thể tải danh sách banner. Vui lòng thử lại.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Initialize sample banners
-  const initializeSampleBanners = async () => {
-    try {
-      setActionLoading('init');
-      const sampleBanners = await bannerService.initializeSampleBanners();
-      setBanners(sampleBanners);
-      console.log('Sample banners initialized successfully');
-    } catch (err) {
-      console.error('Error initializing sample banners:', err);
-      setError('Không thể khởi tạo banner mẫu. Vui lòng thử lại.');
-    } finally {
-      setActionLoading(null);
     }
   };
 
@@ -55,22 +39,15 @@ const BannersPage: React.FC = () => {
     return () => window.removeEventListener('panel-global-refresh', handler as EventListener);
   }, []);
 
-  // Handle create banner
   const handleCreateBanner = async (bannerData: Omit<Banner, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
       setActionLoading('create');
-
-      // Get next order if not specified
-      if (!bannerData.order) {
-        const nextOrder = await bannerService.getNextOrder();
-        bannerData.order = nextOrder;
+      const result = await createBanner(bannerData);
+      if (!result.success) {
+        setError(result.error ?? 'Không thể tạo banner. Vui lòng thử lại.');
+        return;
       }
-
-      const newBanner = await bannerService.createBanner(bannerData);
-      setBanners(prev => [...prev, newBanner]);
-
-      // Show success message (you can implement toast notifications)
-      console.log('Banner created successfully');
+      await loadBanners();
     } catch (err) {
       console.error('Error creating banner:', err);
       setError('Không thể tạo banner. Vui lòng thử lại.');
@@ -79,22 +56,22 @@ const BannersPage: React.FC = () => {
     }
   };
 
-  // Handle edit banner
   const handleEditBanner = (banner: Banner) => {
     setEditingBanner(banner);
     setIsFormOpen(true);
   };
 
-  // Handle update banner
   const handleUpdateBanner = async (bannerData: Omit<Banner, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (!editingBanner) return;
 
     try {
       setActionLoading('update');
-      const updatedBanner = await bannerService.updateBanner(editingBanner.id, bannerData);
-      setBanners(prev => prev.map(b => (b.id === updatedBanner.id ? updatedBanner : b)));
-
-      console.log('Banner updated successfully');
+      const result = await updateBanner(editingBanner.id, bannerData);
+      if (!result.success) {
+        setError(result.error ?? 'Không thể cập nhật banner. Vui lòng thử lại.');
+        return;
+      }
+      await loadBanners();
     } catch (err) {
       console.error('Error updating banner:', err);
       setError('Không thể cập nhật banner. Vui lòng thử lại.');
@@ -103,29 +80,15 @@ const BannersPage: React.FC = () => {
     }
   };
 
-  // Handle delete banner
   const handleDeleteBanner = async (bannerId: string) => {
     try {
       setActionLoading('delete');
-
-      // Lấy thông tin banner trước khi xóa để có imageUrl
-      const bannerToDelete = banners.find(b => b.id === bannerId);
-      if (bannerToDelete && bannerToDelete.imageUrl) {
-        try {
-          // Xóa ảnh trên Cloudinary
-          await UploadService.deleteFile(bannerToDelete.imageUrl);
-          console.log('Banner image deleted from Cloudinary:', bannerToDelete.imageUrl);
-        } catch (imageError) {
-          // Log lỗi nhưng vẫn tiếp tục xóa banner trong database
-          console.error('Error deleting banner image from Cloudinary:', imageError);
-        }
+      const result = await deleteBanner(bannerId);
+      if (!result.success) {
+        setError(result.error ?? 'Không thể xóa banner. Vui lòng thử lại.');
+        return;
       }
-
-      // Xóa banner trong database
-      await bannerService.deleteBanner(bannerId);
       setBanners(prev => prev.filter(b => b.id !== bannerId));
-
-      console.log('Banner deleted successfully');
     } catch (err) {
       console.error('Error deleting banner:', err);
       setError('Không thể xóa banner. Vui lòng thử lại.');
@@ -134,14 +97,15 @@ const BannersPage: React.FC = () => {
     }
   };
 
-  // Handle toggle active
   const handleToggleActive = async (bannerId: string, isActive: boolean) => {
     try {
       setActionLoading('toggle');
-      const updatedBanner = await bannerService.toggleBannerActive(bannerId, isActive);
-      setBanners(prev => prev.map(b => (b.id === updatedBanner.id ? updatedBanner : b)));
-
-      console.log(`Banner ${isActive ? 'activated' : 'deactivated'} successfully`);
+      const result = await updateBanner(bannerId, { isActive });
+      if (!result.success) {
+        setError(result.error ?? 'Không thể thay đổi trạng thái banner. Vui lòng thử lại.');
+        return;
+      }
+      setBanners(prev => prev.map(b => (b.id === bannerId ? { ...b, isActive } : b)));
     } catch (err) {
       console.error('Error toggling banner status:', err);
       setError('Không thể thay đổi trạng thái banner. Vui lòng thử lại.');
@@ -150,38 +114,48 @@ const BannersPage: React.FC = () => {
     }
   };
 
-  // Handle reorder banners
   const handleReorderBanners = async (reorderedBanners: Banner[]) => {
     try {
       setActionLoading('reorder');
-      const updatedBanners = await bannerService.reorderBanners(reorderedBanners);
-      setBanners(updatedBanners);
-
-      console.log('Banners reordered successfully');
+      const result = await reorderBanners(reorderedBanners.map(b => b.id));
+      if (!result.success || !result.data) {
+        setError(result.error ?? 'Không thể sắp xếp lại banner. Vui lòng thử lại.');
+        await loadBanners();
+        return;
+      }
+      setBanners(
+        result.data.map(b => ({
+          id: b.id,
+          imageUrl: b.imageUrl,
+          title: b.title,
+          subtitle: b.subtitle,
+          link: b.link || undefined,
+          isActive: b.isActive,
+          order: b.order,
+          createdAt: b.createdAt.toISOString(),
+          updatedAt: b.updatedAt.toISOString(),
+        }))
+      );
     } catch (err) {
       console.error('Error reordering banners:', err);
       setError('Không thể sắp xếp lại banner. Vui lòng thử lại.');
-      // Reload to get correct order
-      loadBanners();
+      await loadBanners();
     } finally {
       setActionLoading(null);
     }
   };
 
-  // Handle form close
   const handleFormClose = () => {
     setIsFormOpen(false);
     setEditingBanner(undefined);
   };
 
-  // Handle form save
   const handleFormSave = async (bannerData: Omit<Banner, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingBanner) {
       await handleUpdateBanner(bannerData);
     } else {
       await handleCreateBanner(bannerData);
     }
-    // Form will close automatically on success
   };
 
   const activeBannersCount = banners.filter(b => b.isActive).length;
@@ -190,7 +164,6 @@ const BannersPage: React.FC = () => {
   return (
     <>
       <div className="space-y-6">
-        {/* Page Header */}
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -210,7 +183,6 @@ const BannersPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardContent className="p-6">
@@ -255,12 +227,10 @@ const BannersPage: React.FC = () => {
           </Card>
         </div>
 
-        {/* Error Display */}
         {error && (
           <ErrorDisplay message={error} onRetry={() => setError(null)} retryLabel="Thử lại" />
         )}
 
-        {/* Banner List */}
         {loading ? (
           <Card>
             <CardContent className="p-6">
@@ -272,26 +242,11 @@ const BannersPage: React.FC = () => {
             <CardContent className="p-12 text-center">
               <Image className="h-16 w-16 mx-auto mb-6 text-muted-foreground opacity-50" />
               <h3 className="text-lg font-semibold text-foreground mb-2">Chưa có banner nào</h3>
-              <p className="text-muted-foreground mb-6">
-                Bắt đầu bằng cách tạo banner mới hoặc khởi tạo dữ liệu mẫu
-              </p>
-              <div className="flex justify-center gap-4">
-                <Button onClick={() => setIsFormOpen(true)} disabled={actionLoading !== null}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Tạo Banner Mới
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={initializeSampleBanners}
-                  disabled={actionLoading !== null}
-                  className="text-foreground"
-                >
-                  <RefreshCw
-                    className={`h-4 w-4 mr-2 ${actionLoading === 'init' ? 'animate-spin' : ''}`}
-                  />
-                  Khởi Tạo Banner Mẫu
-                </Button>
-              </div>
+              <p className="text-muted-foreground mb-6">Bắt đầu bằng cách tạo banner mới</p>
+              <Button onClick={() => setIsFormOpen(true)} disabled={actionLoading !== null}>
+                <Plus className="h-4 w-4 mr-2" />
+                Tạo Banner Mới
+              </Button>
             </CardContent>
           </Card>
         ) : (
@@ -304,7 +259,6 @@ const BannersPage: React.FC = () => {
           />
         )}
 
-        {/* Banner Form Modal */}
         <BannerForm
           banner={editingBanner}
           isOpen={isFormOpen}

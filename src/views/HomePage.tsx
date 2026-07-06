@@ -10,7 +10,7 @@ import IntroductionSection from '../components/home/IntroductionSection';
 import FeaturedClassesSection from '../components/home/FeaturedClassesSection';
 import ContactCTASection from '../components/home/ContactCTASection';
 import ParentFeedbackSection from '../components/home/ParentFeedbackSection';
-import { convertFirestoreClass, getFeaturedClasses } from '../utils/classHelpers';
+import { getFeaturedClasses } from '../utils/classHelpers';
 import { useActiveBanners } from '@/hooks/useBanners';
 import { useCenterInfo } from '@/hooks/useCenterInfo';
 import { useActiveClasses } from '@/hooks/useClasses';
@@ -39,12 +39,9 @@ const HomePage = () => {
     refetch: refetchBanners,
   } = useActiveBanners();
   const { data: centerInfo = null, isLoading: centerLoading, error: centerError } = useCenterInfo();
-  const { data: firestoreClasses = [] } = useActiveClasses();
+  const { data: classes = [] } = useActiveClasses();
 
-  const featuredClasses = useMemo<Class[]>(
-    () => getFeaturedClasses(firestoreClasses.map(convertFirestoreClass), 6),
-    [firestoreClasses]
-  );
+  const featuredClasses = useMemo<Class[]>(() => getFeaturedClasses(classes, 6), [classes]);
 
   const loading = bannersLoading || centerLoading;
   const error = bannersError?.message || centerError?.message || null;

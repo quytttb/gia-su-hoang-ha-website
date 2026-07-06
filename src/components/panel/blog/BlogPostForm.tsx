@@ -12,8 +12,21 @@ import { Button } from '../../ui/button';
 import { Textarea } from '../../ui/textarea';
 import { Switch } from '../../ui/switch';
 import { Label } from '../../ui/label';
-import { BlogService, computeReadTime } from '../../../services/blogService';
-import { UploadService, UploadProgress } from '../../../services/uploadService';
+import { createPost, updatePost } from '@/actions/blog';
+import { uploadFile } from '@/actions/upload';
+
+type UploadProgress = {
+  progress: number;
+  isUploading: boolean;
+};
+
+const computeReadTime = (markdown: string): number => {
+  const words = markdown
+    .replace(/[#*_`>-]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+  return Math.max(1, Math.ceil(words.length / 200));
+};
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../ui/select';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
@@ -58,7 +71,7 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Track newly uploaded (unsaved) Cloudinary image for cleanup if user cancels
+  // Track newly uploaded (unsaved) cover image for cleanup if user cancels
   const [tempUploadedCoverUrl, setTempUploadedCoverUrl] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
@@ -91,18 +104,13 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
     }
   }, [post, isOpen]);
 
-  // Cleanup on unmount (component removal) if user never saved
   useEffect(() => {
     return () => {
-      if (
-        !saved &&
-        tempUploadedCoverUrl &&
-        tempUploadedCoverUrl !== (post?.coverImage?.url || '')
-      ) {
-        UploadService.deleteFile(tempUploadedCoverUrl).catch(() => {});
+      if (!saved && tempUploadedCoverUrl && tempUploadedCoverUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(tempUploadedCoverUrl);
       }
     };
-  }, [saved, tempUploadedCoverUrl, post]);
+  }, [saved, tempUploadedCoverUrl]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -124,26 +132,24 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
       const fileName = selectedFile.name.replace(/\.[^.]+$/, '') + '-cropped.jpg';
       const croppedFile = new File([blob], fileName, { type: blob.type });
       // Upload cropped file
-      const result = await UploadService.uploadFile(
-        croppedFile,
-        'blog',
-        setUploading,
-        title || fileName
-      );
-      // If there was a previous unsaved uploaded image (re-crop), delete it first
-      if (
-        tempUploadedCoverUrl &&
-        tempUploadedCoverUrl !== result.url &&
-        tempUploadedCoverUrl !== (post?.coverImage?.url || '')
-      ) {
-        UploadService.deleteFile(tempUploadedCoverUrl).catch(() => {});
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', croppedFile);
+      setUploading({ progress: 0, isUploading: true });
+      const result = await uploadFile(uploadFormData, 'blog-covers');
+      setUploading({ progress: 100, isUploading: false });
+
+      if (!result.success || !result.data) {
+        throw new Error(result.error ?? 'Lỗi upload ảnh bìa');
       }
-      setCoverImage(result.url);
-      setTempUploadedCoverUrl(result.url); // Track for potential cleanup
+
+      setCoverImage(result.data.url);
+      setTempUploadedCoverUrl(result.data.url);
       setSaved(false);
       setShowCrop(false);
-    } catch (e: any) {
-      setError(e.message || 'Lỗi cắt ảnh');
+    } catch (e: unknown) {
+      setUploading({ progress: 0, isUploading: false });
+      const message = e instanceof Error ? e.message : 'Lỗi cắt ảnh';
+      setError(message);
     }
   };
 
@@ -186,17 +192,22 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
     if (!file) return;
     try {
       setError(null);
-      const result = await UploadService.uploadFile(
-        file,
-        'blog',
-        setContentUploading,
-        title || file.name
-      );
+      setContentUploading({ progress: 0, isUploading: true });
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      const result = await uploadFile(uploadFormData, 'gallery');
+      setContentUploading({ progress: 100, isUploading: false });
+
+      if (!result.success || !result.data) {
+        throw new Error(result.error ?? 'Lỗi tải ảnh nội dung');
+      }
+
       const alt = (file.name || 'image').replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
-      const md = `\n\n![${alt}](${result.url})\n\n`;
+      const md = `\n\n![${alt}](${result.data.url})\n\n`;
       insertTextAtCursor(md);
-    } catch (err: any) {
-      setError(err.message || 'Lỗi tải ảnh nội dung');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Lỗi tải ảnh nội dung';
+      setError(message);
     } finally {
       setContentUploading({ progress: 0, isUploading: false });
     }
@@ -234,7 +245,7 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
     setError(null);
     try {
       if (post) {
-        await BlogService.updatePost(post.id, {
+        const result = await updatePost(post.id, {
           title,
           subtitle,
           contentMarkdown,
@@ -242,10 +253,13 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
           tags,
           featured,
           status,
-          coverImage: coverImage ? { url: coverImage } : undefined,
+          coverImageUrl: coverImage || undefined,
         });
+        if (!result.success) {
+          throw new Error(result.error ?? 'Không thể cập nhật bài viết');
+        }
       } else {
-        await BlogService.createPost({
+        const result = await createPost({
           title,
           subtitle,
           contentMarkdown,
@@ -253,15 +267,19 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
           tags,
           featured,
           status,
-          authorName: 'Admin', // TODO: from context
-          coverImage: coverImage ? { url: coverImage } : undefined,
+          authorName: 'Admin',
+          coverImageUrl: coverImage || undefined,
         });
+        if (!result.success) {
+          throw new Error(result.error ?? 'Không thể tạo bài viết');
+        }
       }
       setSaved(true);
       onSaved();
       onClose();
-    } catch (e: any) {
-      setError(e.message || 'Lỗi lưu bài viết');
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Lỗi lưu bài viết';
+      setError(message);
     } finally {
       setSaving(false);
     }
@@ -272,14 +290,6 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
       open={isOpen}
       onOpenChange={open => {
         if (!open) {
-          // If user is closing without saving and we have a temp uploaded image different from original, delete it
-          if (
-            !saved &&
-            tempUploadedCoverUrl &&
-            tempUploadedCoverUrl !== (post?.coverImage?.url || '')
-          ) {
-            UploadService.deleteFile(tempUploadedCoverUrl).catch(() => {});
-          }
           onClose();
         }
       }}

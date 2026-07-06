@@ -15,7 +15,12 @@ import {
 import { Dialog as PreviewDialog, DialogContent as PreviewDialogContent } from '../../ui/dialog';
 import { bannerFormSchema } from '@/lib/validations/panel';
 import { mapZodErrors } from '@/lib/validations/zodHelpers';
-import { UploadService, UploadProgress } from '../../../services/uploadService';
+import { uploadFile } from '@/actions/upload';
+
+type UploadProgress = {
+  progress: number;
+  isUploading: boolean;
+};
 import { Upload, X, Loader2, CheckCircle } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import { Dialog as CropDialog, DialogContent as CropDialogContent } from '../../ui/dialog';
@@ -94,14 +99,13 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
     setSaved(false);
   }, [banner, isOpen]);
 
-  // Cleanup on unmount if not saved
   useEffect(() => {
     return () => {
-      if (!saved && tempUploadedUrl && tempUploadedUrl !== (banner?.imageUrl || '')) {
-        UploadService.deleteFile(tempUploadedUrl).catch(() => {});
+      if (!saved && tempUploadedUrl && tempUploadedUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(tempUploadedUrl);
       }
     };
-  }, [saved, tempUploadedUrl, banner]);
+  }, [saved, tempUploadedUrl]);
 
   const validateForm = () => {
     const result = bannerFormSchema.safeParse(formData);
@@ -229,28 +233,23 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
     if (!selectedFile) return null;
 
     try {
-      console.log('Starting upload for:', selectedFile.name);
-      const result = await UploadService.uploadBannerImage(
-        selectedFile,
-        setUploadProgress,
-        formData.title,
-        formData.order
-      );
-      console.log('Upload completed:', result);
-      // If previously uploaded temp (replacing), delete the old one
-      if (
-        tempUploadedUrl &&
-        tempUploadedUrl !== result.url &&
-        tempUploadedUrl !== (banner?.imageUrl || '')
-      ) {
-        UploadService.deleteFile(tempUploadedUrl).catch(() => {});
+      setUploadProgress({ progress: 0, isUploading: true });
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', selectedFile);
+      const result = await uploadFile(formDataUpload, 'banners');
+      setUploadProgress({ progress: 100, isUploading: false });
+
+      if (!result.success || !result.data) {
+        throw new Error(result.error ?? 'Lỗi upload hình ảnh');
       }
-      return result.url;
-    } catch (error: any) {
-      console.error('Upload error:', error);
+
+      return result.data.url;
+    } catch (error: unknown) {
+      setUploadProgress({ progress: 0, isUploading: false });
+      const message = error instanceof Error ? error.message : 'Lỗi upload hình ảnh';
       setErrors(prev => ({
         ...prev,
-        imageUrl: error.message || 'Lỗi upload hình ảnh',
+        imageUrl: message,
       }));
       return null;
     }
@@ -276,10 +275,6 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
         open={isOpen}
         onOpenChange={open => {
           if (!open) {
-            // If closing without saving, delete temp uploaded
-            if (!saved && tempUploadedUrl && tempUploadedUrl !== (banner?.imageUrl || '')) {
-              UploadService.deleteFile(tempUploadedUrl).catch(() => {});
-            }
             onClose();
           }
         }}

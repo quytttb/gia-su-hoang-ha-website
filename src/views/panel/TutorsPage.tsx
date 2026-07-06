@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import tutorsService from '../../services/firestore/tutorsService';
+import { createTutor, updateTutor, deleteTutor } from '@/actions/tutor';
 import { Tutor } from '../../types';
 import { TutorTable, TutorForm } from '../../components/panel/tutors';
 import { Button } from '../../components/ui/button';
@@ -15,7 +15,7 @@ const PAGE_SIZE = 10;
 
 const TutorsPage: React.FC = () => {
   const queryClient = useQueryClient();
-  const { data: tutors = [], isLoading: loading, refetch } = useTutors(false);
+  const { data: tutors = [], isLoading: loading, refetch } = useTutors();
   const [filteredTutors, setFilteredTutors] = useState<Tutor[]>([]);
   const [totalTutors, setTotalTutors] = useState(0);
   const [page, setPage] = useState(1);
@@ -76,7 +76,11 @@ const TutorsPage: React.FC = () => {
     if (!tutorToDelete) return;
     try {
       setActionLoading(true);
-      await tutorsService.deleteTutor(tutorToDelete.id);
+      const result = await deleteTutor(tutorToDelete.id);
+      if (!result.success) {
+        alert(`Không thể xóa giáo viên: ${result.error ?? 'Lỗi không xác định'}`);
+        return;
+      }
       setDeleteConfirmOpen(false);
       setTutorToDelete(null);
       invalidateTutors();
@@ -92,9 +96,12 @@ const TutorsPage: React.FC = () => {
     try {
       setActionLoading(true);
       if (editingTutor) {
-        await tutorsService.updateTutor(editingTutor.id, tutorData);
+        const result = await updateTutor(editingTutor.id, tutorData);
+        if (!result.success) {
+          throw new Error(result.error ?? 'Không thể cập nhật giáo viên');
+        }
       } else {
-        await tutorsService.addTutor({
+        const result = await createTutor({
           ...tutorData,
           isActive: true,
           experience: '',
@@ -102,6 +109,9 @@ const TutorsPage: React.FC = () => {
           subjects: [],
           availability: [],
         });
+        if (!result.success) {
+          throw new Error(result.error ?? 'Không thể tạo giáo viên');
+        }
       }
       invalidateTutors();
       setIsFormOpen(false);

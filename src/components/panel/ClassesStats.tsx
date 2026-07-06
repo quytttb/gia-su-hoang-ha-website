@@ -1,46 +1,74 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import SkeletonLoading from '@/components/shared/SkeletonLoading';
-import classesService, { ClassStats } from '../../services/firestore/classesService';
-import { FirestoreClass } from '../../types/firestore';
+import { getAllClasses } from '@/data/classes';
+import { Class } from '../../types';
+
+interface ClassStats {
+  totalClasses: number;
+  activeClasses: number;
+  totalStudents: number;
+  averagePrice: number;
+  popularSubjects: { subject: string; count: number }[];
+  recentEnrollments: number;
+}
+
+const computeClassStats = (classes: Class[]): ClassStats => {
+  const activeClasses = classes.filter(c => c.isActive !== false);
+  const averagePrice =
+    classes.length > 0 ? classes.reduce((sum, c) => sum + c.price, 0) / classes.length : 0;
+
+  const categoryCounts: Record<string, number> = {};
+  classes.forEach(c => {
+    const category = c.category || 'Khác';
+    categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+  });
+
+  const popularSubjects = Object.entries(categoryCounts)
+    .map(([subject, count]) => ({ subject, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  return {
+    totalClasses: classes.length,
+    activeClasses: activeClasses.length,
+    totalStudents: 0,
+    averagePrice,
+    popularSubjects,
+    recentEnrollments: 0,
+  };
+};
 
 const ClassesStats = () => {
   const [stats, setStats] = useState<ClassStats | null>(null);
-  const [classes, setClasses] = useState<FirestoreClass[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Set up real-time listener for classes
-    const unsubscribe = classesService.subscribeToClassesForAdmin((classesData: any[]) => {
-      setClasses(classesData);
-    });
-
-    return () => {
-      unsubscribe();
-    };
+  const loadStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const classes = await getAllClasses();
+      setStats(computeClassStats(classes));
+    } catch (err) {
+      console.error('Error loading class stats:', err);
+      setError('Không thể tải thống kê lớp học');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    // Calculate stats whenever classes change
-    const calculateStats = async () => {
-      try {
-        setLoading(true);
-        const result = await classesService.getClassStats();
-        if (result.data) {
-          setStats(result.data);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.error('Error calculating stats:', error);
-        setLoading(false);
-      }
+    void loadStats();
+    const handler = () => {
+      void loadStats();
     };
-
-    if (classes.length > 0) {
-      calculateStats();
-    }
-  }, [classes]);
+    window.addEventListener('panel-global-refresh', handler as EventListener);
+    return () => window.removeEventListener('panel-global-refresh', handler as EventListener);
+  }, [loadStats]);
 
   if (loading) {
     return (
@@ -69,15 +97,10 @@ const ClassesStats = () => {
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">Thống kê lớp học</h2>
-          <div className="flex items-center text-green-500 dark:text-green-400 text-sm">
-            <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-            Real-time
-          </div>
         </div>
 
         {stats && (
           <>
-            {/* Main Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
@@ -108,13 +131,15 @@ const ClassesStats = () => {
               </div>
             </div>
 
-            {/* Popular Subjects */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
                   Môn học phổ biến
                 </h3>
                 <div className="space-y-2">
+                  {stats.popularSubjects.length === 0 && (
+                    <p className="text-sm text-muted-foreground">Chưa có dữ liệu</p>
+                  )}
                   {stats.popularSubjects.slice(0, 5).map(subject => (
                     <div key={subject.subject} className="flex items-center justify-between">
                       <span className="text-gray-700 dark:text-gray-300">{subject.subject}</span>
@@ -123,7 +148,7 @@ const ClassesStats = () => {
                           <div
                             className="bg-blue-500 dark:bg-blue-400 h-2 rounded-full"
                             style={{
-                              width: `${(subject.count / stats.popularSubjects[0].count) * 100}%`,
+                              width: `${stats.popularSubjects[0]?.count ? (subject.count / stats.popularSubjects[0].count) * 100 : 0}%`,
                             }}
                           ></div>
                         </div>
@@ -136,7 +161,6 @@ const ClassesStats = () => {
                 </div>
               </div>
 
-              {/* Recent Activity */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
                   Hoạt động gần đây
@@ -146,19 +170,6 @@ const ClassesStats = () => {
                     <span className="text-gray-700 dark:text-gray-300">Đăng ký mới (30 ngày)</span>
                     <span className="font-semibold text-green-600 dark:text-green-400">
                       {stats.recentEnrollments}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded">
-                    <span className="text-gray-700 dark:text-gray-300">Lớp học được cập nhật</span>
-                    <span className="font-semibold text-blue-600 dark:text-blue-400">
-                      {
-                        classes.filter(c => {
-                          const updatedAt = c.updatedAt?.toDate();
-                          const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-                          return updatedAt && updatedAt > oneDayAgo;
-                        }).length
-                      }
                     </span>
                   </div>
                 </div>

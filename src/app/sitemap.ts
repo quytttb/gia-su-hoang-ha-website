@@ -1,34 +1,9 @@
 import type { MetadataRoute } from 'next';
-import { hasFirebasePublicConfig } from '@/lib/env';
-import { BlogService } from '@/services/blogService';
-import classesService from '@/services/firestore/classesService';
-import { convertFirestoreClass } from '@/utils/classHelpers';
+import { hasSupabaseConfig } from '@/lib/env';
+import { getAllClasses } from '@/data/classes';
+import { listPosts } from '@/data/blog';
 
 const siteUrl = 'https://giasuhoangha.com';
-
-const toDate = (value: unknown) => {
-  if (!value) return new Date();
-  if (
-    typeof value === 'object' &&
-    value &&
-    'toDate' in value &&
-    typeof value.toDate === 'function'
-  ) {
-    return value.toDate();
-  }
-  if (
-    typeof value === 'object' &&
-    value &&
-    'seconds' in value &&
-    typeof value.seconds === 'number'
-  ) {
-    return new Date(value.seconds * 1000);
-  }
-  if (typeof value === 'string' || value instanceof Date) {
-    return new Date(value);
-  }
-  return new Date();
-};
 
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -41,18 +16,17 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     { url: `${siteUrl}/contact`, changeFrequency: 'monthly', priority: 0.7 },
   ];
 
-  if (!hasFirebasePublicConfig) {
+  if (!hasSupabaseConfig) {
     return staticRoutes;
   }
 
   try {
-    const [classResult, blogResult] = await Promise.all([
-      classesService.getAll({ limit: 200 }),
-      BlogService.listPosts({ pageSize: 200, status: 'published' }),
+    const [classes, blogResult] = await Promise.all([
+      getAllClasses(),
+      listPosts({ pageSize: 200, status: 'published' }),
     ]);
 
-    const classRoutes = classResult.data
-      .map(convertFirestoreClass)
+    const classRoutes = classes
       .filter(classData => classData.id)
       .flatMap(classData => [
         {
@@ -67,18 +41,12 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
         },
       ]);
 
-    const blogRoutes = blogResult.posts.map(post => {
-      const slug = (post as { slug?: string }).slug || post.id;
-
-      return {
-        url: `${siteUrl}/blog/${slug}`,
-        lastModified: toDate(
-          (post as { createdAt?: unknown }).createdAt || post.updatedAt || post.publishedAt
-        ),
-        changeFrequency: 'monthly' as const,
-        priority: post.featured ? 0.8 : 0.7,
-      };
-    });
+    const blogRoutes = blogResult.posts.map(post => ({
+      url: `${siteUrl}/blog/${post.slug || post.id}`,
+      lastModified: new Date(post.updatedAt || post.publishedAt),
+      changeFrequency: 'monthly' as const,
+      priority: post.featured ? 0.8 : 0.7,
+    }));
 
     return [...staticRoutes, ...classRoutes, ...blogRoutes];
   } catch (error) {

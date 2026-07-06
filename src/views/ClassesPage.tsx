@@ -5,11 +5,7 @@ import { useQueryState } from 'nuqs';
 import Layout from '../components/layout/Layout';
 import ClassCard from '../components/shared/ClassCard';
 import { Class } from '../types';
-import {
-  convertFirestoreClass,
-  extractClassCategories,
-  filterClassesByCategory,
-} from '../utils/classHelpers';
+import { extractClassCategories, filterClassesByCategory } from '../utils/classHelpers';
 import Chatbot from '../components/shared/Chatbot';
 import PageHero from '../components/shared/PageHero';
 import ErrorDisplay from '../components/shared/ErrorDisplay';
@@ -22,12 +18,7 @@ const ClassesPage = () => {
   const [selectedCategory, setSelectedCategory] = useQueryState('category', {
     defaultValue: 'all',
   });
-  const { data: firestoreClasses, isLoading, error, refetch } = useActiveClasses();
-
-  const classes = useMemo(
-    () => (firestoreClasses ?? []).map(convertFirestoreClass),
-    [firestoreClasses]
-  );
+  const { data: classes = [], isLoading, error, refetch } = useActiveClasses();
 
   const categories = useMemo(() => extractClassCategories(), []);
 

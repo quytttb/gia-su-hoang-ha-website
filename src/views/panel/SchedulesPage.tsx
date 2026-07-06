@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '../../components/ui/button';
 import { Plus, Calendar, Filter, Search } from 'lucide-react';
@@ -16,10 +16,12 @@ import PanelTableSkeleton from '@/components/panel/shared/PanelTableSkeleton';
 import DeleteConfirmDialog from '@/components/panel/shared/DeleteConfirmDialog';
 import ScheduleTable from '../../components/panel/schedules/ScheduleTable';
 import ScheduleForm from '../../components/panel/schedules/ScheduleForm';
-import schedulesService from '../../services/firestore/schedulesService';
+import { createSchedule, updateSchedule, deleteSchedule } from '@/actions/schedule';
+import { getAllClasses } from '@/data/classes';
+import { getAllTutors } from '@/data/tutors';
 import { Schedule } from '../../types';
 import { formatDate } from '../../utils/helpers';
-import { useAvailableScheduleDates, useSchedules } from '@/hooks/useSchedules';
+import { useSchedules } from '@/hooks/useSchedules';
 import { queryKeys } from '@/lib/queryKeys';
 
 const PAGE_SIZE = 10;
@@ -27,7 +29,10 @@ const PAGE_SIZE = 10;
 const SchedulesPage: React.FC = () => {
   const queryClient = useQueryClient();
   const { data: schedules = [], isLoading: loading, refetch } = useSchedules();
-  const { data: availableDates = [] } = useAvailableScheduleDates();
+  const availableDates = useMemo(
+    () => Array.from(new Set(schedules.map(s => s.startDate).filter(Boolean))).sort(),
+    [schedules]
+  );
   const [filteredSchedules, setFilteredSchedules] = useState<Schedule[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -142,11 +147,11 @@ const SchedulesPage: React.FC = () => {
 
     try {
       setActionLoading(true);
-      const result = await schedulesService.delete(scheduleToDelete.id);
+      const result = await deleteSchedule(scheduleToDelete.id);
 
-      if (result.error) {
+      if (!result.success) {
         console.error('Error deleting schedule:', result.error);
-        alert(`Không thể xóa lịch học: ${result.error}`);
+        alert(`Không thể xóa lịch học: ${result.error ?? 'Lỗi không xác định'}`);
         return;
       }
 
@@ -162,17 +167,34 @@ const SchedulesPage: React.FC = () => {
   };
 
   // Handle save schedule (create/update)
-  const handleSaveSchedule = async (scheduleData: any) => {
+  const handleSaveSchedule = async (scheduleData: {
+    className: string;
+    tutorName: string;
+    startDate: string;
+    startTime: string;
+    endTime: string;
+    maxStudents: number;
+    status: Schedule['status'];
+    studentPhones?: string[];
+  }) => {
     try {
       setActionLoading(true);
 
+      const [classes, tutors] = await Promise.all([getAllClasses(), getAllTutors()]);
+      const matchedClass = classes.find(c => c.name === scheduleData.className);
+      const matchedTutor = tutors.find(t => t.name === scheduleData.tutorName);
+
+      if (!matchedClass) {
+        throw new Error('Lớp học không tồn tại. Vui lòng chọn lớp học có trong hệ thống.');
+      }
+      if (!matchedTutor) {
+        throw new Error('Giáo viên không tồn tại. Vui lòng chọn giáo viên có trong hệ thống.');
+      }
+
       if (editingSchedule && editingSchedule.id) {
-        // Update existing schedule
-        const result = await schedulesService.update(editingSchedule.id, {
-          classId: editingSchedule.classId || '', // Keep existing or empty
-          className: scheduleData.className,
-          tutorId: editingSchedule.tutorId || '', // Keep existing or empty
-          tutorName: scheduleData.tutorName,
+        const result = await updateSchedule(editingSchedule.id, {
+          classId: matchedClass.id,
+          tutorId: matchedTutor.id,
           startDate: scheduleData.startDate,
           startTime: scheduleData.startTime,
           endTime: scheduleData.endTime,
@@ -181,17 +203,14 @@ const SchedulesPage: React.FC = () => {
           status: scheduleData.status,
         });
 
-        if (result.error) {
+        if (!result.success) {
           console.error('Error updating schedule:', result.error);
-          throw new Error(result.error);
+          throw new Error(result.error ?? 'Không thể cập nhật lịch học');
         }
       } else {
-        // Create new schedule
-        const result = await schedulesService.create({
-          classId: '', // Auto-generate or leave empty
-          className: scheduleData.className,
-          tutorId: '', // Auto-generate or leave empty
-          tutorName: scheduleData.tutorName,
+        const result = await createSchedule({
+          classId: matchedClass.id,
+          tutorId: matchedTutor.id,
           startDate: scheduleData.startDate,
           startTime: scheduleData.startTime,
           endTime: scheduleData.endTime,
@@ -200,9 +219,9 @@ const SchedulesPage: React.FC = () => {
           status: scheduleData.status,
         });
 
-        if (result.error) {
+        if (!result.success) {
           console.error('Error creating schedule:', result.error);
-          throw new Error(result.error);
+          throw new Error(result.error ?? 'Không thể tạo lịch học');
         }
       }
 

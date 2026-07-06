@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, query, orderBy, updateDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../config/firebase';
-import SkeletonLoading from '../../components/shared/SkeletonLoading';
+import {
+  getContactMessages,
+  updateContactStatus,
+  deleteContactMessage,
+  type ContactMessage,
+} from '@/actions/contact-admin';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useNotificationStore } from '@/stores/useNotificationStore';
@@ -18,7 +21,7 @@ import {
   Send,
   X,
 } from 'lucide-react';
-import { ContactMessage } from '../../services/contactService';
+import SkeletonLoading from '../../components/shared/SkeletonLoading';
 import { sendReplyEmail } from '../../services/replyService';
 
 const InquiriesPage: React.FC = () => {
@@ -38,19 +41,7 @@ const InquiriesPage: React.FC = () => {
 
   const fetchMessages = async () => {
     try {
-      if (!db) {
-        console.error('Database not initialized');
-        return;
-      }
-
-      const messagesQuery = query(collection(db, 'contacts'), orderBy('createdAt', 'desc'));
-
-      const snapshot = await getDocs(messagesQuery);
-      const fetchedMessages = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as (ContactMessage & { id: string })[];
-
+      const fetchedMessages = await getContactMessages();
       setMessages(fetchedMessages);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -65,21 +56,17 @@ const InquiriesPage: React.FC = () => {
 
   const updateMessageStatus = async (messageId: string, status: ContactMessage['status']) => {
     try {
-      if (!db) return;
+      const result = await updateContactStatus(messageId, status);
+      if (!result.success || !result.data) return;
 
-      await updateDoc(doc(db, 'contacts', messageId), {
-        status,
-        updatedAt: new Date(),
-      });
+      setMessages(prev =>
+        prev.map(msg => (msg.id === messageId ? { ...msg, status: result.data!.status } : msg))
+      );
 
-      setMessages(prev => prev.map(msg => (msg.id === messageId ? { ...msg, status } : msg)));
-
-      // Update selectedMessage if it's the same message
       if (selectedMessage && selectedMessage.id === messageId) {
-        setSelectedMessage(prev => (prev ? { ...prev, status } : null));
+        setSelectedMessage(prev => (prev ? { ...prev, status: result.data!.status } : null));
       }
 
-      // Refresh notifications in header
       refreshNotifications();
     } catch (error) {
       console.error('Error updating message status:', error);
@@ -90,9 +77,8 @@ const InquiriesPage: React.FC = () => {
     if (!confirm('Bạn có chắc chắn muốn xóa tin nhắn này?')) return;
 
     try {
-      if (!db) return;
-
-      await deleteDoc(doc(db, 'contacts', messageId));
+      const result = await deleteContactMessage(messageId);
+      if (!result.success) return;
       setMessages(prev => prev.filter(msg => msg.id !== messageId));
       setSelectedMessage(null);
     } catch (error) {
@@ -167,7 +153,7 @@ const InquiriesPage: React.FC = () => {
         return 'text-yellow-600 bg-yellow-100';
       case 'replied':
         return 'text-green-600 bg-green-100';
-      case 'closed':
+      case 'archived':
         return 'text-gray-600 bg-gray-100';
       default:
         return 'text-gray-600 bg-gray-100';
@@ -182,7 +168,7 @@ const InquiriesPage: React.FC = () => {
         return 'Đã đọc';
       case 'replied':
         return 'Đã trả lời';
-      case 'closed':
+      case 'archived':
         return 'Đã đóng';
       default:
         return 'Không xác định';

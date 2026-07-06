@@ -1,15 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import classesService from '../../services/firestore/classesService';
+import { createClass, updateClass, deleteClass } from '@/actions/class';
 import { Class } from '../../types';
-import { FirestoreClass } from '../../types/firestore';
-import { extractClassCategories, convertFirestoreClass } from '../../utils/classHelpers';
+import { extractClassCategories } from '../../utils/classHelpers';
 import ClassTable from '../../components/panel/classes/ClassTable';
 import ClassForm from '../../components/panel/classes/ClassForm';
 import { Button } from '../../components/ui/button';
 import { Plus } from 'lucide-react';
-import { PartialWithFieldValue } from 'firebase/firestore';
 import PanelPageHeader from '@/components/panel/shared/PanelPageHeader';
 import PanelTableSkeleton from '@/components/panel/shared/PanelTableSkeleton';
 import DeleteConfirmDialog from '@/components/panel/shared/DeleteConfirmDialog';
@@ -22,7 +20,7 @@ const ClassesPage: React.FC = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: rawClasses, isLoading: loading, refetch } = useAdminClasses();
-  const classes = useMemo(() => (rawClasses ?? []).map(convertFirestoreClass), [rawClasses]);
+  const classes = useMemo(() => rawClasses ?? [], [rawClasses]);
   const [filteredClasses, setFilteredClasses] = useState<Class[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [totalClasses, setTotalClasses] = useState(0);
@@ -145,11 +143,11 @@ const ClassesPage: React.FC = () => {
 
     try {
       setActionLoading(true);
-      const result = await classesService.delete(classToDelete.id);
+      const result = await deleteClass(classToDelete.id);
 
-      if (result.error) {
+      if (!result.success) {
         console.error('Error deleting class:', result.error);
-        alert(`Không thể xóa lớp học: ${result.error}`);
+        alert(`Không thể xóa lớp học: ${result.error ?? 'Lỗi không xác định'}`);
         return;
       }
 
@@ -171,28 +169,46 @@ const ClassesPage: React.FC = () => {
 
       if (editingClass && editingClass.id) {
         // Update existing class
-        const result = await classesService.update(
-          editingClass.id,
-          classData as unknown as PartialWithFieldValue<Omit<FirestoreClass, 'id' | 'createdAt'>>
-        );
+        const result = await updateClass(editingClass.id, {
+          name: classData.name,
+          description: classData.description,
+          category: classData.category,
+          price: classData.price,
+          discount: classData.discount,
+          discountEndDate: classData.discountEndDate,
+          imageUrl: classData.imageUrl,
+          featured: classData.featured,
+          isActive: classData.isActive,
+        });
 
-        if (result.error) {
+        if (!result.success) {
           console.error('Error updating class:', result.error);
-          throw new Error(result.error);
+          throw new Error(result.error ?? 'Không thể cập nhật lớp học');
         }
 
         if (result.data) {
           invalidateClasses();
         }
       } else {
-        // Create new class
-        const result = await classesService.create(
-          classData as unknown as Omit<FirestoreClass, 'id' | 'createdAt' | 'updatedAt'>
-        );
+        if (!classData.name || !classData.category || classData.price === undefined) {
+          throw new Error('Thiếu thông tin bắt buộc');
+        }
 
-        if (result.error) {
+        const result = await createClass({
+          name: classData.name,
+          description: classData.description || '',
+          category: classData.category,
+          price: classData.price,
+          discount: classData.discount,
+          discountEndDate: classData.discountEndDate,
+          imageUrl: classData.imageUrl,
+          featured: classData.featured,
+          isActive: classData.isActive,
+        });
+
+        if (!result.success) {
           console.error('Error creating class:', result.error);
-          throw new Error(result.error);
+          throw new Error(result.error ?? 'Không thể tạo lớp học');
         }
 
         if (result.data) {

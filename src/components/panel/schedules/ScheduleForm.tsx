@@ -12,7 +12,7 @@ import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { CheckCircle, Loader2 } from 'lucide-react';
-import schedulesService from '../../../services/firestore/schedulesService';
+import { getAllSchedules } from '@/data/schedules';
 import { scheduleFormSchema } from '@/lib/validations/panel';
 import { mapZodErrors } from '@/lib/validations/zodHelpers';
 
@@ -53,7 +53,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ isOpen, onClose, onSave, in
   const loadExistingOptions = async () => {
     try {
       setLoadingOptions(true);
-      const schedules = await schedulesService.getAll();
+      const schedules = await getAllSchedules();
 
       // Extract unique class names and tutor names
       const classNames = Array.from(

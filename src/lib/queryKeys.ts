@@ -1,5 +1,5 @@
-import { ClassFilters } from '@/services/firestore/classesService';
-import { ListPostsOptions } from '@/services/blogService';
+import type { ClassFilters } from '@/data/classes';
+import type { ListPostsOptions } from '@/data/blog';
 
 export const queryKeys = {
   classes: {
@@ -10,6 +10,8 @@ export const queryKeys = {
     detail: (id: string) => ['classes', 'detail', id] as const,
   },
   tutors: {
+    all: ['tutors'] as const,
+    active: ['tutors', 'active'] as const,
     list: (activeOnly: boolean) => ['tutors', { activeOnly }] as const,
   },
   schedules: {
@@ -28,7 +30,13 @@ export const queryKeys = {
     related: (postId: string) => ['blogPosts', 'related', postId] as const,
   },
   banners: {
+    all: ['banners'] as const,
     active: ['banners', 'active'] as const,
+  },
+  settings: {
+    centerInfo: ['centerInfo'] as const,
+    gallery: ['galleryImages'] as const,
+    siteAsset: (key: string) => ['siteAsset', key] as const,
   },
   centerInfo: ['centerInfo'] as const,
 };

@@ -13,7 +13,12 @@ import {
 } from '../../ui/dialog';
 import { Dialog as PreviewDialog, DialogContent as PreviewDialogContent } from '../../ui/dialog';
 import { Upload, X, Loader2, CheckCircle } from 'lucide-react';
-import { UploadService, UploadProgress } from '../../../services/uploadService';
+import { uploadFile } from '@/actions/upload';
+
+type UploadProgress = {
+  progress: number;
+  isUploading: boolean;
+};
 import { tutorFormSchema } from '@/lib/validations/panel';
 import { mapZodErrors } from '@/lib/validations/zodHelpers';
 
@@ -118,15 +123,22 @@ const TutorForm: React.FC<TutorFormProps> = ({ tutor, isOpen, onClose, onSave })
   const handleFileUpload = async (): Promise<string | null> => {
     if (!selectedFile) return null;
     try {
-      const result = await UploadService.uploadTutorImage(
-        selectedFile,
-        setUploadProgress,
-        formData.name
-      );
-      setFormData(prev => ({ ...prev, imageUrl: result.url }));
-      return result.url;
-    } catch (error: any) {
-      setErrors(prev => ({ ...prev, imageUrl: error.message || 'Lỗi upload hình ảnh' }));
+      setUploadProgress({ progress: 0, isUploading: true });
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', selectedFile);
+      const result = await uploadFile(formDataUpload, 'tutors');
+      setUploadProgress({ progress: 100, isUploading: false });
+
+      if (!result.success || !result.data) {
+        throw new Error(result.error ?? 'Lỗi upload hình ảnh');
+      }
+
+      setFormData(prev => ({ ...prev, imageUrl: result.data!.url }));
+      return result.data.url;
+    } catch (error: unknown) {
+      setUploadProgress({ progress: 0, isUploading: false });
+      const message = error instanceof Error ? error.message : 'Lỗi upload hình ảnh';
+      setErrors(prev => ({ ...prev, imageUrl: message }));
       return null;
     }
   };

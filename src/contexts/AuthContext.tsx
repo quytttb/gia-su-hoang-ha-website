@@ -29,7 +29,6 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, setState] = useState<AuthState>({
     user: null,
-    firebaseUser: null,
     loading: true,
     error: null,
   });
@@ -87,7 +86,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setState(prev => ({
         ...prev,
         user: null,
-        firebaseUser: null,
         loading: false,
       }));
     } catch (error: any) {
