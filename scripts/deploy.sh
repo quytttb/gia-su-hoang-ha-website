@@ -1,7 +1,6 @@
-#!/bin/bash
-
-# Deploy Next.js app lên Vercel
-# Sử dụng: ./scripts/deploy.sh [--production]
+#!/usr/bin/env bash
+# Deploy PREVIEW lên Vercel (nhánh dev, không đụng production).
+# Usage: ./scripts/deploy.sh
 
 set -euo pipefail
 
@@ -11,77 +10,47 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+if [ "${1:-}" = "--production" ] || [ "${1:-}" = "-p" ]; then
+  log_error "Script này chỉ deploy PREVIEW."
+  log_error "Để lên production, dùng: npm run deploy:prod"
+  exit 1
+fi
 
 if ! command -v vercel &> /dev/null; then
-    log_error "Vercel CLI chưa được cài đặt. Vui lòng cài đặt bằng: npm i -g vercel"
-    exit 1
+  log_error "Vercel CLI chưa cài. Chạy: npm i -g vercel"
+  exit 1
 fi
 
 if [ ! -f "package.json" ] || [ ! -f "next.config.ts" ]; then
-    log_error "Script này phải được chạy từ thư mục root của dự án Next.js"
-    exit 1
+  log_error "Chạy script từ thư mục root của dự án."
+  exit 1
 fi
 
-log_info "🚀 Bắt đầu quá trình deploy lên Vercel..."
-
-PRODUCTION_FLAG=""
-if [ "$1" = "--production" ] || [ "$1" = "-p" ]; then
-    PRODUCTION_FLAG="--prod"
-    log_info "📦 Deploy lên môi trường PRODUCTION"
-else
-    log_info "🧪 Deploy lên môi trường PREVIEW"
-fi
+log_info "🧪 Deploy PREVIEW (dev) lên Vercel..."
 
 log_info "📦 Kiểm tra dependencies..."
 if [ ! -d "node_modules" ]; then
-    log_info "Cài đặt dependencies..."
-    npm ci
-else
-    log_info "Dependencies đã được cài đặt"
+  npm ci
 fi
 
-log_info "🔍 Chạy ESLint..."
+log_info "🔍 ESLint..."
 npm run lint
 
-log_info "💄 Kiểm tra code formatting..."
+log_info "💄 Prettier..."
 npm run format:check
 
-log_info "🧪 Chạy tests..."
+log_info "🧪 Tests..."
 npm run test:run
 
-log_info "🔨 Build Next.js app..."
+log_info "🔨 Build..."
 npm run build
 
-log_info "🚀 Deploy lên Vercel..."
-if [ -n "$PRODUCTION_FLAG" ]; then
-    vercel --prod --yes
-else
-    vercel --yes
-fi
+log_info "🚀 Deploy preview..."
+vercel --yes
 
-log_success "✅ Deploy thành công!"
-
-if [ -n "$PRODUCTION_FLAG" ]; then
-    log_success "🌐 Ứng dụng đã được deploy lên production"
-    log_info "📝 Kiểm tra tại: https://giasuhoangha.com"
-else
-    log_success "🌐 Ứng dụng đã được deploy lên preview"
-    log_info "📝 URL preview sẽ được hiển thị ở trên"
-fi
-
-log_info "🎉 Hoàn thành!"
+log_success "✅ Preview deploy xong."
+log_info "📝 https://gia-su-hoang-ha-client-git-dev-angelo-buis-projects.vercel.app"
