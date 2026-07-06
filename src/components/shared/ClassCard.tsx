@@ -7,6 +7,8 @@ import { trackClassViewEcommerce, trackAddToCart } from '../../utils/ecommerce';
 import { parseMarkdown } from '../../utils/parseMarkdown';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 interface ClassCardProps {
   class: Class;
@@ -30,51 +32,52 @@ const ClassCard = ({ class: classData }: ClassCardProps) => {
         />
       </div>
 
-      <CardContent className="p-5">
+      <CardContent className="p-5 flex flex-col h-full">
         <h3 className="text-xl font-bold text-foreground mb-2 line-clamp-2">{name}</h3>
 
-        <div className="text-muted-foreground text-sm mb-3 line-clamp-3">
+        <div className="text-muted-foreground text-sm mb-4 line-clamp-3 flex-grow">
           {parseMarkdown(description)}
         </div>
 
-        <div className="mb-3 space-y-1">
-          <span className="text-muted-foreground text-sm block">
-            <strong>Lịch học:</strong> thứ 2 đến 4
-          </span>
-          <span className="text-muted-foreground text-sm block">
-            <strong>Giờ học:</strong> 19:30 đến 21:30
-          </span>
-          <span className="text-muted-foreground text-sm block">
-            <strong>Số lượng:</strong> 12
-          </span>
+        <div className="mb-4">
+          <div className="flex items-center text-sm text-muted-foreground py-1">
+            <span className="font-medium mr-2 w-20">Lịch học:</span>
+            <span>thứ 2 đến 4</span>
+          </div>
+          <Separator />
+          <div className="flex items-center text-sm text-muted-foreground py-1">
+            <span className="font-medium mr-2 w-20">Giờ học:</span>
+            <span>19:30 đến 21:30</span>
+          </div>
+          <Separator />
+          <div className="flex items-center text-sm text-muted-foreground py-1">
+            <span className="font-medium mr-2 w-20">Số lượng:</span>
+            <span>12</span>
+          </div>
         </div>
 
         <div className="flex items-center justify-between mb-4">
           <div>
             {hasValidDiscountValue ? (
               <div className="flex flex-col">
-                <span className="text-muted-foreground line-through text-sm">
+                <span className="text-muted-foreground line-through text-xs">
                   {formatCurrency(price)}
                 </span>
-                <span className="text-primary dark:text-blue-400 font-bold">
-                  {formatCurrency(finalPrice)}
-                </span>
+                <span className="text-primary font-bold text-lg">{formatCurrency(finalPrice)}</span>
               </div>
             ) : (
-              <span className="text-primary dark:text-blue-400 font-bold">
-                {formatCurrency(price)}
-              </span>
+              <span className="text-primary font-bold text-lg">{formatCurrency(price)}</span>
             )}
           </div>
 
           {hasValidDiscountValue ? (
-            <div className="bg-primary text-white text-sm px-2 py-1 rounded-lg">
+            <Badge variant="destructive" className="font-semibold px-2 py-1">
               Giảm {discount}%
-            </div>
+            </Badge>
           ) : null}
         </div>
 
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 mt-auto">
           <Button asChild className="flex-1">
             <Link
               href={`/classes/${id}`}

@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import SectionHeading from '../shared/SectionHeading';
 
 interface Feedback {
   id: string;
@@ -100,14 +101,14 @@ const ParentFeedbackSection: React.FC<ParentFeedbackSectionProps> = ({
       aria-labelledby="feedback-heading"
     >
       <div className="container-custom">
-        <header className="text-center mb-12">
-          <h2 id="feedback-heading" className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Chia sẻ của Phụ huynh
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Những chia sẻ chân thành từ phụ huynh về chất lượng dạy học của chúng tôi
-          </p>
-        </header>
+        <div className="text-center mb-12">
+          <SectionHeading
+            title="Chia sẻ của Phụ huynh"
+            description="Những chia sẻ chân thành từ phụ huynh về chất lượng dạy học của chúng tôi"
+            id="feedback-heading"
+            variant="centered"
+          />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {displayFeedbacks.map(feedback => (
@@ -121,7 +122,7 @@ const ParentFeedbackSection: React.FC<ParentFeedbackSectionProps> = ({
                         key={index}
                         className={`w-5 h-5 ${
                           index < feedback.rating
-                            ? 'text-accent fill-current'
+                            ? 'text-yellow-500 fill-yellow-500'
                             : 'text-muted-foreground'
                         }`}
                       />

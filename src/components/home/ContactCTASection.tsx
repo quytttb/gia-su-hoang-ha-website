@@ -6,17 +6,20 @@ import { CENTER_INFO } from '../../constants/centerInfo';
 const ContactCTASection = () => (
   <section
     id="contact-cta"
-    className="section-padding bg-gradient-to-r from-primary to-primary-600 text-white relative overflow-hidden"
+    className="section-padding bg-gradient-to-r from-primary to-primary text-primary-foreground relative overflow-hidden"
     aria-labelledby="contact-cta-heading"
   >
     {/* Background decoration */}
-    <div className="absolute inset-0 bg-black bg-opacity-10"></div>
-    <div className="absolute top-0 right-0 w-64 h-64 bg-white bg-opacity-5 rounded-full -translate-y-32 translate-x-32"></div>
-    <div className="absolute bottom-0 left-0 w-48 h-48 bg-white bg-opacity-5 rounded-full translate-y-24 -translate-x-24"></div>
+    <div className="absolute inset-0 bg-black/10"></div>
+    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
+    <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
 
     <div className="container-custom text-center relative z-10">
       <header className="mb-12">
-        <h2 id="contact-cta-heading" className="text-3xl md:text-4xl font-bold mb-4 text-white">
+        <h2
+          id="contact-cta-heading"
+          className="text-3xl md:text-4xl font-bold mb-4 text-primary-foreground"
+        >
           Sẵn sàng bắt đầu hành trình học tập?
         </h2>
         <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mx-auto leading-relaxed">
@@ -59,7 +62,7 @@ const ContactCTASection = () => (
       </div>
 
       {/* Contact Info */}
-      <div className="flex flex-col sm:flex-row justify-center items-center gap-6 text-white">
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-6 text-primary-foreground">
         <div className="flex items-center gap-2">
           <Phone className="w-5 h-5" />
           <span className="font-medium">Hotline: {CENTER_INFO.phonePrimary}</span>

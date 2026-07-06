@@ -238,7 +238,7 @@ const BlogDetailScreen: React.FC<BlogDetailScreenProps> = ({
                       prose-p:text-muted-foreground
                       prose-p:leading-relaxed
                       prose-strong:text-foreground
-                      prose-a:text-primary hover:prose-a:text-primary-600"
+                      prose-a:text-primary hover:prose-a:text-primary"
                     dangerouslySetInnerHTML={{
                       __html: article?.content || '',
                     }}

@@ -38,7 +38,7 @@ const ContactFormSection = ({
   if (success) {
     return (
       <div>
-        <SectionHeading title="Gửi Tin Nhắn" centered={false} />
+        <SectionHeading title="Gửi Tin Nhắn" variant="left" />
         <Alert className="border-primary/30 bg-primary/10 [&>svg]:text-primary">
           <Check className="h-5 w-5" aria-hidden="true" />
           <AlertTitle>Gửi tin nhắn thành công!</AlertTitle>
@@ -63,7 +63,7 @@ const ContactFormSection = ({
 
   return (
     <div>
-      <SectionHeading title="Gửi Tin Nhắn" centered={false} />
+      <SectionHeading title="Gửi Tin Nhắn" variant="left" />
       <EmailServiceStatus />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

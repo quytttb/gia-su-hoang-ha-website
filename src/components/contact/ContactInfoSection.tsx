@@ -41,7 +41,7 @@ const CONTACT_ITEMS = [
 
 const ContactInfoSection = () => (
   <div>
-    <SectionHeading title="Thông Tin Liên Hệ" centered={false} id="contact-info-heading" />
+    <SectionHeading title="Thông Tin Liên Hệ" variant="left" id="contact-info-heading" />
 
     <div className="space-y-4">
       {CONTACT_ITEMS.map(({ icon: Icon, title, content }) => (

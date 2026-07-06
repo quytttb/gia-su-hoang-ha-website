@@ -38,10 +38,10 @@ const ClassesScreen = ({ initialClasses }: ClassesScreenProps) => {
   return (
     <Layout>
       <PageHero id="classes-hero-heading" title="Lớp Học">
-        <p className="text-xl md:text-2xl font-semibold text-accent-600 dark:text-accent-500 max-w-4xl mx-auto flex flex-col items-center gap-2 whitespace-normal">
+        <p className="text-xl md:text-2xl font-semibold text-muted-foreground max-w-4xl mx-auto flex flex-col items-center gap-2 whitespace-normal">
           Khám phá các lớp học chất lượng cao, được thiết kế phù hợp với mọi lứa tuổi và nhu cầu học
           tập
-          <span className="block text-base font-medium text-primary-700 dark:text-primary-400 mt-1">
+          <span className="block text-base font-medium text-foreground mt-1">
             {classes.length} lớp học đang mở
           </span>
         </p>

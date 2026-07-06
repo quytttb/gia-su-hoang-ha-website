@@ -3,6 +3,7 @@ import Link from 'next/link';
 import SkeletonLoading from '../shared/SkeletonLoading';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import SectionHeading from '../shared/SectionHeading';
 
 interface IntroductionSectionProps {
   centerInfo: CenterInfo;
@@ -18,21 +19,20 @@ const IntroductionSection = ({ centerInfo, loading }: IntroductionSectionProps) 
     >
       <div className="container-custom">
         {/* Section Header */}
-        <header className="text-center mb-12">
-          <h2
+        <div className="text-center mb-12">
+          <SectionHeading
+            title="Về Trung tâm Gia Sư Hoàng Hà"
             id="introduction-heading"
-            className="text-3xl md:text-4xl font-bold text-foreground mb-4"
-          >
-            Về Trung tâm Gia Sư Hoàng Hà
-          </h2>
+            variant="centered"
+          />
           {loading ? (
-            <SkeletonLoading type="text" count={2} className="mx-auto max-w-3xl" />
+            <SkeletonLoading type="text" count={2} className="mx-auto max-w-3xl mt-4" />
           ) : (
-            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mt-4">
               {centerInfo.description}
             </p>
           )}
-        </header>
+        </div>
 
         {/* Call to Action */}
         <footer className="text-center">

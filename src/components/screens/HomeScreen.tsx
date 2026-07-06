@@ -9,6 +9,7 @@ import IntroductionSection from '@/components/home/IntroductionSection';
 import FeaturedClassesSection from '@/components/home/FeaturedClassesSection';
 import ContactCTASection from '@/components/home/ContactCTASection';
 import ParentFeedbackSection from '@/components/home/ParentFeedbackSection';
+import SectionHeading from '@/components/shared/SectionHeading';
 
 const Chatbot = lazy(() => import('@/components/shared/Chatbot'));
 
@@ -59,9 +60,9 @@ const HomeScreen = ({ banners, centerInfo, featuredClasses }: HomeScreenProps) =
       </div>
       <section className="section-padding bg-background" id="partners">
         <div className="container-custom">
-          <h2 className="text-2xl font-bold text-center mb-6 text-primary-700 dark:text-primary-400 uppercase">
-            Đối tác của chúng tôi
-          </h2>
+          <div className="text-center mb-6">
+            <SectionHeading title="Đối tác của chúng tôi" variant="centered" />
+          </div>
           <div className="flex flex-wrap justify-center items-center gap-24 mt-8">
             <img
               src="/images/partners/lam_son.png"

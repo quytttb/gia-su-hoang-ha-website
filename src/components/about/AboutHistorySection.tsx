@@ -6,9 +6,7 @@ import { Badge } from '@/components/ui/badge';
 const AboutHistorySection = () => (
   <section className="section-padding bg-muted" id="history-founder">
     <div className="container-custom">
-      <div className="w-full text-center">
-        <SectionHeading title="Lịch sử phát triển" id="history-heading" />
-      </div>
+      <SectionHeading title="Lịch sử phát triển" id="history-heading" variant="centered" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10 items-center mt-8">
         <Card className="md:col-span-2">
           <CardContent className="p-8">
@@ -43,9 +41,7 @@ const AboutHistorySection = () => (
               />
               <AvatarFallback>NNH</AvatarFallback>
             </Avatar>
-            <div className="font-bold text-2xl text-accent-foreground mb-2">
-              NGUYỄN NGUYÊN HOÀNG
-            </div>
+            <h3 className="font-bold text-2xl text-foreground mb-2">NGUYỄN NGUYÊN HOÀNG</h3>
             <Badge variant="default" className="mb-1">
               Nhà Sáng lập
             </Badge>

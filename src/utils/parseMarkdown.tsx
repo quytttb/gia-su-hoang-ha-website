@@ -21,10 +21,7 @@ export function parseMarkdown(text: string): React.ReactNode[] {
         );
       }
       parts.push(
-        <strong
-          key={`bold-${lineIndex}-${match.index}`}
-          className="font-semibold text-gray-900 dark:text-gray-100"
-        >
+        <strong key={`bold-${lineIndex}-${match.index}`} className="font-semibold text-foreground">
           {match[1]}
         </strong>
       );

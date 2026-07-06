@@ -42,7 +42,7 @@ const PersonalSchedulePanel = ({
 
   return (
     <div>
-      <SectionHeading title="Lịch học cá nhân" centered={false} />
+      <SectionHeading title="Lịch học cá nhân" variant="left" />
 
       {!showPersonalSchedules ? (
         <div className="bg-background p-6 rounded-lg shadow-md">

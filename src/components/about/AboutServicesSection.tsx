@@ -66,18 +66,15 @@ const ServiceCard = ({
   </Card>
 );
 
+const SERVICES = [...SERVICES_TOP, ...SERVICES_BOTTOM];
+
 const AboutServicesSection = () => (
   <section className="section-padding bg-background" id="services">
     <div className="container-custom">
       <SectionHeading title="Chúng tôi cung cấp" id="services-heading" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8 mb-8">
-        {SERVICES_TOP.map((service, index) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+        {SERVICES.map((service, index) => (
           <ServiceCard key={service.title} {...service} {...ICON_STYLES[index]} />
-        ))}
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 justify-center mx-auto w-full max-w-3xl">
-        {SERVICES_BOTTOM.map((service, index) => (
-          <ServiceCard key={service.title} {...service} {...ICON_STYLES[index + 3]} />
         ))}
       </div>
     </div>

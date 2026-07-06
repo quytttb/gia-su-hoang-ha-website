@@ -10,7 +10,6 @@
  * bg-white / bg-gray-50          -> bg-background / bg-muted
  * border-gray-200                -> border-border
  * bg-blue-50, text-blue-600      -> bg-primary/10, text-primary
- * Brand palette primary-* and accent-* in @theme are kept for marketing accents.
  */
 
 @theme inline {
@@ -36,39 +35,6 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
 
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
-
-  --color-accent-50: #fff9e6;
-  --color-accent-100: #fff2cc;
-  --color-accent-200: #ffe699;
-  --color-accent-300: #ffd966;
-  --color-accent-400: #ffcc33;
-  --color-accent-500: #ffb800;
-  --color-accent-600: #cc9400;
-  --color-accent-700: #996f00;
-  --color-accent-800: #664a00;
-  --color-accent-900: #332500;
-
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
-
   --color-sidebar: hsl(var(--sidebar-background));
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
   --color-sidebar-primary: hsl(var(--sidebar-primary));
@@ -77,6 +43,9 @@
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
   --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --color-hero-from: hsl(var(--hero-from));
+  --color-hero-to: hsl(var(--hero-to));
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -118,6 +87,9 @@
   --sidebar-accent-foreground: 240 5.9% 10%;
   --sidebar-border: 220 13% 91%;
   --sidebar-ring: 217.2 91.2% 59.8%;
+
+  --hero-from: 221.2 83.2% 53.3%; /* primary/10 roughly */
+  --hero-to: 0 0% 100%; /* background */
 }
 
 .dark {
@@ -149,6 +121,9 @@
   --sidebar-accent-foreground: 240 4.8% 95.9%;
   --sidebar-border: 240 3.7% 15.9%;
   --sidebar-ring: 217.2 91.2% 59.8%;
+
+  --hero-from: 222.2 47.4% 19%; /* #182848 approx */
+  --hero-to: 211.7 40.5% 34.9%; /* #35577d approx */
 }
 
 @layer base {

@@ -16,6 +16,7 @@ import Chatbot from '@/components/shared/Chatbot';
 import { parseMarkdown } from '@/utils/parseMarkdown';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -113,10 +114,10 @@ const ClassDetailScreen = ({ course, schedules }: ClassDetailScreenProps) => {
                     </div>
 
                     {hasValidDiscountValue && (
-                      <div className="bg-primary text-primary-foreground px-3 py-1 rounded-lg">
+                      <Badge variant="destructive" className="font-semibold px-3 py-1 text-sm">
                         Giảm {course.discount}% đến{' '}
                         {course.discountEndDate && formatDate(course.discountEndDate)}
-                      </div>
+                      </Badge>
                     )}
                   </div>
 
@@ -143,7 +144,7 @@ const ClassDetailScreen = ({ course, schedules }: ClassDetailScreenProps) => {
           <div className="container-custom">
             <SectionHeading
               title="Lịch học sắp tới"
-              subtitle="Các buổi học được lên lịch cho lớp học này"
+              description="Các buổi học được lên lịch cho lớp học này"
             />
 
             <Card className="shadow-md">

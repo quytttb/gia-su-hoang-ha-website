@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { CenterInfo, Tutor } from '@/types';
 import Chatbot from '@/components/shared/Chatbot';
+import PageHero from '@/components/shared/PageHero';
 import ErrorDisplay from '@/components/shared/ErrorDisplay';
 import AboutIntroSection from '@/components/about/AboutIntroSection';
 import AboutHistorySection from '@/components/about/AboutHistorySection';
@@ -55,13 +56,12 @@ const AboutScreen = ({ centerInfo, tutors, galleryImages, headerAsset }: AboutSc
 
   return (
     <Layout>
-      <section className="relative flex items-center justify-center min-h-[220px] md:min-h-[260px] bg-primary/10 dark:bg-gradient-to-b dark:from-[#182848] dark:to-[#35577d] py-8 md:py-10 overflow-hidden shadow-md border-b border-border">
-        <img
-          src={headerAsset?.url || '/assets/images/gia-su-hoang-ha-header.jpg'}
-          alt="Trung tâm Gia Sư Hoàng Hà"
-          className="absolute inset-0 m-auto w-full h-full object-cover opacity-80 pointer-events-none select-none z-0"
-        />
-      </section>
+      <PageHero
+        title="Về Chúng Tôi"
+        variant="image"
+        imageSrc={headerAsset?.url || '/assets/images/gia-su-hoang-ha-header.jpg'}
+        imageAlt="Trung tâm Gia Sư Hoàng Hà"
+      />
 
       <AboutIntroSection centerInfo={centerInfo} />
       <AboutHistorySection />

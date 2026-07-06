@@ -43,11 +43,11 @@ const Logo: React.FC<LogoProps> = ({
               if (parent) {
                 parent.innerHTML = `
                                              <div class="flex flex-col">
-                                                  <span class="font-bold text-primary-800 dark:text-primary-400 text-lg leading-tight">
-                                                       GIA SƯ HOÀNG HÀ
+                                                  <span class="font-bold text-primary text-lg leading-tight">
+                                                    Gia Sư Hoàng Hà
                                                   </span>
-                                                  <span class="text-accent-600 dark:text-accent-400 text-xs leading-tight">
-                                                       DẪN LỐI TRI THỨC - VỮNG BƯỚC TƯƠNG LAI
+                                                  <span class="text-muted-foreground text-xs leading-tight">
+                                                    Tri thức là sức mạnh
                                                   </span>
                                              </div>
                                         `;
@@ -78,11 +78,11 @@ const Logo: React.FC<LogoProps> = ({
                                              class="${sizeClasses[size]} w-auto object-contain"
                                         />
                                         <div class="flex flex-col">
-                                             <span class="font-bold text-primary-800 dark:text-primary-400 text-lg leading-tight">
-                                                  GIA SƯ HOÀNG HÀ
+                                             <span class="font-bold text-primary text-lg leading-tight">
+                                               Gia Sư Hoàng Hà
                                              </span>
-                                             <span class="text-accent-600 dark:text-accent-400 text-xs leading-tight">
-                                                  DẪN LỐI TRI THỨC - VỮNG BƯỚC TƯƠNG LAI
+                                             <span class="text-muted-foreground text-xs leading-tight">
+                                               Tri thức là sức mạnh
                                              </span>
                                         </div>
                                    `;

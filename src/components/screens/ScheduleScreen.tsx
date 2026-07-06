@@ -173,7 +173,7 @@ const ScheduleScreen = () => {
       <PageHero
         id="schedule-hero-heading"
         title="Lịch Học"
-        subtitle="Xem lịch học các lớp và tra cứu lịch cá nhân"
+        description="Xem lịch học các lớp và tra cứu lịch cá nhân"
       />
 
       <div className="container-custom py-12">
@@ -186,7 +186,7 @@ const ScheduleScreen = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="flex justify-between items-center mb-6">
-              <SectionHeading title="Lịch học theo ngày" centered={false} />
+              <SectionHeading title="Lịch học theo ngày" variant="left" />
               <Tabs value={viewType} onValueChange={v => toggleView(v as ViewType)}>
                 <TabsList>
                   <TabsTrigger value="table">Dạng bảng</TabsTrigger>
