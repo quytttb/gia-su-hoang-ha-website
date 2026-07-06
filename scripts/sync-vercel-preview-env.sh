@@ -21,7 +21,7 @@ if [ -n "${DIRECT_URL:-}" ] && [[ "$DIRECT_URL" =~ postgresql://postgres:([^@]+)
   PG_PASS="${BASH_REMATCH[1]}"
   PG_REF="${BASH_REMATCH[2]}"
   if [ -z "${DATABASE_URL:-}" ] || [[ "$DATABASE_URL" == *"@db."*":5432"* ]]; then
-    DATABASE_URL="postgresql://postgres.${PG_REF}:${PG_PASS}@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+    DATABASE_URL="postgresql://postgres.${PG_REF}:${PG_PASS}@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
     echo "ℹ DATABASE_URL → Supabase pooler (port 6543)"
   fi
 fi
