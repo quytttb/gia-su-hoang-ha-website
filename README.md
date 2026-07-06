@@ -85,11 +85,14 @@ scripts/          # deploy, seed, migrate, test-seo
 public/           # Static assets
 ```
 
-## CI
+## CI / Deploy
 
-GitHub Actions (`CI` workflow) chạy trên push/PR vào `dev`:
+- **Deploy:** Vercel Git Integration (preview trên `dev`, production trên `main`/`master`) — không dùng GitHub Actions deploy.
+- **CI:** GitHub Actions (`CI` workflow) chạy trên push vào `dev` và PR vào `dev`, `main`, `master`:
+  - `prisma validate` → lint → format → test → build
+- **Dependabot:** tự mở PR cập nhật npm packages và GitHub Actions hàng tuần.
 
-- `prisma validate` → lint → format → test → build
+Nên bật **branch protection** trên GitHub: require status check `CI / quality` trước khi merge.
 
 ## Liên hệ
 
