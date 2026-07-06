@@ -110,14 +110,14 @@ const BlogScreen = ({ initialPosts, initialCursor }: BlogScreenProps) => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-screen bg-background">
         <PageHero
           id="blog-hero-heading"
           title="Blog Gia Sư Hoàng Hà"
-          subtitle="Chia sẻ kiến thức, kinh nghiệm và tin tức giáo dục"
-          logoClassName="w-[340px] h-[340px]"
+          description="Chia sẻ kiến thức, kinh nghiệm và tin tức giáo dục"
+          imageClassName="w-[340px] h-[340px]"
         >
-          <div className="flex flex-wrap items-center justify-center gap-6 text-blue-700 dark:text-blue-200 mt-8">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-primary mt-8">
             <div className="flex items-center gap-2">
               <BookOpen className="w-5 h-5" />
               <span>{posts.filter(p => p.status === 'published').length} bài viết</span>
