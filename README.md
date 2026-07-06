@@ -74,16 +74,27 @@ npm run migrate:images   # Upload ảnh export → Supabase Storage
 ```
 prisma/           # Schema + seed
 src/
-  app/            # Next.js App Router pages
+  app/            # Next.js App Router (Server Components + metadata + fetch)
   actions/        # Server actions (mutations)
   data/           # Server data layer (reads)
-  components/     # React components
+  components/
+    screens/      # Client page islands (*Screen.tsx)
+    ui/           # Shadcn/ui primitives
+    ...           # sections, panel, shared
   hooks/          # TanStack Query hooks
-  lib/            # prisma, supabase, env, utils
+  lib/            # prisma, supabase, env, validations, utils
   services/       # auth, email
+  stores/         # Zustand (theme, v.v.)
 scripts/          # deploy, seed, migrate, test-seo
 public/           # Static assets
 ```
+
+### UI & theme
+
+- **Shadcn/ui** + semantic tokens (`background`, `foreground`, `muted`, `primary`, …) trong `src/app/globals.css`.
+- **Light / dark / system:** `ThemeToggle` + `useThemeStore` (persist `gia-su-theme`); blocking script trong `src/app/layout.tsx` tránh flash sai mode.
+- **Form panel & contact:** React Hook Form + Zod (`src/lib/validations/`).
+- Trang public: data fetch ở `app/**/page.tsx` (RSC), UI tương tác ở `components/screens/*`.
 
 ## CI / Deploy
 

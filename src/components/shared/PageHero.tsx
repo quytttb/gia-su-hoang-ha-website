@@ -18,7 +18,7 @@ const PageHero = ({
   children,
 }: PageHeroProps) => (
   <section
-    className="relative flex items-center justify-center min-h-[220px] md:min-h-[260px] bg-[#e3f0ff] dark:bg-gradient-to-b dark:from-[#182848] dark:to-[#35577d] py-8 md:py-10 overflow-hidden shadow-md border-b border-blue-200 dark:border-blue-900"
+    className="relative flex items-center justify-center min-h-[220px] md:min-h-[260px] bg-primary/10 dark:bg-gradient-to-b dark:from-[#182848] dark:to-[#35577d] py-8 md:py-10 overflow-hidden shadow-md border-b border-border"
     aria-labelledby={id}
   >
     {logoSrc && (

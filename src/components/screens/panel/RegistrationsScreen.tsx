@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import RegistrationTable from '../../components/panel/registrations/RegistrationTable';
-import RegistrationStats from '../../components/panel/registrations/RegistrationStats';
-import { Registration } from '../../types';
+import RegistrationTable from '@/components/panel/registrations/RegistrationTable';
+import RegistrationStats from '@/components/panel/registrations/RegistrationStats';
+import { Registration } from '@/types';
 import { getRegistrations } from '@/data/registrations';
 import { getClassById } from '@/data/classes';
 import { approveRegistration, rejectRegistration } from '@/actions/registration';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Button } from '../../components/ui/button';
+import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 
 interface PageRegistrationStats {
@@ -37,7 +37,7 @@ const computeRegistrationStats = (registrations: Registration[]): PageRegistrati
   };
 };
 
-const RegistrationsPage: React.FC = () => {
+const RegistrationsScreen: React.FC = () => {
   const searchParams = useSearchParams();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [filteredClassName, setFilteredClassName] = useState<string>('');
@@ -252,4 +252,4 @@ const RegistrationsPage: React.FC = () => {
   );
 };
 
-export default RegistrationsPage;
+export default RegistrationsScreen;

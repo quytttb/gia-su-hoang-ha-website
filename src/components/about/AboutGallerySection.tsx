@@ -15,11 +15,7 @@ const AboutGallerySection = ({
   onPreview,
   onClosePreview,
 }: AboutGallerySectionProps) => (
-  <section
-    className="section-padding bg-white dark:bg-gray-900"
-    aria-labelledby="gallery-heading"
-    id="gallery"
-  >
+  <section className="section-padding bg-background" aria-labelledby="gallery-heading" id="gallery">
     <div className="container-custom">
       <SectionHeading title="Hình ảnh thực tế" id="gallery-heading" />
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">

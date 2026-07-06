@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, FormEvent } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   trackChatbotOpen,
   trackChatbotClose,
@@ -198,7 +200,7 @@ const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
   return (
     <div className={`fixed bottom-6 right-6 z-50 ${isChatOpen ? 'w-80 md:w-96' : 'w-16 h-16'}`}>
       {isChatOpen ? (
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl flex flex-col h-[600px] overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div className="bg-background rounded-lg shadow-2xl flex flex-col h-[600px] overflow-hidden border border-border">
           {/* Enhanced Chat Header */}
           <div className="bg-gradient-to-r from-primary to-blue-600 text-white p-4 flex justify-between items-center">
             <div className="flex items-center space-x-3">
@@ -212,10 +214,12 @@ const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
                 <p className="text-xs text-blue-100">Luôn sẵn sàng hỗ trợ bạn</p>
               </div>
             </div>
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={toggleChat}
-              className="text-white hover:text-blue-200 transition-colors duration-200"
+              className="text-primary-foreground hover:text-primary-foreground/80"
               aria-label="Đóng trợ lý ảo"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -226,11 +230,11 @@ const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
                   d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
-            </button>
+            </Button>
           </div>
 
           {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted">
             {chatMessages.map(message => (
               <ChatbotMessage
                 key={message.id}
@@ -240,7 +244,7 @@ const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
               />
             ))}
             {chatLoading && (
-              <div className="flex space-x-1 p-3 max-w-[85%] bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-lg border border-blue-100 dark:border-gray-700">
+              <div className="flex space-x-1 p-3 max-w-[85%] bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-lg border border-blue-100 dark:border-border">
                 <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
                 <div
                   className="w-2 h-2 bg-primary rounded-full animate-bounce"
@@ -256,19 +260,20 @@ const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
           </div>
 
           {/* Enhanced Chat Input */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+          <div className="p-4 border-t border-border bg-background">
             <form onSubmit={handleSendMessage} className="flex space-x-2">
-              <input
+              <Input
                 type="text"
                 value={userInput}
                 onChange={handleChatInputChange}
                 placeholder="Nhập câu hỏi của bạn..."
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="rounded-full"
               />
-              <button
+              <Button
                 type="submit"
+                size="icon"
                 disabled={!userInput.trim()}
-                className="px-4 py-2 bg-primary text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                className="rounded-full"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -278,7 +283,7 @@ const Chatbot = ({ faqs = defaultFAQs }: ChatbotProps) => {
                     d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
                   />
                 </svg>
-              </button>
+              </Button>
             </form>
           </div>
         </div>

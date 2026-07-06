@@ -2,19 +2,18 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import Layout from '../components/layout/Layout';
-import SectionHeading from '../components/shared/SectionHeading';
+import Layout from '@/components/layout/Layout';
+import SectionHeading from '@/components/shared/SectionHeading';
 import {
   calculateDiscountedPrice,
   formatCurrency,
   formatDate,
   hasValidDiscount,
-} from '../utils/helpers';
-import { generateClassStructuredData } from '../utils/seo';
-import Breadcrumb from '../components/shared/Breadcrumb';
-import Chatbot from '../components/shared/Chatbot';
-import { parseMarkdown } from '../utils/parseMarkdown';
+} from '@/utils/helpers';
+import { generateClassStructuredData } from '@/utils/seo';
+import Breadcrumb from '@/components/shared/Breadcrumb';
+import Chatbot from '@/components/shared/Chatbot';
+import { parseMarkdown } from '@/utils/parseMarkdown';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -25,37 +24,24 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useClass } from '@/hooks/useClasses';
-import { useClassSchedules } from '@/hooks/useSchedules';
+import type { Class, Schedule } from '@/types';
 
-const CourseDetailPage = () => {
-  const params = useParams<{ id: string }>();
-  const id = typeof params?.id === 'string' ? params.id : '';
-  const { data: course, isLoading: classLoading } = useClass(id);
-  const { data: schedules = [], isLoading: schedulesLoading } = useClassSchedules(id);
+interface ClassDetailScreenProps {
+  course: Class | null;
+  schedules: Schedule[];
+}
 
-  const loading = classLoading || schedulesLoading;
-
+const ClassDetailScreen = ({ course, schedules }: ClassDetailScreenProps) => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id]);
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="flex justify-center items-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      </Layout>
-    );
-  }
+  }, [course?.id]);
 
   if (!course) {
     return (
       <Layout>
         <div className="container-custom py-20 text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Không tìm thấy lớp học</h2>
-          <p className="text-gray-600 mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Không tìm thấy lớp học</h2>
+          <p className="text-muted-foreground mb-8">
             Lớp học bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
           </p>
           <Button asChild>
@@ -80,7 +66,7 @@ const CourseDetailPage = () => {
         }}
       />
 
-      <section className="bg-gray-100 dark:bg-gray-900 py-16">
+      <section className="bg-muted py-16">
         <div className="container-custom">
           <Breadcrumb
             items={[
@@ -91,23 +77,19 @@ const CourseDetailPage = () => {
           />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-200 mb-4">
-                {course.name}
-              </h1>
-              <div className="text-gray-600 dark:text-gray-400 mb-6">
-                {parseMarkdown(course.description)}
-              </div>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{course.name}</h1>
+              <div className="text-muted-foreground mb-6">{parseMarkdown(course.description)}</div>
 
               <Card className="shadow-md">
                 <CardContent className="p-6">
                   <div className="mb-4 space-y-2">
-                    <p className="text-gray-700 dark:text-gray-200">
+                    <p className="text-foreground">
                       <strong>Lịch học:</strong> thứ 2 đến 4
                     </p>
-                    <p className="text-gray-700 dark:text-gray-200">
+                    <p className="text-foreground">
                       <strong>Giờ học:</strong> 19:30 đến 21:30
                     </p>
-                    <p className="text-gray-700 dark:text-gray-200">
+                    <p className="text-foreground">
                       <strong>Số lượng:</strong> 12
                     </p>
                   </div>
@@ -116,22 +98,22 @@ const CourseDetailPage = () => {
                     <div>
                       {hasValidDiscountValue ? (
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400 line-through text-sm block">
+                          <span className="text-muted-foreground line-through text-sm block">
                             {formatCurrency(course.price)}
                           </span>
-                          <span className="text-primary font-bold text-2xl dark:text-gray-200">
+                          <span className="text-primary font-bold text-2xl">
                             {formatCurrency(finalPrice)}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-primary font-bold text-2xl dark:text-gray-200">
+                        <span className="text-primary font-bold text-2xl">
                           {formatCurrency(course.price)}
                         </span>
                       )}
                     </div>
 
                     {hasValidDiscountValue && (
-                      <div className="bg-primary text-white px-3 py-1 rounded-lg dark:bg-gray-700">
+                      <div className="bg-primary text-primary-foreground px-3 py-1 rounded-lg">
                         Giảm {course.discount}% đến{' '}
                         {course.discountEndDate && formatDate(course.discountEndDate)}
                       </div>
@@ -145,11 +127,11 @@ const CourseDetailPage = () => {
               </Card>
             </div>
 
-            <div className="rounded-lg overflow-hidden shadow-lg flex items-center justify-center bg-white dark:bg-gray-800">
+            <div className="rounded-lg overflow-hidden shadow-lg flex items-center justify-center bg-card">
               <img
                 src={course.imageUrl}
                 alt={course.name}
-                className="w-full max-w-[1180px] h-auto aspect-[1180/800] object-contain bg-white dark:bg-gray-800"
+                className="w-full max-w-[1180px] h-auto aspect-[1180/800] object-contain bg-card"
               />
             </div>
           </div>
@@ -197,4 +179,4 @@ const CourseDetailPage = () => {
   );
 };
 
-export default CourseDetailPage;
+export default ClassDetailScreen;

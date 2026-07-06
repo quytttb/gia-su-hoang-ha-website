@@ -1,32 +1,32 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button } from '../../components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Plus, Calendar, Filter, Search } from 'lucide-react';
-import { Input } from '../../components/ui/input';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../components/ui/select';
+} from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import PanelPageHeader from '@/components/panel/shared/PanelPageHeader';
 import PanelTableSkeleton from '@/components/panel/shared/PanelTableSkeleton';
 import DeleteConfirmDialog from '@/components/panel/shared/DeleteConfirmDialog';
-import ScheduleTable from '../../components/panel/schedules/ScheduleTable';
-import ScheduleForm from '../../components/panel/schedules/ScheduleForm';
+import ScheduleTable from '@/components/panel/schedules/ScheduleTable';
+import ScheduleForm from '@/components/panel/schedules/ScheduleForm';
 import { createSchedule, updateSchedule, deleteSchedule } from '@/actions/schedule';
 import { getAllClasses } from '@/data/classes';
 import { getAllTutors } from '@/data/tutors';
-import { Schedule } from '../../types';
-import { formatDate } from '../../utils/helpers';
+import { Schedule } from '@/types';
+import { formatDate } from '@/utils/helpers';
 import { useSchedules } from '@/hooks/useSchedules';
 import { queryKeys } from '@/lib/queryKeys';
 
 const PAGE_SIZE = 10;
 
-const SchedulesPage: React.FC = () => {
+const SchedulesScreen: React.FC = () => {
   const queryClient = useQueryClient();
   const { data: schedules = [], isLoading: loading, refetch } = useSchedules();
   const availableDates = useMemo(
@@ -416,4 +416,4 @@ const SchedulesPage: React.FC = () => {
   );
 };
 
-export default SchedulesPage;
+export default SchedulesScreen;

@@ -1,24 +1,24 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import Layout from '../components/layout/Layout';
+import Layout from '@/components/layout/Layout';
 import {
   sendContactEmail,
   sendAutoReplyEmail,
   initEmailJS,
   getEmailServiceStatus,
-} from '../services/emailService';
+} from '@/services/emailService';
 import { saveContactMessage } from '@/actions/contact';
-import { defaultRateLimiter, getClientIdentifier } from '../utils/security';
+import { defaultRateLimiter, getClientIdentifier } from '@/utils/security';
 import { toast } from 'sonner';
-import Chatbot from '../components/shared/Chatbot';
-import ContactInfoSection from '../components/contact/ContactInfoSection';
-import ContactFormSection from '../components/contact/ContactFormSection';
-import ContactFAQSection from '../components/contact/ContactFAQSection';
+import Chatbot from '@/components/shared/Chatbot';
+import ContactInfoSection from '@/components/contact/ContactInfoSection';
+import ContactFormSection from '@/components/contact/ContactFormSection';
+import ContactFAQSection from '@/components/contact/ContactFAQSection';
 import { ContactFormValues } from '@/lib/validations/contact';
 import { useState } from 'react';
 
-const ContactPage = () => {
+const ContactScreen = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -90,4 +90,4 @@ const ContactPage = () => {
   );
 };
 
-export default ContactPage;
+export default ContactScreen;

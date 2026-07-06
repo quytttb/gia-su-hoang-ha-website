@@ -45,8 +45,8 @@ const PersonalSchedulePanel = ({
       <SectionHeading title="Lịch học cá nhân" centered={false} />
 
       {!showPersonalSchedules ? (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-          <p className="text-gray-700 dark:text-gray-200 mb-4">
+        <div className="bg-background p-6 rounded-lg shadow-md">
+          <p className="text-foreground mb-4">
             Nhập số điện thoại của bạn để xem lịch học cá nhân.
           </p>
           <Form {...form}>
@@ -78,9 +78,9 @@ const PersonalSchedulePanel = ({
           </Form>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+        <div className="bg-background p-6 rounded-lg shadow-md">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200">Lịch học của bạn</h3>
+            <h3 className="font-semibold text-foreground">Lịch học của bạn</h3>
             <Button type="button" variant="link" className="text-sm p-0 h-auto" onClick={onReset}>
               Tìm kiếm khác
             </Button>
@@ -90,26 +90,22 @@ const PersonalSchedulePanel = ({
               {personalSchedules.map(schedule => (
                 <div
                   key={schedule.id}
-                  className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 p-4 rounded-lg"
+                  className="border-b border-border pb-4 last:border-0 hover:bg-muted/50 p-4 rounded-lg"
                 >
-                  <p className="font-medium text-gray-800 dark:text-gray-200">
-                    {schedule.className}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="font-medium text-foreground">{schedule.className}</p>
+                  <p className="text-sm text-muted-foreground">
                     Ngày: {formatDate(schedule.startDate)}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-muted-foreground">
                     Giờ: {schedule.startTime} - {schedule.endTime}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Giáo viên: {schedule.tutorName}
-                  </p>
+                  <p className="text-sm text-muted-foreground">Giáo viên: {schedule.tutorName}</p>
                 </div>
               ))}
             </div>
           ) : (
             <div className="text-center py-4">
-              <p className="text-gray-500 dark:text-gray-400">
+              <p className="text-muted-foreground">
                 Không tìm thấy lịch học nào cho số điện thoại này.
               </p>
             </div>
@@ -117,15 +113,13 @@ const PersonalSchedulePanel = ({
         </div>
       )}
 
-      <div className="mt-6 bg-gray-100 dark:bg-gray-900 p-6 rounded-lg">
-        <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Thông tin liên hệ</h3>
-        <p className="text-gray-700 dark:text-gray-200 text-sm mb-2">
+      <div className="mt-6 bg-muted p-6 rounded-lg">
+        <h3 className="font-semibold text-foreground mb-3">Thông tin liên hệ</h3>
+        <p className="text-foreground text-sm mb-2">
           Nếu bạn gặp vấn đề khi xem lịch học, vui lòng liên hệ với chúng tôi:
         </p>
-        <p className="text-gray-700 dark:text-gray-200 text-sm">
-          Điện thoại: 0385.510.892 - 0962.390.161
-        </p>
-        <p className="text-gray-700 dark:text-gray-200 text-sm">Email: lienhe@giasuhoangha.com</p>
+        <p className="text-foreground text-sm">Điện thoại: 0385.510.892 - 0962.390.161</p>
+        <p className="text-foreground text-sm">Email: lienhe@giasuhoangha.com</p>
       </div>
     </div>
   );

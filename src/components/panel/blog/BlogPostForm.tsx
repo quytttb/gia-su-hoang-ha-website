@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Dialog,
   DialogContent,
@@ -34,6 +36,7 @@ import { Loader2, Upload, X } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../../utils/cropImage';
 import { Dialog as CropDialog, DialogContent as CropDialogContent } from '../../ui/dialog';
+import { blogPostFormSchema, type BlogPostFormValues } from '@/lib/validations/panel';
 
 interface BlogPostFormProps {
   isOpen: boolean;
@@ -50,14 +53,28 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
   post,
   categories,
 }) => {
-  const [title, setTitle] = useState('');
-  const [subtitle, setSubtitle] = useState('');
-  const [contentMarkdown, setContentMarkdown] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [tagsInput, setTagsInput] = useState('');
-  const [featured, setFeatured] = useState(false);
-  const [status, setStatus] = useState<'draft' | 'published' | 'archived'>('draft');
-  const [coverImage, setCoverImage] = useState<string>('');
+  const form = useForm<BlogPostFormValues>({
+    resolver: zodResolver(blogPostFormSchema),
+    defaultValues: {
+      title: '',
+      subtitle: '',
+      contentMarkdown: '',
+      categoryId: '',
+      tagsInput: '',
+      featured: false,
+      status: 'draft',
+      coverImage: '',
+    },
+  });
+  const title = form.watch('title');
+  const subtitle = form.watch('subtitle');
+  const contentMarkdown = form.watch('contentMarkdown');
+  const categoryId = form.watch('categoryId');
+  const tagsInput = form.watch('tagsInput');
+  const featured = form.watch('featured');
+  const status = form.watch('status');
+  const coverImage = form.watch('coverImage') || '';
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showCrop, setShowCrop] = useState(false);
   const [cropImage, setCropImage] = useState<string | null>(null);
@@ -75,26 +92,31 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
   const [tempUploadedCoverUrl, setTempUploadedCoverUrl] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
+  const { reset } = form;
+
   useEffect(() => {
     if (post) {
-      setTitle(post.title || '');
-      setSubtitle(post.subtitle || '');
-      setContentMarkdown(post.contentMarkdown || '');
-      setCategoryId(post.categoryId || '');
-      setTagsInput((post.tags || []).join(', '));
-      setFeatured(!!post.featured);
-      setStatus(post.status || 'draft');
-      setCoverImage(post.coverImage?.url || '');
+      reset({
+        title: post.title || '',
+        subtitle: post.subtitle || '',
+        contentMarkdown: post.contentMarkdown || '',
+        categoryId: post.categoryId || '',
+        tagsInput: (post.tags || []).join(', '),
+        featured: !!post.featured,
+        status: post.status || 'draft',
+        coverImage: post.coverImage?.url || '',
+      });
     } else if (isOpen) {
-      // reset for new
-      setTitle('');
-      setSubtitle('');
-      setContentMarkdown('');
-      setCategoryId('');
-      setTagsInput('');
-      setFeatured(false);
-      setStatus('draft');
-      setCoverImage('');
+      reset({
+        title: '',
+        subtitle: '',
+        contentMarkdown: '',
+        categoryId: '',
+        tagsInput: '',
+        featured: false,
+        status: 'draft',
+        coverImage: '',
+      });
       setError(null);
     }
     // Reset temp tracking on open
@@ -102,7 +124,7 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
       setTempUploadedCoverUrl(null);
       setSaved(false);
     }
-  }, [post, isOpen]);
+  }, [post, isOpen, reset]);
 
   useEffect(() => {
     return () => {
@@ -142,7 +164,7 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
         throw new Error(result.error ?? 'Lỗi upload ảnh bìa');
       }
 
-      setCoverImage(result.data.url);
+      form.setValue('coverImage', result.data.url);
       setTempUploadedCoverUrl(result.data.url);
       setSaved(false);
       setShowCrop(false);
@@ -154,7 +176,7 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
   };
 
   const handleRemoveImage = () => {
-    setCoverImage('');
+    form.setValue('coverImage', '');
     setSelectedFile(null);
   };
 
@@ -163,16 +185,17 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
 
   const insertTextAtCursor = (textToInsert: string) => {
     const el = contentTextareaRef.current;
+    const current = form.getValues('contentMarkdown');
     if (!el) {
-      setContentMarkdown(prev => prev + textToInsert);
+      form.setValue('contentMarkdown', current + textToInsert);
       return;
     }
     const start = el.selectionStart || 0;
     const end = el.selectionEnd || 0;
-    const before = contentMarkdown.slice(0, start);
-    const after = contentMarkdown.slice(end);
+    const before = current.slice(0, start);
+    const after = current.slice(end);
     const next = `${before}${textToInsert}${after}`;
-    setContentMarkdown(next);
+    form.setValue('contentMarkdown', next);
     // restore caret after inserted text
     const nextPos = start + textToInsert.length;
     requestAnimationFrame(() => {
@@ -213,7 +236,7 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
     }
   };
 
-  const tags = tagsInput
+  const tags = (tagsInput || '')
     .split(',')
     .map(t => t.trim())
     .filter(Boolean);
@@ -228,16 +251,10 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) {
-      setError('Tiêu đề bắt buộc');
-      return;
-    }
-    if (!categoryId) {
-      setError('Chủ đề bắt buộc');
-      return;
-    }
-    if (!contentMarkdown.trim()) {
-      setError('Nội dung bắt buộc');
+    const valid = await form.trigger();
+    if (!valid) {
+      const firstError = Object.values(form.formState.errors)[0]?.message;
+      setError(typeof firstError === 'string' ? firstError : 'Vui lòng kiểm tra lại form');
       return;
     }
 
@@ -311,7 +328,7 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
                 <Label>Tiêu đề</Label>
                 <Input
                   value={title}
-                  onChange={e => setTitle(e.target.value)}
+                  onChange={e => form.setValue('title', e.target.value, { shouldValidate: true })}
                   placeholder="Tiêu đề..."
                 />
               </div>
@@ -319,13 +336,16 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
                 <Label>Phụ đề</Label>
                 <Input
                   value={subtitle}
-                  onChange={e => setSubtitle(e.target.value)}
+                  onChange={e => form.setValue('subtitle', e.target.value)}
                   placeholder="Phụ đề..."
                 />
               </div>
               <div>
                 <Label>Chủ đề</Label>
-                <Select value={categoryId} onValueChange={v => setCategoryId(v)}>
+                <Select
+                  value={categoryId}
+                  onValueChange={v => form.setValue('categoryId', v, { shouldValidate: true })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Chọn chủ đề" />
                   </SelectTrigger>
@@ -342,19 +362,19 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
                 <Label>Tags (phân cách bằng dấu phẩy)</Label>
                 <Input
                   value={tagsInput}
-                  onChange={e => setTagsInput(e.target.value)}
+                  onChange={e => form.setValue('tagsInput', e.target.value)}
                   placeholder="toán, văn, ôn thi"
                 />
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <Switch checked={featured} onCheckedChange={setFeatured} />
+                  <Switch checked={featured} onCheckedChange={v => form.setValue('featured', v)} />
                   <Label>Nổi bật</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={status === 'published'}
-                    onCheckedChange={c => setStatus(c ? 'published' : 'draft')}
+                    onCheckedChange={c => form.setValue('status', c ? 'published' : 'draft')}
                   />
                   <Label>Xuất bản</Label>
                 </div>
@@ -434,7 +454,9 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
               </div>
               <Textarea
                 value={contentMarkdown}
-                onChange={e => setContentMarkdown(e.target.value)}
+                onChange={e =>
+                  form.setValue('contentMarkdown', e.target.value, { shouldValidate: true })
+                }
                 ref={contentTextareaRef}
                 placeholder="Viết nội dung bằng Markdown...\nVí dụ: # Tiêu đề chính\n\nĐoạn văn...\n\n- Gạch đầu dòng 1\n- Gạch đầu dòng 2"
                 className="flex-1 min-h-[300px] font-mono text-sm text-black dark:text-white"

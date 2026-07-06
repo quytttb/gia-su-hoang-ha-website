@@ -54,17 +54,17 @@ const ServiceCard = ({
   title,
   description,
 }: (typeof SERVICES_TOP)[0]) => (
-  <div className="bg-white p-6 rounded-lg shadow-md dark:bg-gray-800 flex flex-col items-center">
+  <div className="bg-white p-6 rounded-lg shadow-md dark:bg-card flex flex-col items-center">
     <div className={`w-16 h-16 mb-3 rounded-full flex items-center justify-center ${iconBg}`}>
       <Icon className={`w-10 h-10 ${iconColor}`} />
     </div>
-    <div className="font-semibold mb-1 text-gray-900 dark:text-gray-100">{title}</div>
-    <div className="text-gray-600 dark:text-gray-300 text-sm text-center">{description}</div>
+    <div className="font-semibold mb-1 text-foreground">{title}</div>
+    <div className="text-muted-foreground text-sm text-center">{description}</div>
   </div>
 );
 
 const AboutServicesSection = () => (
-  <section className="section-padding bg-white dark:bg-gray-900" id="services">
+  <section className="section-padding bg-background" id="services">
     <div className="container-custom">
       <SectionHeading title="Chúng tôi cung cấp" id="services-heading" />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8 mb-8">

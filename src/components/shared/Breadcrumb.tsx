@@ -13,7 +13,7 @@ interface BreadcrumbProps {
 const Breadcrumb = ({ items }: BreadcrumbProps) => {
   return (
     <nav aria-label="Breadcrumb" className="mb-6">
-      <ol className="flex flex-wrap items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+      <ol className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (
@@ -25,7 +25,7 @@ const Breadcrumb = ({ items }: BreadcrumbProps) => {
                 </Link>
               ) : (
                 <span
-                  className={isLast ? 'text-gray-900 dark:text-gray-200 font-medium' : undefined}
+                  className={isLast ? 'text-foreground font-medium' : undefined}
                   aria-current={isLast ? 'page' : undefined}
                 >
                   {item.label}

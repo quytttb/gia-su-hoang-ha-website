@@ -177,7 +177,7 @@ export const BlogPostTable: React.FC<BlogPostTableProps> = ({
                       Xuất bản
                     </span>
                   ) : p.status === 'draft' ? (
-                    <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                    <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground">
                       Nháp
                     </span>
                   ) : (

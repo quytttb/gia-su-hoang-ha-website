@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
-import ClassDetailPage from '@/pages/ClassDetailPage';
+import ClassDetailScreen from '@/components/screens/ClassDetailScreen';
 import { hasSupabaseConfig } from '@/lib/env';
 import { getClassById } from '@/data/classes';
+import { getSchedulesByClassId } from '@/data/schedules';
 import { buildMetadata } from '@/lib/metadata';
 import { generateClassSEO, seoData } from '@/utils/seo';
 
@@ -28,6 +29,11 @@ export const generateMetadata = async ({ params }: ClassDetailRouteProps): Promi
   return buildMetadata(seoData.classes);
 };
 
-const ClassDetailRoute = () => <ClassDetailPage />;
+const ClassDetailRoute = async ({ params }: ClassDetailRouteProps) => {
+  const { id } = await params;
+  const [course, schedules] = await Promise.all([getClassById(id), getSchedulesByClassId(id)]);
+
+  return <ClassDetailScreen course={course} schedules={schedules} />;
+};
 
 export default ClassDetailRoute;

@@ -21,32 +21,30 @@ const ClassCard = ({ class: classData }: ClassCardProps) => {
 
   return (
     <Card className="overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-lg max-w-[400px] w-full mx-auto">
-      <div className="aspect-[1180/800] w-full flex items-center justify-center bg-white dark:bg-gray-800">
+      <div className="aspect-[1180/800] w-full flex items-center justify-center bg-background">
         <LazyImage
           src={imageUrl}
           alt={name}
           style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-          className="bg-white dark:bg-gray-800"
+          className="bg-background"
         />
       </div>
 
       <CardContent className="p-5">
-        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 line-clamp-2">
-          {name}
-        </h3>
+        <h3 className="text-xl font-bold text-foreground mb-2 line-clamp-2">{name}</h3>
 
-        <div className="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-3">
+        <div className="text-muted-foreground text-sm mb-3 line-clamp-3">
           {parseMarkdown(description)}
         </div>
 
         <div className="mb-3 space-y-1">
-          <span className="text-gray-700 dark:text-gray-300 text-sm block">
+          <span className="text-muted-foreground text-sm block">
             <strong>Lịch học:</strong> thứ 2 đến 4
           </span>
-          <span className="text-gray-700 dark:text-gray-300 text-sm block">
+          <span className="text-muted-foreground text-sm block">
             <strong>Giờ học:</strong> 19:30 đến 21:30
           </span>
-          <span className="text-gray-700 dark:text-gray-300 text-sm block">
+          <span className="text-muted-foreground text-sm block">
             <strong>Số lượng:</strong> 12
           </span>
         </div>
@@ -55,7 +53,7 @@ const ClassCard = ({ class: classData }: ClassCardProps) => {
           <div>
             {hasValidDiscountValue ? (
               <div className="flex flex-col">
-                <span className="text-gray-500 dark:text-gray-400 line-through text-sm">
+                <span className="text-muted-foreground line-through text-sm">
                   {formatCurrency(price)}
                 </span>
                 <span className="text-primary dark:text-blue-400 font-bold">

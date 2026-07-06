@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import LoginPage from '@/pages/LoginPage';
+import LoginPage from '@/components/screens/LoginScreen';
 
 const LoginRoute = () => (
   <Suspense fallback={null}>

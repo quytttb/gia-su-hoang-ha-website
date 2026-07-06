@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import TutorSearchPage from '@/pages/TutorSearchPage';
+import TutorSearchPage from '@/components/screens/TutorSearchScreen';
 import { buildMetadata } from '@/lib/metadata';
 
 export const metadata: Metadata = buildMetadata({

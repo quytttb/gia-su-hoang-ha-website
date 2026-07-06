@@ -12,7 +12,7 @@ const IntroductionSection = ({ centerInfo, loading }: IntroductionSectionProps) 
   return (
     <section
       id="introduction"
-      className="section-padding bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900"
+      className="section-padding bg-primary/10 dark:bg-muted"
       aria-labelledby="introduction-heading"
     >
       <div className="container-custom">
@@ -20,14 +20,14 @@ const IntroductionSection = ({ centerInfo, loading }: IntroductionSectionProps) 
         <header className="text-center mb-12">
           <h2
             id="introduction-heading"
-            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
+            className="text-3xl md:text-4xl font-bold text-foreground mb-4"
           >
             Về Trung tâm Gia Sư Hoàng Hà
           </h2>
           {loading ? (
             <SkeletonLoading type="text" count={2} className="mx-auto max-w-3xl" />
           ) : (
-            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               {centerInfo.description}
             </p>
           )}
@@ -40,7 +40,7 @@ const IntroductionSection = ({ centerInfo, loading }: IntroductionSectionProps) 
           ) : (
             <Link
               href="/about"
-              className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-xl font-semibold hover:bg-primary-dark transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl"
               aria-label="Tìm hiểu thêm về trung tâm"
             >
               Tìm hiểu thêm về chúng tôi

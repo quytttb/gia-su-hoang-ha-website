@@ -1,6 +1,6 @@
 import PanelPlaceholderPage from '@/components/panel/shared/PanelPlaceholderPage';
 
-const StaffPage = () => (
+const StaffScreen = () => (
   <PanelPlaceholderPage
     title="Quản lý Nhân viên"
     description="Quản lý tài khoản và quyền hạn của nhân viên trong hệ thống."
@@ -8,4 +8,4 @@ const StaffPage = () => (
   />
 );
 
-export default StaffPage;
+export default StaffScreen;

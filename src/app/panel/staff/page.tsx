@@ -1,7 +1,7 @@
 'use client';
 
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import StaffPage from '@/pages/panel/StaffPage';
+import StaffPage from '@/components/screens/panel/StaffScreen';
 
 const PanelStaffPage = () => (
   <ProtectedRoute requiredRoles={['admin']}>

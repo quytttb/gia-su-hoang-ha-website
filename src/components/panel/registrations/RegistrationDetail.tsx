@@ -12,7 +12,7 @@ const statusConfig = {
   pending: { label: 'Chờ duyệt', color: 'bg-yellow-100 text-yellow-800' },
   approved: { label: 'Đã duyệt', color: 'bg-green-100 text-green-800' },
   rejected: { label: 'Đã từ chối', color: 'bg-red-100 text-red-800' },
-  cancelled: { label: 'Đã hủy', color: 'bg-gray-100 text-gray-800' },
+  cancelled: { label: 'Đã hủy', color: 'bg-muted text-foreground' },
   completed: { label: 'Hoàn thành', color: 'bg-blue-100 text-blue-800' },
   matched: { label: 'Đã ghép lớp', color: 'bg-purple-100 text-purple-800' },
   trial_scheduled: { label: 'Đã xếp lịch học thử', color: 'bg-indigo-100 text-indigo-800' },

@@ -1,3 +1,3 @@
 'use client';
 
-export { default } from '@/pages/panel/SchedulesPage';
+export { default } from '@/components/screens/panel/SchedulesScreen';

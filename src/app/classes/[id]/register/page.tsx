@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import ClassRegistrationPage from '@/pages/ClassRegistrationPage';
+import ClassRegistrationPage from '@/components/screens/ClassRegistrationScreen';
 import { getClassById } from '@/data/classes';
 import { buildMetadata } from '@/lib/metadata';
 import { generateRegistrationSEO } from '@/utils/seo';

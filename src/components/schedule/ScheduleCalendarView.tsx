@@ -53,7 +53,7 @@ const ScheduleCalendarView = ({
       <CardContent className="p-6">
         <div className="mb-6">
           <div className="flex justify-between items-center mb-4">
-            <p className="text-gray-600 dark:text-gray-400">Chọn ngày trên lịch để xem chi tiết:</p>
+            <p className="text-muted-foreground">Chọn ngày trên lịch để xem chi tiết:</p>
             <div className="flex items-center space-x-2">
               <Button
                 type="button"
@@ -64,7 +64,7 @@ const ScheduleCalendarView = ({
               >
                 ←
               </Button>
-              <span className="font-medium text-gray-800 dark:text-gray-200 px-2">
+              <span className="font-medium text-foreground px-2">
                 {format(currentMonth, 'MM/yyyy')}
               </span>
               <Button
@@ -131,10 +131,8 @@ const ScheduleCalendarView = ({
               <div className="space-y-4">
                 {displaySchedules.map(schedule => (
                   <div key={schedule.id} className="border-l-4 border-primary pl-4 py-2">
-                    <p className="font-medium text-gray-800 dark:text-gray-200">
-                      {schedule.className}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="font-medium text-foreground">{schedule.className}</p>
+                    <p className="text-sm text-muted-foreground">
                       {schedule.startTime} - {schedule.endTime} | {schedule.tutorName}
                     </p>
                   </div>
@@ -142,7 +140,7 @@ const ScheduleCalendarView = ({
               </div>
             ) : (
               <div className="text-center py-4">
-                <p className="text-gray-500 dark:text-gray-400 italic">
+                <p className="text-muted-foreground italic">
                   {hasActiveFilters
                     ? 'Không tìm thấy lịch học phù hợp với bộ lọc.'
                     : 'Không có lịch học nào vào ngày đã chọn.'}

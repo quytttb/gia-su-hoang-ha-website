@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { createTutor, updateTutor, deleteTutor } from '@/actions/tutor';
-import { Tutor } from '../../types';
-import { TutorTable, TutorForm } from '../../components/panel/tutors';
-import { Button } from '../../components/ui/button';
+import { Tutor } from '@/types';
+import { TutorTable, TutorForm } from '@/components/panel/tutors';
+import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import PanelPageHeader from '@/components/panel/shared/PanelPageHeader';
 import PanelTableSkeleton from '@/components/panel/shared/PanelTableSkeleton';
@@ -13,7 +13,7 @@ import { queryKeys } from '@/lib/queryKeys';
 
 const PAGE_SIZE = 10;
 
-const TutorsPage: React.FC = () => {
+const TutorsScreen: React.FC = () => {
   const queryClient = useQueryClient();
   const { data: tutors = [], isLoading: loading, refetch } = useTutors();
   const [filteredTutors, setFilteredTutors] = useState<Tutor[]>([]);
@@ -187,4 +187,4 @@ const TutorsPage: React.FC = () => {
   );
 };
 
-export default TutorsPage;
+export default TutorsScreen;

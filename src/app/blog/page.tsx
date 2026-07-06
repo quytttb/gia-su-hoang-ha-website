@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
-import BlogPage from '@/pages/BlogPage';
+import BlogScreen from '@/components/screens/BlogScreen';
 import { buildMetadata } from '@/lib/metadata';
+import { listPosts } from '@/data/blog';
 
 export const metadata: Metadata = buildMetadata({
   title: 'Blog Giáo Dục - Trung tâm Gia Sư Hoàng Hà',
@@ -11,6 +12,10 @@ export const metadata: Metadata = buildMetadata({
   ogImage: 'https://giasuhoangha.com/og-image.jpg',
 });
 
-const BlogRoute = () => <BlogPage />;
+const BlogRoute = async () => {
+  const { posts, cursor } = await listPosts({ pageSize: 12 });
+
+  return <BlogScreen initialPosts={posts} initialCursor={cursor} />;
+};
 
 export default BlogRoute;

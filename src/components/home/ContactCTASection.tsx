@@ -45,7 +45,7 @@ const ContactCTASection = () => (
         <Button
           asChild
           size="lg"
-          className="bg-white text-primary hover:bg-gray-100 border-2 border-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+          className="bg-white text-primary hover:bg-muted border-2 border-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
         >
           <Link
             href="/classes"

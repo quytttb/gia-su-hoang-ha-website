@@ -13,48 +13,46 @@ const ContactInfoSection = () => (
 
     <div className="space-y-6">
       <div className="flex items-start space-x-4">
-        <div className="bg-blue-500 p-3 rounded-full w-12 h-12 flex items-center justify-center">
+        <div className="bg-primary p-3 rounded-full w-12 h-12 flex items-center justify-center">
           <MapPin className="h-6 w-6 text-white" aria-hidden="true" />
         </div>
         <div>
-          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-1">Địa chỉ</h3>
-          <p className="text-gray-600 dark:text-gray-400">
+          <h3 className="text-xl font-semibold text-foreground mb-1">Địa chỉ</h3>
+          <p className="text-muted-foreground">
             265 - ĐƯỜNG 06 - MẶT BẰNG 08, PHƯỜNG NAM NGẠN, THÀNH PHỐ THANH HOÁ, TỈNH THANH HOÁ
           </p>
         </div>
       </div>
 
       <div className="flex items-start space-x-4">
-        <div className="bg-blue-500 p-3 rounded-full w-12 h-12 flex items-center justify-center">
+        <div className="bg-primary p-3 rounded-full w-12 h-12 flex items-center justify-center">
           <Phone className="h-6 w-6 text-white" aria-hidden="true" />
         </div>
         <div>
-          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-1">
-            Điện thoại
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400">{CENTER_INFO.phone}</p>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">Thứ 2 - Thứ 6: 7:30 - 20:00</p>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">Thứ 7 - Chủ nhật: 8:00 - 17:00</p>
+          <h3 className="text-xl font-semibold text-foreground mb-1">Điện thoại</h3>
+          <p className="text-muted-foreground">{CENTER_INFO.phone}</p>
+          <p className="text-muted-foreground text-sm">Thứ 2 - Thứ 6: 7:30 - 20:00</p>
+          <p className="text-muted-foreground text-sm">Thứ 7 - Chủ nhật: 8:00 - 17:00</p>
         </div>
       </div>
 
       <div className="flex items-start space-x-4">
-        <div className="bg-blue-500 p-3 rounded-full w-12 h-12 flex items-center justify-center">
+        <div className="bg-primary p-3 rounded-full w-12 h-12 flex items-center justify-center">
           <Mail className="h-6 w-6 text-white" aria-hidden="true" />
         </div>
         <div>
-          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-1">Email</h3>
-          <p className="text-gray-600 dark:text-gray-400">{CENTER_INFO.emailReply}</p>
+          <h3 className="text-xl font-semibold text-foreground mb-1">Email</h3>
+          <p className="text-muted-foreground">{CENTER_INFO.emailReply}</p>
         </div>
       </div>
 
       <div className="flex items-start space-x-4">
-        <div className="bg-blue-500 p-3 rounded-full w-12 h-12 flex items-center justify-center">
+        <div className="bg-primary p-3 rounded-full w-12 h-12 flex items-center justify-center">
           <FacebookIcon className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-1">Facebook</h3>
-          <p className="text-gray-600 dark:text-gray-400">Gia Sư Hoàng Hà - TP Thanh Hoá</p>
+          <h3 className="text-xl font-semibold text-foreground mb-1">Facebook</h3>
+          <p className="text-muted-foreground">Gia Sư Hoàng Hà - TP Thanh Hoá</p>
         </div>
       </div>
     </div>

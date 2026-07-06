@@ -117,7 +117,8 @@ const ClassRegistrationForm = ({ submitting, onSubmit }: ClassRegistrationFormPr
               render={({ field }) => (
                 <FormItem className="mb-5">
                   <FormLabel>
-                    Mô tả lực học <span className="text-gray-500 text-xs">(không bắt buộc)</span>
+                    Mô tả lực học{' '}
+                    <span className="text-muted-foreground text-xs">(không bắt buộc)</span>
                   </FormLabel>
                   <FormControl>
                     <Textarea
@@ -144,11 +145,11 @@ const ClassRegistrationForm = ({ submitting, onSubmit }: ClassRegistrationFormPr
             )}
           </Button>
           <div className="text-center">
-            <p className="text-gray-500 dark:text-gray-400 text-xs mb-2">Hoặc tư vấn qua:</p>
+            <p className="text-muted-foreground text-xs mb-2">Hoặc tư vấn qua:</p>
             <Button
               type="button"
               variant="secondary"
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+              className="w-full bg-primary hover:bg-blue-600 text-white"
               onClick={() => window.open('https://zalo.me/0385510892', '_blank')}
             >
               <img src="/images/zalo-logo.svg" alt="Zalo" className="w-5 h-5 mr-2" />

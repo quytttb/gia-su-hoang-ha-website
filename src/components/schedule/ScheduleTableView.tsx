@@ -72,7 +72,7 @@ const ScheduleTableView = ({
     ) : (
       <Card className="shadow-md">
         <CardContent className="p-8 text-center">
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-muted-foreground">
             {hasActiveFilters
               ? 'Không tìm thấy lịch học phù hợp với bộ lọc.'
               : 'Không có lịch học nào vào ngày đã chọn.'}

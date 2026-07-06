@@ -69,7 +69,7 @@ const LazyIframe = ({
       ) : (
         (placeholder ?? (
           <div
-            className="flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm"
+            className="flex items-center justify-center bg-muted dark:bg-card text-muted-foreground text-sm"
             style={{ width: '100%', height: typeof height === 'number' ? height : 200 }}
           >
             Đang tải...

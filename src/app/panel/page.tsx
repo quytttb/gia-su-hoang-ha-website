@@ -1,3 +1,3 @@
 'use client';
 
-export { default } from '@/pages/PanelPage';
+export { default } from '@/components/screens/PanelScreen';

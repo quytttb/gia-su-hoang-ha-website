@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Class } from '../../../types';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
@@ -15,8 +17,7 @@ import {
 } from '../../ui/dialog';
 import { Dialog as PreviewDialog, DialogContent as PreviewDialogContent } from '../../ui/dialog';
 import { Upload, X, Loader2, CheckCircle } from 'lucide-react';
-import { classFormSchema } from '@/lib/validations/panel';
-import { mapZodErrors } from '@/lib/validations/zodHelpers';
+import { classFormSchema, type ClassFormValues } from '@/lib/validations/panel';
 import { uploadFile } from '@/actions/upload';
 
 type UploadProgress = {
@@ -40,22 +41,28 @@ const ClassForm: React.FC<ClassFormProps> = ({
   onSave,
   categories,
 }) => {
-  // State cho form
-  const [formData, setFormData] = useState<Partial<Class>>({
-    name: '',
-    description: '',
-    price: 0,
-    category: '',
-    imageUrl: '',
-    featured: false,
-    isActive: true,
-    discount: 0,
-    discountEndDate: '',
+  const form = useForm<ClassFormValues>({
+    resolver: zodResolver(classFormSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      price: 0,
+      category: '',
+      imageUrl: '',
+      featured: false,
+      isActive: true,
+      discount: 0,
+      discountEndDate: '',
+    },
   });
+  const formData = form.watch();
+  const fieldErrors = form.formState.errors;
+  const errors = Object.fromEntries(
+    Object.entries(fieldErrors).map(([k, v]) => [k, v?.message ?? ''])
+  ) as Record<string, string>;
 
   // State cho loading
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>({
     progress: 0,
     isUploading: false,
@@ -69,22 +76,23 @@ const ClassForm: React.FC<ClassFormProps> = ({
   const [saved, setSaved] = useState(false);
 
   // Cập nhật formData khi classItem thay đổi (khi mở form sửa)
+  const { reset, clearErrors } = form;
+
   useEffect(() => {
     if (classItem) {
-      setFormData({
+      reset({
         name: classItem.name || '',
         description: classItem.description || '',
         price: classItem.price || 0,
         category: classItem.category || '',
         imageUrl: classItem.imageUrl || '',
         featured: classItem.featured || false,
-        isActive: classItem.isActive !== false, // Mặc định là true nếu không có
+        isActive: classItem.isActive !== false,
         discount: classItem.discount || 0,
         discountEndDate: classItem.discountEndDate || '',
       });
     } else {
-      // Reset form khi tạo mới
-      setFormData({
+      reset({
         name: '',
         description: '',
         price: 0,
@@ -96,13 +104,13 @@ const ClassForm: React.FC<ClassFormProps> = ({
         discountEndDate: '',
       });
     }
-    setErrors({});
+    clearErrors();
     setSelectedFile(null);
     setUploadProgress({ progress: 0, isUploading: false });
     setSuccessMessage(null);
     setTempUploadedUrl(null);
     setSaved(false);
-  }, [classItem, isOpen]);
+  }, [classItem, isOpen, reset, clearErrors]);
 
   // Cleanup on unmount if not saved (temp preview URLs only)
   useEffect(() => {
@@ -122,10 +130,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
       const cleanValue = value.replace(/[^\d]/g, '');
       const numericValue = cleanValue ? parseInt(cleanValue, 10) : 0;
 
-      setFormData(prev => ({
-        ...prev,
-        [name]: numericValue,
-      }));
+      form.setValue('price', numericValue, { shouldValidate: true });
     } else if (name === 'discount') {
       // Chỉ cho phép nhập số từ 0-100
       const filteredValue = value.replace(/[^\d]/g, '');
@@ -133,73 +138,36 @@ const ClassForm: React.FC<ClassFormProps> = ({
       // Giới hạn giá trị từ 0-100
       const limitedValue = Math.min(100, Math.max(0, numericValue));
 
-      setFormData(prev => ({
-        ...prev,
-        [name]: limitedValue,
-      }));
+      form.setValue('discount', limitedValue, { shouldValidate: true });
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value,
-      }));
+      form.setValue(name as keyof ClassFormValues, value, { shouldValidate: true });
     }
 
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: '',
-      }));
-    }
+    if (errors[name]) form.clearErrors(name as keyof ClassFormValues);
   };
 
   // Xử lý thay đổi select
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    form.setValue(name as keyof ClassFormValues, value, { shouldValidate: true });
 
-    // Clear error when user selects a value
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: '',
-      }));
-    }
+    if (errors[name]) form.clearErrors(name as keyof ClassFormValues);
   };
 
   // Xử lý thay đổi switch
   const handleSwitchChange = (name: string, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: checked,
-    }));
+    form.setValue(name as keyof ClassFormValues, checked);
   };
 
-  // Validate form
-  const validateForm = () => {
-    const result = classFormSchema.safeParse(formData);
-    if (!result.success) {
-      setErrors(mapZodErrors(result.error));
-      return false;
-    }
-    setErrors({});
-    return true;
-  };
+  const [generalError, setGeneralError] = useState<string | null>(null);
 
-  // Xử lý submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validate form
-    if (!validateForm()) {
-      return;
-    }
+    const valid = await form.trigger();
+    if (!valid) return;
 
     try {
       setLoading(true);
-      setErrors({});
+      setGeneralError(null);
       setSuccessMessage(null);
 
       let finalImageUrl = formData.imageUrl;
@@ -233,12 +201,11 @@ const ClassForm: React.FC<ClassFormProps> = ({
       setTimeout(() => {
         onClose();
       }, 1500);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Lỗi khi lưu lớp học:', error);
-      setErrors(prev => ({
-        ...prev,
-        general: error.message || 'Có lỗi xảy ra khi lưu lớp học. Vui lòng thử lại.',
-      }));
+      setGeneralError(
+        error instanceof Error ? error.message : 'Có lỗi xảy ra khi lưu lớp học. Vui lòng thử lại.'
+      );
     } finally {
       setLoading(false);
     }
@@ -252,17 +219,8 @@ const ClassForm: React.FC<ClassFormProps> = ({
       setSelectedFile(file);
       // Create preview URL
       const previewUrl = URL.createObjectURL(file);
-      setFormData(prev => ({
-        ...prev,
-        imageUrl: previewUrl,
-      }));
-      // Clear any existing error
-      if (errors.imageUrl) {
-        setErrors(prev => ({
-          ...prev,
-          imageUrl: '',
-        }));
-      }
+      form.setValue('imageUrl', previewUrl, { shouldValidate: true });
+      if (errors.imageUrl) form.clearErrors('imageUrl');
     }
   };
 
@@ -285,10 +243,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
     } catch (error: unknown) {
       setUploadProgress({ progress: 0, isUploading: false });
       const message = error instanceof Error ? error.message : 'Lỗi upload hình ảnh';
-      setErrors(prev => ({
-        ...prev,
-        imageUrl: message,
-      }));
+      form.setError('imageUrl', { message });
       return null;
     }
   };
@@ -296,10 +251,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
   // Remove selected file
   const handleRemoveFile = () => {
     setSelectedFile(null);
-    setFormData(prev => ({
-      ...prev,
-      imageUrl: classItem?.imageUrl || '',
-    }));
+    form.setValue('imageUrl', classItem?.imageUrl || '', { shouldValidate: true });
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -336,9 +288,9 @@ const ClassForm: React.FC<ClassFormProps> = ({
           )}
 
           {/* General Error */}
-          {errors.general && (
+          {generalError && (
             <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-700 dark:text-red-300">{errors.general}</p>
+              <p className="text-sm text-red-700 dark:text-red-300">{generalError}</p>
             </div>
           )}
 
@@ -363,7 +315,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
               {/* Mô tả */}
               <div className="space-y-2">
                 <Label htmlFor="description">
-                  Mô tả <span className="text-gray-500 text-sm">(Tùy chọn)</span>
+                  Mô tả <span className="text-muted-foreground text-sm">(Tùy chọn)</span>
                 </Label>
                 <textarea
                   id="description"
@@ -398,7 +350,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="discount">
-                    Giảm giá (%) <span className="text-gray-500 text-sm">(Tùy chọn)</span>
+                    Giảm giá (%) <span className="text-muted-foreground text-sm">(Tùy chọn)</span>
                   </Label>
                   <Input
                     id="discount"
@@ -411,7 +363,8 @@ const ClassForm: React.FC<ClassFormProps> = ({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="discountEndDate">
-                    Thời gian kết thúc <span className="text-gray-500 text-sm">(Tùy chọn)</span>
+                    Thời gian kết thúc{' '}
+                    <span className="text-muted-foreground text-sm">(Tùy chọn)</span>
                   </Label>
                   <Input
                     id="discountEndDate"
@@ -522,7 +475,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
                         <span>Đang tải lên...</span>
                         <span>{uploadProgress.progress}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-muted rounded-full h-2">
                         <div
                           className="bg-primary h-2 rounded-full transition-all duration-300"
                           style={{ width: `${uploadProgress.progress}%` }}

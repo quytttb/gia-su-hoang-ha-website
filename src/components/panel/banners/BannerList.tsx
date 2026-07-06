@@ -185,7 +185,7 @@ const BannerList: React.FC<BannerListProps> = ({
                         <Eye className="h-4 w-4 mr-1 inline" /> Hiển thị
                       </span>
                     ) : (
-                      <span className="inline-block px-2 py-1 text-xs rounded bg-gray-700 text-gray-200 dark:bg-gray-600 dark:text-gray-100 font-semibold">
+                      <span className="inline-block px-2 py-1 text-xs rounded bg-muted text-muted-foreground dark:bg-muted dark:text-foreground font-semibold">
                         <EyeOff className="h-4 w-4 mr-1 inline" /> Ẩn
                       </span>
                     )}

@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import BannerForm from '../../components/panel/banners/BannerForm';
-import BannerList from '../../components/panel/banners/BannerList';
-import { Button } from '../../components/ui/button';
-import { Banner } from '../../types';
+import BannerForm from '@/components/panel/banners/BannerForm';
+import BannerList from '@/components/panel/banners/BannerList';
+import { Button } from '@/components/ui/button';
+import { Banner } from '@/types';
 import { getAllBanners } from '@/data/banners';
 import { createBanner, updateBanner, deleteBanner, reorderBanners } from '@/actions/banner';
 import { Plus, Image } from 'lucide-react';
-import ErrorDisplay from '../../components/shared/ErrorDisplay';
-import SkeletonLoading from '../../components/shared/SkeletonLoading';
+import ErrorDisplay from '@/components/shared/ErrorDisplay';
+import SkeletonLoading from '@/components/shared/SkeletonLoading';
 import { Card, CardContent } from '@/components/ui/card';
 
-const BannersPage: React.FC = () => {
+const BannersScreen: React.FC = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -213,8 +213,8 @@ const BannersPage: React.FC = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Image className="h-6 w-6 text-gray-600" />
+                <div className="p-2 bg-muted rounded-lg">
+                  <Image className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-muted-foreground">Đang ẩn</p>
@@ -270,4 +270,4 @@ const BannersPage: React.FC = () => {
   );
 };
 
-export default BannersPage;
+export default BannersScreen;

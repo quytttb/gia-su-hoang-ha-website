@@ -28,12 +28,12 @@ const MISSION_ITEMS = [
 ];
 
 const AboutMissionSection = () => (
-  <section className="section-padding bg-gray-50 dark:bg-gray-900" id="mission">
+  <section className="section-padding bg-muted" id="mission">
     <div className="container-custom">
       <SectionHeading title="Sứ mệnh" id="mission-heading" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
         {MISSION_ITEMS.map(item => (
-          <div key={item.title} className="bg-white p-8 rounded-lg shadow-md dark:bg-gray-800">
+          <div key={item.title} className="bg-white p-8 rounded-lg shadow-md dark:bg-card">
             <div className="flex items-start gap-4 mb-4">
               <div
                 className={`w-12 h-12 rounded-full flex items-center justify-center ${item.bg} flex-shrink-0`}
@@ -45,12 +45,8 @@ const AboutMissionSection = () => (
                 />
               </div>
               <div>
-                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
-                  {item.description}
-                </p>
+                <h3 className="font-bold text-lg text-foreground mb-2">{item.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
               </div>
             </div>
           </div>

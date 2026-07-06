@@ -16,13 +16,10 @@ const BlogSection = () => {
     >
       <div className="container-custom">
         <header className="text-center mb-12">
-          <h2
-            id="blog-heading"
-            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
-          >
+          <h2 id="blog-heading" className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Tin tức & Blog
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Cập nhật những tin tức mới nhất và kiến thức hữu ích về giáo dục
           </p>
         </header>
@@ -37,9 +34,7 @@ const BlogSection = () => {
 
         {!isLoading && !error && featuredPosts.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
-              Chưa có bài viết nào để hiển thị
-            </p>
+            <p className="text-muted-foreground text-lg">Chưa có bài viết nào để hiển thị</p>
           </div>
         )}
 

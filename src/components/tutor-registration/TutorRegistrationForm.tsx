@@ -41,7 +41,7 @@ const TutorRegistrationForm = ({ submitting, onSubmit }: TutorRegistrationFormPr
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-black dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-black dark:text-white mb-4 pb-2 border-b border-border">
               Thông tin Phụ Huynh
             </h2>
             {(['parentName', 'parentPhone', 'parentAddress'] as const).map(field => (
@@ -79,7 +79,7 @@ const TutorRegistrationForm = ({ submitting, onSubmit }: TutorRegistrationFormPr
             ))}
           </div>
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-black dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-black dark:text-white mb-4 pb-2 border-b border-border">
               Thông tin Học Viên
             </h2>
             <FormField
@@ -118,7 +118,8 @@ const TutorRegistrationForm = ({ submitting, onSubmit }: TutorRegistrationFormPr
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Mô tả lực học <span className="text-gray-500 text-xs">(không bắt buộc)</span>
+                    Mô tả lực học{' '}
+                    <span className="text-muted-foreground text-xs">(không bắt buộc)</span>
                   </FormLabel>
                   <FormControl>
                     <Textarea
@@ -160,11 +161,11 @@ const TutorRegistrationForm = ({ submitting, onSubmit }: TutorRegistrationFormPr
             )}
           </Button>
           <div className="text-center">
-            <p className="text-gray-500 dark:text-gray-400 text-xs mb-2">Hoặc tư vấn qua:</p>
+            <p className="text-muted-foreground text-xs mb-2">Hoặc tư vấn qua:</p>
             <Button
               type="button"
               variant="secondary"
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+              className="w-full bg-primary hover:bg-blue-600 text-white"
               onClick={() => window.open('https://zalo.me/0385510892', '_blank')}
             >
               <img src="/images/zalo-logo.svg" alt="Zalo" className="w-5 h-5 mr-2" />

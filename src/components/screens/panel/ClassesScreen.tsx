@@ -2,11 +2,11 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { createClass, updateClass, deleteClass } from '@/actions/class';
-import { Class } from '../../types';
-import { extractClassCategories } from '../../utils/classHelpers';
-import ClassTable from '../../components/panel/classes/ClassTable';
-import ClassForm from '../../components/panel/classes/ClassForm';
-import { Button } from '../../components/ui/button';
+import { Class } from '@/types';
+import { extractClassCategories } from '@/utils/classHelpers';
+import ClassTable from '@/components/panel/classes/ClassTable';
+import ClassForm from '@/components/panel/classes/ClassForm';
+import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import PanelPageHeader from '@/components/panel/shared/PanelPageHeader';
 import PanelTableSkeleton from '@/components/panel/shared/PanelTableSkeleton';
@@ -16,7 +16,7 @@ import { queryKeys } from '@/lib/queryKeys';
 
 const PAGE_SIZE = 10;
 
-const ClassesPage: React.FC = () => {
+const ClassesScreen: React.FC = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: rawClasses, isLoading: loading, refetch } = useAdminClasses();
@@ -297,4 +297,4 @@ const ClassesPage: React.FC = () => {
   );
 };
 
-export default ClassesPage;
+export default ClassesScreen;

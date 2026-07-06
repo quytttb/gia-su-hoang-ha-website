@@ -1,14 +1,14 @@
 import SectionHeading from '../shared/SectionHeading';
 
 const AboutHistorySection = () => (
-  <section className="section-padding bg-gray-50 dark:bg-gray-900" id="history-founder">
+  <section className="section-padding bg-muted" id="history-founder">
     <div className="container-custom">
       <div className="w-full text-center">
         <SectionHeading title="Lịch sử phát triển" id="history-heading" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10 items-center mt-8">
         <div className="md:col-span-2">
-          <p className="text-gray-700 text-lg leading-relaxed dark:text-gray-200 mb-6">
+          <p className="text-muted-foreground text-lg leading-relaxed dark:text-foreground mb-6">
             Trung tâm Gia sư Hoàng Hà ra đời từ tâm huyết của Nhà sáng lập Nguyễn Nguyên Hoàng – tốt
             nghiệp chuyên ngành Quản trị Kinh doanh thuộc Trường Đại học Mở Hà Nội, một người trẻ
             lớn lên trong gia đình có truyền thống giáo dục lâu đời và nhiều thế hệ tại vùng đất
@@ -37,7 +37,7 @@ const AboutHistorySection = () => (
           <div className="text-center">
             <div className="font-bold text-2xl text-yellow-500 mb-2">NGUYỄN NGUYÊN HOÀNG</div>
             <div className="font-semibold text-lg text-blue-600 mb-1">Nhà Sáng lập</div>
-            <div className="text-gray-700 dark:text-gray-300">Trung tâm Gia sư Hoàng Hà</div>
+            <div className="text-muted-foreground">Trung tâm Gia sư Hoàng Hà</div>
           </div>
         </div>
       </div>

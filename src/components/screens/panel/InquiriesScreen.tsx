@@ -21,10 +21,10 @@ import {
   Send,
   X,
 } from 'lucide-react';
-import SkeletonLoading from '../../components/shared/SkeletonLoading';
-import { sendReplyEmail } from '../../services/replyService';
+import SkeletonLoading from '@/components/shared/SkeletonLoading';
+import { sendReplyEmail } from '@/services/replyService';
 
-const InquiriesPage: React.FC = () => {
+const InquiriesScreen: React.FC = () => {
   const [messages, setMessages] = useState<(ContactMessage & { id: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMessage, setSelectedMessage] = useState<(ContactMessage & { id: string }) | null>(
@@ -154,9 +154,9 @@ const InquiriesPage: React.FC = () => {
       case 'replied':
         return 'text-green-600 bg-green-100';
       case 'archived':
-        return 'text-gray-600 bg-gray-100';
+        return 'text-muted-foreground bg-muted';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-muted-foreground bg-muted';
     }
   };
 
@@ -230,8 +230,8 @@ const InquiriesPage: React.FC = () => {
                   onClick={() => setFilter(key as any)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     filter === key
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-primary text-white'
+                      : 'bg-muted text-muted-foreground hover:bg-muted'
                   }`}
                 >
                   {label} ({count})
@@ -251,7 +251,7 @@ const InquiriesPage: React.FC = () => {
         ) : filteredMessages.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
-              <Mail className="text-6xl text-gray-300 mb-4" aria-hidden="true" />
+              <Mail className="text-6xl text-muted-foreground mb-4" aria-hidden="true" />
               <h3 className="text-xl font-semibold text-foreground mb-2">Chưa có tin nhắn</h3>
               <p className="text-muted-foreground">
                 {filter === 'all'
@@ -279,7 +279,7 @@ const InquiriesPage: React.FC = () => {
                         {message.status === 'new' ? (
                           <Mail className="text-lg text-blue-500" aria-hidden="true" />
                         ) : (
-                          <MailOpen className="text-lg text-gray-400" aria-hidden="true" />
+                          <MailOpen className="text-lg text-muted-foreground" aria-hidden="true" />
                         )}
                         <h3 className="font-semibold text-foreground">{message.name}</h3>
                       </div>
@@ -326,7 +326,7 @@ const InquiriesPage: React.FC = () => {
                           className={`p-2 transition-colors ${
                             selectedMessage.status === 'new'
                               ? 'text-blue-500 hover:text-blue-600'
-                              : 'text-gray-500 hover:text-blue-500'
+                              : 'text-muted-foreground hover:text-blue-500'
                           }`}
                           title={
                             selectedMessage.status === 'new'
@@ -342,14 +342,14 @@ const InquiriesPage: React.FC = () => {
                         </button>
                         <button
                           onClick={() => startReply(selectedMessage)}
-                          className="p-2 text-gray-500 hover:text-green-500 transition-colors"
+                          className="p-2 text-muted-foreground hover:text-green-500 transition-colors"
                           title="Trả lời tin nhắn"
                         >
                           <Reply className="w-4 h-4" aria-hidden="true" />
                         </button>
                         <button
                           onClick={() => deleteMessage(selectedMessage.id)}
-                          className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                          className="p-2 text-muted-foreground hover:text-red-500 transition-colors"
                           title="Xóa tin nhắn"
                         >
                           <Trash2 className="w-4 h-4" aria-hidden="true" />
@@ -415,7 +415,7 @@ const InquiriesPage: React.FC = () => {
                         <label className="text-sm font-medium text-muted-foreground">
                           Tin nhắn
                         </label>
-                        <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <div className="mt-1 p-3 bg-muted rounded-lg">
                           <p className="text-foreground whitespace-pre-wrap">
                             {selectedMessage.message}
                           </p>
@@ -436,7 +436,7 @@ const InquiriesPage: React.FC = () => {
 
                     {/* Reply Form */}
                     {isReplying && (
-                      <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+                      <div className="mt-6 p-4 bg-muted rounded-lg border">
                         <div className="flex items-center justify-between mb-4">
                           <h4 className="text-lg font-semibold text-foreground flex items-center gap-2">
                             <Reply className="w-4 h-4" aria-hidden="true" />
@@ -444,7 +444,7 @@ const InquiriesPage: React.FC = () => {
                           </h4>
                           <button
                             onClick={cancelReply}
-                            className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                            className="p-2 text-muted-foreground hover:text-red-500 transition-colors"
                             title="Hủy"
                           >
                             <X className="w-4 h-4" aria-hidden="true" />
@@ -460,7 +460,7 @@ const InquiriesPage: React.FC = () => {
                               type="text"
                               value={replySubject}
                               onChange={e => setReplySubject(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-foreground"
+                              className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring bg-background text-foreground"
                               placeholder="Tiêu đề email..."
                             />
                           </div>
@@ -473,7 +473,7 @@ const InquiriesPage: React.FC = () => {
                               value={replyMessage}
                               onChange={e => setReplyMessage(e.target.value)}
                               rows={6}
-                              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-foreground resize-none"
+                              className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-ring bg-background text-foreground resize-none"
                               placeholder="Nhập nội dung phản hồi..."
                             />
                           </div>
@@ -482,14 +482,14 @@ const InquiriesPage: React.FC = () => {
                             <button
                               onClick={sendReply}
                               disabled={sendingReply || !replyMessage.trim()}
-                              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                               <Send className="w-4 h-4" aria-hidden="true" />
                               {sendingReply ? 'Đang gửi...' : 'Gửi phản hồi'}
                             </button>
                             <button
                               onClick={cancelReply}
-                              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                              className="px-4 py-2 bg-muted0 text-white rounded-lg hover:bg-muted transition-colors"
                             >
                               Hủy
                             </button>
@@ -502,7 +502,7 @@ const InquiriesPage: React.FC = () => {
               ) : (
                 <Card>
                   <CardContent className="p-12 text-center">
-                    <Mail className="text-4xl text-gray-300 mb-4" aria-hidden="true" />
+                    <Mail className="text-4xl text-muted-foreground mb-4" aria-hidden="true" />
                     <p className="text-muted-foreground">Chọn một tin nhắn để xem chi tiết</p>
                   </CardContent>
                 </Card>
@@ -515,4 +515,4 @@ const InquiriesPage: React.FC = () => {
   );
 };
 
-export default InquiriesPage;
+export default InquiriesScreen;

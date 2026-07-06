@@ -15,7 +15,7 @@ const ChatbotMessage = ({ message, onQuickReply, onOpenFacebook }: ChatbotMessag
       <div
         className={`max-w-[85%] p-3 rounded-lg ${
           isBot
-            ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 text-gray-800 dark:text-gray-200 border border-blue-100 dark:border-gray-700'
+            ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 text-foreground border border-blue-100 dark:border-border'
             : 'bg-gradient-to-r from-primary to-blue-600 text-white rounded-bl-none ml-auto'
         }`}
       >
@@ -31,7 +31,7 @@ const ChatbotMessage = ({ message, onQuickReply, onOpenFacebook }: ChatbotMessag
               key={index}
               type="button"
               onClick={() => onQuickReply(reply)}
-              className="px-3 py-1.5 text-xs bg-white dark:bg-gray-900 border border-primary text-primary dark:text-primary hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white rounded-full"
+              className="px-3 py-1.5 text-xs bg-background border border-primary text-primary dark:text-primary hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white rounded-full"
             >
               {reply}
             </button>

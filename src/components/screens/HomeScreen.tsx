@@ -1,0 +1,104 @@
+'use client';
+
+import { useEffect, Suspense, lazy } from 'react';
+import Layout from '@/components/layout/Layout';
+import { Banner, CenterInfo, Class } from '@/types';
+import BlogSection from '@/components/home/BlogSection';
+import BannerSection from '@/components/home/BannerSection';
+import IntroductionSection from '@/components/home/IntroductionSection';
+import FeaturedClassesSection from '@/components/home/FeaturedClassesSection';
+import ContactCTASection from '@/components/home/ContactCTASection';
+import ParentFeedbackSection from '@/components/home/ParentFeedbackSection';
+
+const Chatbot = lazy(() => import('@/components/shared/Chatbot'));
+
+interface HomeScreenProps {
+  banners: Banner[];
+  centerInfo: CenterInfo | null;
+  featuredClasses: Class[];
+}
+
+const HomeScreen = ({ banners, centerInfo, featuredClasses }: HomeScreenProps) => {
+  const scrollToSection = (sectionId: string) => {
+    setTimeout(() => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest',
+        });
+      }
+    }, 100);
+  };
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      scrollToSection(hash.replace('#', ''));
+    }
+  }, []);
+
+  return (
+    <Layout>
+      <div id="banner">
+        <BannerSection banners={banners} />
+      </div>
+      <div id="introduction">{centerInfo && <IntroductionSection centerInfo={centerInfo} />}</div>
+      <div id="featured-classes">
+        <FeaturedClassesSection featuredClasses={featuredClasses} />
+      </div>
+      <div id="blog">
+        <BlogSection />
+      </div>
+      <div id="feedback">
+        <ParentFeedbackSection />
+      </div>
+      <div id="contact">
+        <ContactCTASection />
+      </div>
+      <section className="section-padding bg-background" id="partners">
+        <div className="container-custom">
+          <h2 className="text-2xl font-bold text-center mb-6 text-primary-700 dark:text-primary-400 uppercase">
+            Đối tác của chúng tôi
+          </h2>
+          <div className="flex flex-wrap justify-center items-center gap-24 mt-8">
+            <img
+              src="/images/partners/lam_son.png"
+              alt="THPT Chuyên Lam Sơn"
+              width={180}
+              height={112}
+              className="h-20 md:h-28 object-contain max-w-[180px]"
+            />
+            <img
+              src="/images/partners/dao_duy_tu.png"
+              alt="THPT Đào Duy Từ"
+              width={180}
+              height={112}
+              className="h-20 md:h-28 object-contain max-w-[180px]"
+            />
+            <img
+              src="/images/partners/ham_rong.png"
+              alt="THPT Hàm Rồng"
+              width={180}
+              height={112}
+              className="h-20 md:h-28 object-contain max-w-[180px]"
+            />
+            <img
+              src="/images/partners/tran_mai_ninh.png"
+              alt="THCS Trần Mai Ninh"
+              width={180}
+              height={112}
+              className="h-20 md:h-28 object-contain max-w-[180px]"
+            />
+          </div>
+        </div>
+      </section>
+      <Suspense fallback={null}>
+        <Chatbot />
+      </Suspense>
+    </Layout>
+  );
+};
+
+export default HomeScreen;

@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
-import BlogPostTable from '../../components/panel/blog/BlogPostTable';
-import BlogPostForm from '../../components/panel/blog/BlogPostForm';
+import BlogPostTable from '@/components/panel/blog/BlogPostTable';
+import BlogPostForm from '@/components/panel/blog/BlogPostForm';
 import { listPosts } from '@/data/blog';
 import { updatePost } from '@/actions/blog';
-import { blogCategories } from '../../constants/blogData';
+import { blogCategories } from '@/constants/blogData';
 import { toast } from 'sonner';
 import { queryKeys } from '@/lib/queryKeys';
 
@@ -40,7 +40,7 @@ const mapPostForAdmin = (
   contentMarkdown: (post as AdminPost).contentMarkdown,
 });
 
-const BlogPostsPage: React.FC = () => {
+const BlogPostsScreen: React.FC = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<AdminPost | null>(null);
   const [filter, setFilter] = useState<{ categoryId?: string; status?: string; search?: string }>(
@@ -141,4 +141,4 @@ const BlogPostsPage: React.FC = () => {
   );
 };
 
-export default BlogPostsPage;
+export default BlogPostsScreen;

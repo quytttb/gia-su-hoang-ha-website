@@ -19,17 +19,12 @@ const FAQ_ITEMS = [
 
 const ContactFAQSection = () => (
   <div className="mt-8">
-    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-      Câu hỏi thường gặp
-    </h3>
+    <h3 className="text-xl font-semibold text-foreground mb-4">Câu hỏi thường gặp</h3>
     <div className="space-y-4">
       {FAQ_ITEMS.map(item => (
-        <div
-          key={item.question}
-          className={item.isLast ? '' : 'border-b border-gray-200 dark:border-gray-700 pb-4'}
-        >
-          <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">{item.question}</h4>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">{item.answer}</p>
+        <div key={item.question} className={item.isLast ? '' : 'border-b border-border pb-4'}>
+          <h4 className="font-medium text-foreground mb-2">{item.question}</h4>
+          <p className="text-muted-foreground text-sm">{item.answer}</p>
         </div>
       ))}
     </div>

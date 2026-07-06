@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import BlogDetailPage from '@/pages/BlogDetailPage';
+import BlogDetailScreen from '@/components/screens/BlogDetailScreen';
 import { hasSupabaseConfig } from '@/lib/env';
-import { getPostBySlug } from '@/data/blog';
+import { getPostBySlug, getRelatedPosts } from '@/data/blog';
 import { buildMetadata } from '@/lib/metadata';
 
 interface BlogDetailRouteProps {
@@ -41,6 +41,21 @@ export const generateMetadata = async ({ params }: BlogDetailRouteProps): Promis
   });
 };
 
-const BlogDetailRoute = () => <BlogDetailPage />;
+const BlogDetailRoute = async ({ params }: BlogDetailRouteProps) => {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
+  const { relatedPosts, latestPosts } = post
+    ? await getRelatedPosts(post.id, post.category?.id, post.tags)
+    : { relatedPosts: [], latestPosts: [] };
+
+  return (
+    <BlogDetailScreen
+      slug={slug}
+      post={post}
+      relatedPosts={relatedPosts}
+      latestPosts={latestPosts}
+    />
+  );
+};
 
 export default BlogDetailRoute;

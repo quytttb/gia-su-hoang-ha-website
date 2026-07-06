@@ -1,26 +1,27 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Layout from '../components/layout/Layout';
-import SectionHeading from '../components/shared/SectionHeading';
+import Layout from '@/components/layout/Layout';
+import SectionHeading from '@/components/shared/SectionHeading';
 import { format, parseISO } from 'date-fns';
-import Chatbot from '../components/shared/Chatbot';
-import PageHero from '../components/shared/PageHero';
-import SkeletonLoading from '../components/shared/SkeletonLoading';
-import ScheduleFilter from '../components/schedule/ScheduleFilter';
-import ScheduleTableView from '../components/schedule/ScheduleTableView';
-import ScheduleCalendarView from '../components/schedule/ScheduleCalendarView';
-import PersonalSchedulePanel from '../components/schedule/PersonalSchedulePanel';
-import { CalendarValue, ViewType } from '../components/schedule/scheduleTypes';
-import { filterSchedules } from '../components/schedule/scheduleUtils';
-import { Schedule } from '../types';
+import Chatbot from '@/components/shared/Chatbot';
+import PageHero from '@/components/shared/PageHero';
+import SkeletonLoading from '@/components/shared/SkeletonLoading';
+import ScheduleFilter from '@/components/schedule/ScheduleFilter';
+import ScheduleTableView from '@/components/schedule/ScheduleTableView';
+import ScheduleCalendarView from '@/components/schedule/ScheduleCalendarView';
+import PersonalSchedulePanel from '@/components/schedule/PersonalSchedulePanel';
+import { CalendarValue, ViewType } from '@/components/schedule/scheduleTypes';
+import { filterSchedules } from '@/components/schedule/scheduleUtils';
+import { Schedule } from '@/types';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   useAvailableScheduleDates,
   usePersonalSchedules,
   useSchedulesByDate,
 } from '@/hooks/useSchedules';
 
-const SchedulePage = () => {
+const ScheduleScreen = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [personalSchedules, setPersonalSchedules] = useState<Schedule[]>([]);
   const [showPersonalSchedules, setShowPersonalSchedules] = useState(false);
@@ -128,7 +129,7 @@ const SchedulePage = () => {
   if (loading && !phoneSubmitted) {
     return (
       <Layout>
-        <section className="bg-gray-100 dark:bg-gray-900 py-16">
+        <section className="bg-muted py-16">
           <div className="container-custom text-center">
             <SkeletonLoading type="text" count={2} className="mx-auto" />
           </div>
@@ -153,7 +154,7 @@ const SchedulePage = () => {
               <div className="mb-6">
                 <SkeletonLoading type="text" count={1} />
               </div>
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+              <div className="bg-background p-6 rounded-lg shadow-md">
                 <SkeletonLoading type="text" count={3} />
                 <div className="mt-4">
                   <SkeletonLoading type="button" width="100%" />
@@ -185,22 +186,12 @@ const SchedulePage = () => {
           <div className="lg:col-span-2">
             <div className="flex justify-between items-center mb-6">
               <SectionHeading title="Lịch học theo ngày" centered={false} />
-              <div className="flex space-x-2">
-                <button
-                  type="button"
-                  onClick={() => toggleView('table')}
-                  className={`px-4 py-2 rounded ${viewType === 'table' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
-                >
-                  Dạng bảng
-                </button>
-                <button
-                  type="button"
-                  onClick={() => toggleView('calendar')}
-                  className={`px-4 py-2 rounded ${viewType === 'calendar' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
-                >
-                  Lịch
-                </button>
-              </div>
+              <Tabs value={viewType} onValueChange={v => toggleView(v as ViewType)}>
+                <TabsList>
+                  <TabsTrigger value="table">Dạng bảng</TabsTrigger>
+                  <TabsTrigger value="calendar">Lịch</TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
 
             <ScheduleFilter
@@ -254,4 +245,4 @@ const SchedulePage = () => {
   );
 };
 
-export default SchedulePage;
+export default ScheduleScreen;

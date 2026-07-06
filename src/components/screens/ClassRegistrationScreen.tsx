@@ -3,22 +3,22 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import Layout from '../components/layout/Layout';
-import { Class } from '../types';
+import Layout from '@/components/layout/Layout';
+import { Class } from '@/types';
 import { getClassById } from '@/data/classes';
 import { createRegistration } from '@/actions/registration';
-import Chatbot from '../components/shared/Chatbot';
-import DevFormHelper from '../components/dev/DevFormHelper';
-import { defaultRateLimiter, getClientIdentifier } from '../utils/security';
-import { sendRegistrationEmail, sendAutoReplyEmail, initEmailJS } from '../services/emailService';
+import Chatbot from '@/components/shared/Chatbot';
+import DevFormHelper from '@/components/dev/DevFormHelper';
+import { defaultRateLimiter, getClientIdentifier } from '@/utils/security';
+import { sendRegistrationEmail, sendAutoReplyEmail, initEmailJS } from '@/services/emailService';
 import confetti from 'canvas-confetti';
-import ClassRegistrationForm from '../components/classes/ClassRegistrationForm';
-import ClassRegistrationSummary from '../components/classes/ClassRegistrationSummary';
-import RegistrationConfirmDialogs from '../components/shared/RegistrationConfirmDialogs';
+import ClassRegistrationForm from '@/components/classes/ClassRegistrationForm';
+import ClassRegistrationSummary from '@/components/classes/ClassRegistrationSummary';
+import RegistrationConfirmDialogs from '@/components/shared/RegistrationConfirmDialogs';
 import { ClassRegistrationFormValues } from '@/lib/validations/class-registration';
 import { Button } from '@/components/ui/button';
 
-const ClassRegistrationPage = () => {
+const ClassRegistrationScreen = () => {
   const params = useParams<{ id: string }>();
   const id = typeof params?.id === 'string' ? params.id : '';
   const router = useRouter();
@@ -129,10 +129,8 @@ const ClassRegistrationPage = () => {
     return (
       <Layout>
         <div className="container-custom py-20 text-center">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">
-            Không tìm thấy lớp học
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Không tìm thấy lớp học</h2>
+          <p className="text-muted-foreground mb-8">
             Khóa học bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
           </p>
           <Button asChild>
@@ -147,12 +145,10 @@ const ClassRegistrationPage = () => {
     <Layout>
       <div className="container-custom py-16 pb-32">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-6 text-center">
-            Đăng ký lớp học
-          </h1>
+          <h1 className="text-3xl font-bold text-foreground mb-6 text-center">Đăng ký lớp học</h1>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:h-[500px]">
             <div className="md:col-span-2 flex flex-col h-full">
-              <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md flex flex-col h-full">
+              <div className="bg-background p-8 rounded-lg shadow-md flex flex-col h-full">
                 <ClassRegistrationForm submitting={submitting} onSubmit={handleSubmit} />
               </div>
             </div>
@@ -185,4 +181,4 @@ const ClassRegistrationPage = () => {
   );
 };
 
-export default ClassRegistrationPage;
+export default ClassRegistrationScreen;

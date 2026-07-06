@@ -1,15 +1,20 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import ClassesPage from '@/pages/ClassesPage';
+import ClassesScreen from '@/components/screens/ClassesScreen';
 import { buildMetadata } from '@/lib/metadata';
 import { seoData } from '@/utils/seo';
+import { getActiveClasses } from '@/data/classes';
 
 export const metadata: Metadata = buildMetadata(seoData.classes);
 
-const ClassesRoute = () => (
-  <Suspense fallback={null}>
-    <ClassesPage />
-  </Suspense>
-);
+const ClassesRoute = async () => {
+  const classes = await getActiveClasses();
+
+  return (
+    <Suspense fallback={null}>
+      <ClassesScreen initialClasses={classes} />
+    </Suspense>
+  );
+};
 
 export default ClassesRoute;

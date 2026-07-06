@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Banner } from '../../../types';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
@@ -13,8 +15,7 @@ import {
   DialogTitle,
 } from '../../ui/dialog';
 import { Dialog as PreviewDialog, DialogContent as PreviewDialogContent } from '../../ui/dialog';
-import { bannerFormSchema } from '@/lib/validations/panel';
-import { mapZodErrors } from '@/lib/validations/zodHelpers';
+import { bannerFormSchema, type BannerFormValues } from '@/lib/validations/panel';
 import { uploadFile } from '@/actions/upload';
 
 type UploadProgress = {
@@ -42,16 +43,23 @@ interface CroppedAreaPixels {
 }
 
 const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave }) => {
-  const [formData, setFormData] = useState({
-    imageUrl: '',
-    title: '',
-    subtitle: '',
-    link: '',
-    isActive: true,
-    order: 1,
+  const form = useForm<BannerFormValues>({
+    resolver: zodResolver(bannerFormSchema),
+    defaultValues: {
+      imageUrl: '',
+      title: '',
+      subtitle: '',
+      link: '',
+      isActive: true,
+      order: 1,
+    },
   });
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const formData = form.watch();
+  const fieldErrors = form.formState.errors;
+  const errors = Object.fromEntries(
+    Object.entries(fieldErrors).map(([k, v]) => [k, v?.message ?? ''])
+  ) as Record<string, string>;
+  const [generalError, setGeneralError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>({
     progress: 0,
     isUploading: false,
@@ -70,9 +78,11 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
   const [tempUploadedUrl, setTempUploadedUrl] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
+  const { reset, clearErrors } = form;
+
   useEffect(() => {
     if (banner) {
-      setFormData({
+      reset({
         imageUrl: banner.imageUrl,
         title: banner.title,
         subtitle: banner.subtitle,
@@ -81,7 +91,7 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
         order: banner.order,
       });
     } else {
-      setFormData({
+      reset({
         imageUrl: '',
         title: '',
         subtitle: '',
@@ -90,14 +100,15 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
         order: 1,
       });
     }
-    setErrors({});
+    clearErrors();
+    setGeneralError(null);
     setSelectedFile(null);
     setUploadProgress({ progress: 0, isUploading: false });
     setIsSubmitting(false);
     setSuccessMessage(null);
     setTempUploadedUrl(null);
     setSaved(false);
-  }, [banner, isOpen]);
+  }, [banner, isOpen, reset, clearErrors]);
 
   useEffect(() => {
     return () => {
@@ -107,22 +118,17 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
     };
   }, [saved, tempUploadedUrl]);
 
-  const validateForm = () => {
-    const result = bannerFormSchema.safeParse(formData);
-    const newErrors = result.success ? {} : mapZodErrors(result.error);
-    if (!formData.imageUrl.trim() && !selectedFile) newErrors.imageUrl = 'Hình ảnh là bắt buộc';
-    if (formData.order < 1) newErrors.order = 'Thứ tự phải lớn hơn 0';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) return;
+    if (!formData.imageUrl?.trim() && !selectedFile) {
+      form.setError('imageUrl', { message: 'Hình ảnh là bắt buộc' });
+      return;
+    }
+    const valid = await form.trigger();
+    if (!valid) return;
 
     setIsSubmitting(true);
-    setErrors({});
+    setGeneralError(null);
     setSuccessMessage(null);
 
     try {
@@ -145,7 +151,8 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
       console.log('Saving banner data:', { ...formData, imageUrl: finalImageUrl });
       await onSave({
         ...formData,
-        link: formData.link === 'none' ? '' : formData.link,
+        subtitle: formData.subtitle || '',
+        link: formData.link === 'none' ? '' : formData.link || '',
         imageUrl: finalImageUrl,
       });
       setSaved(true);
@@ -159,43 +166,19 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
       setTimeout(() => {
         onClose();
       }, 1500);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving banner:', error);
-      setErrors(prev => ({
-        ...prev,
-        general: error.message || 'Có lỗi xảy ra khi lưu banner',
-      }));
+      setGeneralError(error instanceof Error ? error.message : 'Có lỗi xảy ra khi lưu banner');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleInputChange = (field: string, value: string | number | boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: '',
-      }));
-    }
-
-    // Clear general error
-    if (errors.general) {
-      setErrors(prev => ({
-        ...prev,
-        general: '',
-      }));
-    }
-
-    // Clear success message
-    if (successMessage) {
-      setSuccessMessage(null);
-    }
+  const handleInputChange = (field: keyof BannerFormValues, value: string | number | boolean) => {
+    form.setValue(field, value as never, { shouldValidate: true });
+    if (errors[field]) form.clearErrors(field);
+    setGeneralError(null);
+    if (successMessage) setSuccessMessage(null);
   };
 
   // Handle file selection
@@ -207,9 +190,7 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
       setShowCrop(true);
       setSelectedFile(file);
       // Không set formData.imageUrl ở đây nữa
-      if (errors.imageUrl) {
-        setErrors(prev => ({ ...prev, imageUrl: '' }));
-      }
+      if (errors.imageUrl) form.clearErrors('imageUrl');
     }
   };
 
@@ -221,7 +202,7 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
     if (!cropImage || !croppedAreaPixels) return;
     const croppedBlob = await getCroppedImg(cropImage, croppedAreaPixels);
     const croppedUrl = URL.createObjectURL(croppedBlob);
-    setFormData(prev => ({ ...prev, imageUrl: croppedUrl }));
+    form.setValue('imageUrl', croppedUrl, { shouldValidate: true });
     setSelectedFile(
       new File([croppedBlob], selectedFile?.name || 'cropped.jpg', { type: croppedBlob.type })
     );
@@ -247,10 +228,7 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
     } catch (error: unknown) {
       setUploadProgress({ progress: 0, isUploading: false });
       const message = error instanceof Error ? error.message : 'Lỗi upload hình ảnh';
-      setErrors(prev => ({
-        ...prev,
-        imageUrl: message,
-      }));
+      form.setError('imageUrl', { message });
       return null;
     }
   };
@@ -258,10 +236,7 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
   // Remove selected file
   const handleRemoveFile = () => {
     setSelectedFile(null);
-    setFormData(prev => ({
-      ...prev,
-      imageUrl: banner?.imageUrl || '',
-    }));
+    form.setValue('imageUrl', banner?.imageUrl || '', { shouldValidate: true });
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -301,9 +276,9 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
             )}
 
             {/* General Error */}
-            {errors.general && (
+            {generalError && (
               <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-sm text-red-700 dark:text-red-300">{errors.general}</p>
+                <p className="text-sm text-red-700 dark:text-red-300">{generalError}</p>
               </div>
             )}
 
@@ -313,7 +288,7 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
                 {/* Title */}
                 <div className="space-y-2">
                   <Label htmlFor="title">
-                    Tiêu đề <span className="text-gray-500 text-sm">(Tùy chọn)</span>
+                    Tiêu đề <span className="text-muted-foreground text-sm">(Tùy chọn)</span>
                   </Label>
                   <Input
                     id="title"
@@ -329,7 +304,7 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
                 {/* Subtitle */}
                 <div className="space-y-2">
                   <Label htmlFor="subtitle">
-                    Phụ đề <span className="text-gray-500 text-sm">(Tùy chọn)</span>
+                    Phụ đề <span className="text-muted-foreground text-sm">(Tùy chọn)</span>
                   </Label>
                   <textarea
                     id="subtitle"
@@ -346,7 +321,7 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
                 {/* Link */}
                 <div className="space-y-2">
                   <Label htmlFor="link">
-                    Liên kết <span className="text-gray-500 text-sm">(Tùy chọn)</span>
+                    Liên kết <span className="text-muted-foreground text-sm">(Tùy chọn)</span>
                   </Label>
                   <Input
                     id="link"
@@ -440,7 +415,7 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
                           <span>Đang tải lên...</span>
                           <span>{uploadProgress.progress}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-muted rounded-full h-2">
                           <div
                             className="bg-primary h-2 rounded-full transition-all duration-300"
                             style={{ width: `${uploadProgress.progress}%` }}
@@ -533,7 +508,7 @@ const BannerForm: React.FC<BannerFormProps> = ({ banner, isOpen, onClose, onSave
       {showCrop && (
         <CropDialog open={showCrop} onOpenChange={setShowCrop}>
           <CropDialogContent className="max-w-2xl">
-            <div className="relative w-full h-80 bg-gray-900">
+            <div className="relative w-full h-80 bg-card">
               <Cropper
                 image={cropImage!}
                 crop={crop}

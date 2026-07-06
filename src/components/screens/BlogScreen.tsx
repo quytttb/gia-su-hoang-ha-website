@@ -1,19 +1,20 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import Layout from '../components/layout/Layout';
-import PageHero from '../components/shared/PageHero';
-import BlogFilterBar from '../components/blog/BlogFilterBar';
-import BlogFeaturedSection from '../components/blog/BlogFeaturedSection';
-import BlogPostGrid from '../components/blog/BlogPostGrid';
-import BlogCard from '../components/blog/BlogCard';
+import Layout from '@/components/layout/Layout';
+import PageHero from '@/components/shared/PageHero';
+import BlogFilterBar from '@/components/blog/BlogFilterBar';
+import BlogFeaturedSection from '@/components/blog/BlogFeaturedSection';
+import BlogPostGrid from '@/components/blog/BlogPostGrid';
+import BlogCard from '@/components/blog/BlogCard';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, TrendingUp, BookOpen, Filter } from 'lucide-react';
-import { blogCategories } from '../constants/blogData';
-import SkeletonLoading from '../components/shared/SkeletonLoading';
+import { blogCategories } from '@/constants/blogData';
+import SkeletonLoading from '@/components/shared/SkeletonLoading';
 import { useInfiniteBlogPosts } from '@/hooks/useBlogPosts';
+import type { BlogPost } from '@/types';
 
 const getPublishedTime = (publishedAt: unknown) => {
   if (typeof publishedAt === 'object' && publishedAt && 'seconds' in publishedAt) {
@@ -22,13 +23,26 @@ const getPublishedTime = (publishedAt: unknown) => {
   return Date.parse(String(publishedAt || '0'));
 };
 
-const BlogPage = () => {
+interface BlogScreenProps {
+  initialPosts: BlogPost[];
+  initialCursor: string | null;
+}
+
+const BlogScreen = ({ initialPosts, initialCursor }: BlogScreenProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'latest' | 'popular' | 'readTime'>('latest');
 
   const { data, isLoading, isFetchingNextPage, error, fetchNextPage, hasNextPage, refetch } =
-    useInfiniteBlogPosts({ pageSize: 12 });
+    useInfiniteBlogPosts(
+      { pageSize: 12 },
+      {
+        initialData: {
+          pages: [{ posts: initialPosts, cursor: initialCursor }],
+          pageParams: [undefined],
+        },
+      }
+    );
 
   const posts = useMemo(() => data?.pages.flatMap(page => page.posts) ?? [], [data]);
 
@@ -236,4 +250,4 @@ const BlogPage = () => {
   );
 };
 
-export default BlogPage;
+export default BlogScreen;

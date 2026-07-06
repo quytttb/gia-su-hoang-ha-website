@@ -2,6 +2,17 @@
 @plugin "@tailwindcss/typography";
 @source "../src/**/*.{ts,tsx}";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Design token migration guide (raw Tailwind -> semantic Shadcn tokens):
+ * text-gray-900 / text-gray-700  -> text-foreground / text-muted-foreground
+ * bg-white / bg-gray-50          -> bg-background / bg-muted
+ * border-gray-200                -> border-border
+ * bg-blue-50, text-blue-600      -> bg-primary/10, text-primary
+ * Brand palette primary-* and accent-* in @theme are kept for marketing accents.
+ */
+
 @theme inline {
   --font-sans: var(--font-roboto);
 
@@ -210,7 +221,7 @@
   }
 
   .focus-visible:focus-visible {
-    @apply outline-none ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800;
+    @apply outline-none ring-2 ring-primary ring-offset-2 dark:ring-offset-background;
   }
 }
 

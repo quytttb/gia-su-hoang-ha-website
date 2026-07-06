@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import AnalyticsDashboard from '../../components/panel/AnalyticsDashboard';
-import ClassesStats from '../../components/panel/ClassesStats';
-import SkeletonLoading from '../../components/shared/SkeletonLoading';
+import AnalyticsDashboard from '@/components/panel/AnalyticsDashboard';
+import ClassesStats from '@/components/panel/ClassesStats';
+import SkeletonLoading from '@/components/shared/SkeletonLoading';
 import PanelPageHeader from '@/components/panel/shared/PanelPageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 
-const AnalyticsPage = () => {
+const AnalyticsScreen = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,4 +43,4 @@ const AnalyticsPage = () => {
   );
 };
 
-export default AnalyticsPage;
+export default AnalyticsScreen;

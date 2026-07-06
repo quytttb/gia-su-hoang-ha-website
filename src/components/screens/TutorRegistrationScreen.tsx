@@ -4,15 +4,15 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Layout from '../components/layout/Layout';
-import Chatbot from '../components/shared/Chatbot';
-import { defaultRateLimiter, getClientIdentifier } from '../utils/security';
+import Layout from '@/components/layout/Layout';
+import Chatbot from '@/components/shared/Chatbot';
+import { defaultRateLimiter, getClientIdentifier } from '@/utils/security';
 import { createRegistration } from '@/actions/registration';
 import confetti from 'canvas-confetti';
-import TutorRegistrationForm from '../components/tutor-registration/TutorRegistrationForm';
-import TutorInfoSidebar from '../components/tutor-registration/TutorInfoSidebar';
-import RegistrationConfirmDialogs from '../components/shared/RegistrationConfirmDialogs';
-import { TutorTypeInfo } from '../components/tutor-registration/tutorRegistrationTypes';
+import TutorRegistrationForm from '@/components/tutor-registration/TutorRegistrationForm';
+import TutorInfoSidebar from '@/components/tutor-registration/TutorInfoSidebar';
+import RegistrationConfirmDialogs from '@/components/shared/RegistrationConfirmDialogs';
+import { TutorTypeInfo } from '@/components/tutor-registration/tutorRegistrationTypes';
 import { TutorRegistrationFormValues } from '@/lib/validations/tutor-registration';
 
 const tutorInfo: Record<'teacher' | 'student', TutorTypeInfo> = {
@@ -30,7 +30,7 @@ const tutorInfo: Record<'teacher' | 'student', TutorTypeInfo> = {
   },
 };
 
-const TutorRegistrationPage = () => {
+const TutorRegistrationScreen = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tutorType = (searchParams?.get('type') as 'teacher' | 'student' | null) ?? null;
@@ -102,10 +102,8 @@ const TutorRegistrationPage = () => {
     return (
       <Layout>
         <div className="container-custom py-20 text-center">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">
-            Loại Gia sư không hợp lệ
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Loại Gia sư không hợp lệ</h2>
+          <p className="text-muted-foreground mb-8">
             Vui lòng chọn loại Gia sư từ trang tìm Gia sư.
           </p>
           <Button asChild>
@@ -120,12 +118,12 @@ const TutorRegistrationPage = () => {
     <Layout>
       <div className="container-custom py-16 pb-40 min-h-screen">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-8 text-center">
+          <h1 className="text-3xl font-bold text-foreground mb-8 text-center">
             Đăng ký tìm Gia sư
           </h1>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+              <div className="bg-background p-8 rounded-xl shadow-lg border border-border">
                 <TutorRegistrationForm submitting={submitting} onSubmit={handleSubmit} />
               </div>
             </div>
@@ -152,4 +150,4 @@ const TutorRegistrationPage = () => {
   );
 };
 
-export default TutorRegistrationPage;
+export default TutorRegistrationScreen;

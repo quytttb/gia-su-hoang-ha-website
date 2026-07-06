@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import SkeletonLoading from '../components/shared/SkeletonLoading';
+import SkeletonLoading from '@/components/shared/SkeletonLoading';
 import { Card, CardContent } from '@/components/ui/card';
 
-const PanelPage = () => {
+const PanelScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -115,4 +115,4 @@ const PanelPage = () => {
   );
 };
 
-export default PanelPage;
+export default PanelScreen;

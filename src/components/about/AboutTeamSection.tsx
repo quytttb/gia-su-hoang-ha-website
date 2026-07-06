@@ -19,11 +19,7 @@ const AboutTeamSection = ({ tutors }: AboutTeamSectionProps) => {
   );
 
   return (
-    <section
-      id="team"
-      className="section-padding bg-gray-50 dark:bg-gray-900"
-      aria-labelledby="team-heading"
-    >
+    <section id="team" className="section-padding bg-muted" aria-labelledby="team-heading">
       <div className="container-custom">
         <SectionHeading title="Đội ngũ giáo viên" id="team-heading" />
         {sortedTutors.length > 0 ? (
@@ -31,7 +27,7 @@ const AboutTeamSection = ({ tutors }: AboutTeamSectionProps) => {
             {sortedTutors.map(tutor => (
               <div
                 key={tutor.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-lg dark:bg-gray-800 dark:border-gray-700"
+                className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-lg dark:bg-card dark:border-border"
               >
                 <div className="h-80 overflow-hidden">
                   <LazyImage
@@ -41,20 +37,20 @@ const AboutTeamSection = ({ tutors }: AboutTeamSectionProps) => {
                   />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-1">
-                    {tutor.name}
-                  </h3>
-                  <p className="text-primary font-medium mb-3 dark:text-gray-200">
+                  <h3 className="text-xl font-bold text-foreground mb-1">{tutor.name}</h3>
+                  <p className="text-primary font-medium mb-3 dark:text-foreground">
                     {tutor.specialty}
                   </p>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">{tutor.bio}</p>
+                  <p className="text-muted-foreground text-sm">{tutor.bio}</p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
           <div className="text-center py-10">
-            <p className="text-gray-500 text-lg">Thông tin giáo viên sẽ được cập nhật sớm.</p>
+            <p className="text-muted-foreground text-lg">
+              Thông tin giáo viên sẽ được cập nhật sớm.
+            </p>
           </div>
         )}
       </div>

@@ -2,13 +2,13 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import Layout from '../components/layout/Layout';
-import BlogCard from '../components/blog/BlogCard';
-import { Badge } from '../components/ui/badge';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Separator } from '../components/ui/separator';
+import { useRouter } from 'next/navigation';
+import Layout from '@/components/layout/Layout';
+import BlogCard from '@/components/blog/BlogCard';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import {
   ArrowLeft,
   Calendar,
@@ -23,10 +23,18 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { useBlogPost, useRelatedBlogPosts, useIncrementBlogView } from '@/hooks/useBlogPosts';
-import ErrorDisplay from '../components/shared/ErrorDisplay';
-import Breadcrumb from '../components/shared/Breadcrumb';
-import { generateBlogStructuredData } from '../utils/seo';
+import { useIncrementBlogView } from '@/hooks/useBlogPosts';
+import ErrorDisplay from '@/components/shared/ErrorDisplay';
+import Breadcrumb from '@/components/shared/Breadcrumb';
+import { generateBlogStructuredData } from '@/utils/seo';
+import type { BlogPost } from '@/types';
+
+interface BlogDetailScreenProps {
+  slug: string;
+  post: BlogPost | null;
+  relatedPosts: BlogPost[];
+  latestPosts: BlogPost[];
+}
 
 // Minimal X (Twitter) icon
 const XIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
@@ -40,20 +48,13 @@ const XIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
   </svg>
 );
 
-const BlogDetailPage: React.FC = () => {
-  const params = useParams<{ slug: string }>();
-  const slug = typeof params?.slug === 'string' ? params.slug : '';
+const BlogDetailScreen: React.FC<BlogDetailScreenProps> = ({
+  slug,
+  post,
+  relatedPosts,
+  latestPosts,
+}) => {
   const router = useRouter();
-  const { data: post, isLoading: loading } = useBlogPost(slug);
-  const postAny = post as (typeof post & { categoryId?: string }) | null;
-  const { data: relatedData } = useRelatedBlogPosts(
-    post?.id ?? '',
-    postAny?.categoryId || postAny?.category?.id,
-    postAny?.tags
-  );
-  const latestPosts = relatedData?.latestPosts ?? [];
-  const relatedPosts = relatedData?.relatedPosts ?? [];
-
   const { mutate: incrementView } = useIncrementBlogView();
 
   useEffect(() => {
@@ -70,17 +71,7 @@ const BlogDetailPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [slug]);
 
-  if (loading && !post) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center text-muted-foreground">Đang tải bài viết...</div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!loading && !post) {
+  if (!post) {
     return (
       <Layout>
         <div className="container-custom py-16">
@@ -95,10 +86,6 @@ const BlogDetailPage: React.FC = () => {
         </div>
       </Layout>
     );
-  }
-
-  if (!post) {
-    return null;
   }
 
   const article = post;
@@ -158,7 +145,7 @@ const BlogDetailPage: React.FC = () => {
           }}
         />
       )}
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-screen bg-background">
         <div className="container-custom pt-6">
           <Breadcrumb
             items={[
@@ -208,12 +195,12 @@ const BlogDetailPage: React.FC = () => {
                 </h1>
 
                 {article?.subtitle && (
-                  <p className="text-lg md:text-xl text-gray-200 mb-6 leading-relaxed">
+                  <p className="text-lg md:text-xl text-muted-foreground mb-6 leading-relaxed">
                     {article.subtitle}
                   </p>
                 )}
 
-                <div className="flex flex-wrap items-center gap-6 text-sm text-gray-300">
+                <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4" />
                     <span>{article?.author || 'Ẩn danh'}</span>
@@ -247,10 +234,10 @@ const BlogDetailPage: React.FC = () => {
                   {/* Article Content */}
                   <div
                     className="prose prose-lg max-w-none dark:prose-invert
-                      prose-headings:text-gray-900 dark:prose-headings:text-gray-100
-                      prose-p:text-gray-700 dark:prose-p:text-gray-300
+                      prose-headings:text-foreground
+                      prose-p:text-muted-foreground
                       prose-p:leading-relaxed
-                      prose-strong:text-gray-900 dark:prose-strong:text-gray-100
+                      prose-strong:text-foreground
                       prose-a:text-primary hover:prose-a:text-primary-600"
                     dangerouslySetInnerHTML={{
                       __html: article?.content || '',
@@ -440,4 +427,4 @@ const BlogDetailPage: React.FC = () => {
   );
 };
 
-export default BlogDetailPage;
+export default BlogDetailScreen;

@@ -1,9 +1,17 @@
-import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/react-query';
+import {
+  useQuery,
+  useInfiniteQuery,
+  useMutation,
+  type UseInfiniteQueryOptions,
+} from '@tanstack/react-query';
 import { listPosts, getPostBySlug, getRelatedPosts, type ListPostsOptions } from '@/data/blog';
 import { incrementViewCount } from '@/actions/blog';
 import { queryKeys } from '@/lib/queryKeys';
+import type { BlogPost } from '@/types';
 
 export type { ListPostsOptions };
+
+type BlogPostsPage = { posts: BlogPost[]; cursor: string | null };
 
 export const useBlogPosts = (options?: ListPostsOptions) =>
   useQuery({
@@ -37,15 +45,29 @@ export const useRelatedBlogPosts = (postId: string, categoryId?: string, tags?: 
     enabled: !!postId,
   });
 
-export const useInfiniteBlogPosts = (options?: Omit<ListPostsOptions, 'cursor'>) =>
+export const useInfiniteBlogPosts = (
+  options?: Omit<ListPostsOptions, 'cursor'>,
+  queryOptions?: Pick<
+    UseInfiniteQueryOptions<
+      BlogPostsPage,
+      Error,
+      { pages: BlogPostsPage[]; pageParams: unknown[] }
+    >,
+    'initialData'
+  >
+) =>
   useInfiniteQuery({
     queryKey: queryKeys.blogPosts.infinite(options),
     queryFn: async ({ pageParam }) => {
-      const result = await listPosts({ ...options, cursor: pageParam });
+      const result = await listPosts({
+        ...options,
+        cursor: pageParam as string | undefined,
+      });
       return result;
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: lastPage => lastPage.cursor ?? undefined,
+    ...queryOptions,
   });
 
 export const useIncrementBlogView = () =>

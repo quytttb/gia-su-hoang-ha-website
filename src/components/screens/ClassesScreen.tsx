@@ -2,23 +2,25 @@
 
 import { useMemo } from 'react';
 import { useQueryState } from 'nuqs';
-import Layout from '../components/layout/Layout';
-import ClassCard from '../components/shared/ClassCard';
-import { Class } from '../types';
-import { extractClassCategories, filterClassesByCategory } from '../utils/classHelpers';
-import Chatbot from '../components/shared/Chatbot';
-import PageHero from '../components/shared/PageHero';
-import ErrorDisplay from '../components/shared/ErrorDisplay';
-import SkeletonLoading from '../components/shared/SkeletonLoading';
+import Layout from '@/components/layout/Layout';
+import ClassCard from '@/components/shared/ClassCard';
+import { Class } from '@/types';
+import { extractClassCategories, filterClassesByCategory } from '@/utils/classHelpers';
+import Chatbot from '@/components/shared/Chatbot';
+import PageHero from '@/components/shared/PageHero';
 import { Button } from '@/components/ui/button';
-import { useActiveClasses } from '@/hooks/useClasses';
 import { cn } from '@/lib/utils';
 
-const ClassesPage = () => {
+interface ClassesScreenProps {
+  initialClasses: Class[];
+}
+
+const ClassesScreen = ({ initialClasses }: ClassesScreenProps) => {
   const [selectedCategory, setSelectedCategory] = useQueryState('category', {
     defaultValue: 'all',
   });
-  const { data: classes = [], isLoading, error, refetch } = useActiveClasses();
+
+  const classes = initialClasses;
 
   const categories = useMemo(() => extractClassCategories(), []);
 
@@ -30,51 +32,6 @@ const ClassesPage = () => {
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category === 'all' ? null : category);
   };
-
-  if (isLoading) {
-    return (
-      <Layout>
-        <section className="bg-gray-100 dark:bg-gray-900 py-16">
-          <div className="container-custom text-center">
-            <SkeletonLoading type="text" count={2} className="mx-auto" />
-          </div>
-        </section>
-
-        <section className="section-padding">
-          <div className="container-custom">
-            <div className="mb-8 text-center">
-              <SkeletonLoading type="text" count={2} className="mx-auto" />
-            </div>
-
-            <div className="mb-10">
-              <div className="flex flex-wrap justify-center gap-3 mb-6">
-                {[...Array(5)].map((_, i) => (
-                  <SkeletonLoading key={i} type="button" width="80px" />
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <SkeletonLoading type="card" count={6} />
-            </div>
-          </div>
-        </section>
-      </Layout>
-    );
-  }
-
-  if (error) {
-    return (
-      <Layout>
-        <ErrorDisplay
-          message="Không thể tải danh sách lớp học"
-          details={error.message}
-          onRetry={() => refetch()}
-          retryLabel="Thử lại"
-        />
-      </Layout>
-    );
-  }
 
   const activeCategory = selectedCategory ?? 'all';
 
@@ -130,7 +87,7 @@ const ClassesPage = () => {
             </div>
           ) : (
             <div className="text-center py-10">
-              <p className="text-gray-500 text-lg">Không tìm thấy lớp học nào.</p>
+              <p className="text-muted-foreground text-lg">Không tìm thấy lớp học nào.</p>
             </div>
           )}
         </div>
@@ -141,4 +98,4 @@ const ClassesPage = () => {
   );
 };
 
-export default ClassesPage;
+export default ClassesScreen;

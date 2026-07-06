@@ -38,8 +38,8 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedules, onEdit, onDele
       );
     }
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-        <div className="w-2 h-2 bg-gray-400 rounded-full mr-1"></div>
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
+        <div className="w-2 h-2 bg-muted-foreground rounded-full mr-1"></div>
         Đã qua
       </span>
     );

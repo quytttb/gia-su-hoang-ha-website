@@ -71,20 +71,20 @@ const ParentFeedbackSection: React.FC<ParentFeedbackSectionProps> = ({
       <section className="section-padding bg-gradient-to-br from-white to-orange-50 dark:from-gray-800 dark:to-orange-900/10">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-64 mx-auto mb-4 animate-pulse"></div>
-            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-96 mx-auto animate-pulse"></div>
+            <div className="h-8 bg-muted dark:bg-muted rounded w-64 mx-auto mb-4 animate-pulse"></div>
+            <div className="h-4 bg-muted dark:bg-muted rounded w-96 mx-auto animate-pulse"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+              <div key={index} className="bg-background p-6 rounded-xl shadow-md">
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"></div>
+                  <div className="w-12 h-12 bg-muted dark:bg-muted rounded-full animate-pulse"></div>
                   <div className="ml-4 flex-1">
-                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-32 mb-2 animate-pulse"></div>
-                    <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-24 animate-pulse"></div>
+                    <div className="h-4 bg-muted dark:bg-muted rounded w-32 mb-2 animate-pulse"></div>
+                    <div className="h-3 bg-muted dark:bg-muted rounded w-24 animate-pulse"></div>
                   </div>
                 </div>
-                <div className="h-20 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                <div className="h-20 bg-muted dark:bg-muted rounded animate-pulse"></div>
               </div>
             ))}
           </div>
@@ -102,13 +102,10 @@ const ParentFeedbackSection: React.FC<ParentFeedbackSectionProps> = ({
       <div className="container-custom">
         {/* Section Header */}
         <header className="text-center mb-12">
-          <h2
-            id="feedback-heading"
-            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
-          >
+          <h2 id="feedback-heading" className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Chia sẻ của Phụ huynh
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Những chia sẻ chân thành từ phụ huynh về chất lượng dạy học của chúng tôi
           </p>
         </header>
@@ -118,7 +115,7 @@ const ParentFeedbackSection: React.FC<ParentFeedbackSectionProps> = ({
           {displayFeedbacks.map(feedback => (
             <article
               key={feedback.id}
-              className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow"
+              className="bg-background p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow"
             >
               {/* Quote Icon */}
               <div className="flex justify-between items-start mb-4">
@@ -130,7 +127,7 @@ const ParentFeedbackSection: React.FC<ParentFeedbackSectionProps> = ({
                       className={`w-5 h-5 ${
                         index < feedback.rating
                           ? 'text-yellow-400 fill-current'
-                          : 'text-gray-300 dark:text-gray-600'
+                          : 'text-muted-foreground dark:text-muted-foreground'
                       }`}
                     />
                   ))}
@@ -138,7 +135,7 @@ const ParentFeedbackSection: React.FC<ParentFeedbackSectionProps> = ({
               </div>
 
               {/* Feedback Content */}
-              <blockquote className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+              <blockquote className="text-muted-foreground mb-6 leading-relaxed">
                 "{feedback.comment}"
               </blockquote>
 
@@ -151,10 +148,8 @@ const ParentFeedbackSection: React.FC<ParentFeedbackSectionProps> = ({
                     </span>
                   </div>
                   <div className="ml-4">
-                    <h4 className="font-semibold text-gray-900 dark:text-white">
-                      {feedback.parentName}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <h4 className="font-semibold text-foreground">{feedback.parentName}</h4>
+                    <p className="text-sm text-muted-foreground">
                       Phụ huynh của {feedback.studentName}
                     </p>
                   </div>

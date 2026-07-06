@@ -1,6 +1,6 @@
 import PanelPlaceholderPage from '@/components/panel/shared/PanelPlaceholderPage';
 
-const SettingsPage = () => (
+const SettingsScreen = () => (
   <PanelPlaceholderPage
     title="Cài đặt Hệ thống"
     description="Cấu hình các thiết lập chung của hệ thống và ứng dụng."
@@ -9,4 +9,4 @@ const SettingsPage = () => (
   />
 );
 
-export default SettingsPage;
+export default SettingsScreen;

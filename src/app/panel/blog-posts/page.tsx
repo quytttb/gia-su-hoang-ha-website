@@ -1,3 +1,3 @@
 'use client';
 
-export { default } from '@/pages/panel/BlogPostsPage';
+export { default } from '@/components/screens/panel/BlogPostsScreen';

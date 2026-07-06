@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import SchedulePage from '@/pages/SchedulePage';
+import SchedulePage from '@/components/screens/ScheduleScreen';
 import { buildMetadata } from '@/lib/metadata';
 import { seoData } from '@/utils/seo';
 

@@ -81,8 +81,8 @@ const LazyImage = ({
 
       {/* Error state */}
       {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
-          <div className="text-center text-gray-500 dark:text-gray-400">
+        <div className="absolute inset-0 flex items-center justify-center bg-muted">
+          <div className="text-center text-muted-foreground">
             <svg className="mx-auto h-8 w-8 mb-2" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"

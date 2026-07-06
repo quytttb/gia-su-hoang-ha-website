@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import TutorRegistrationPage from '@/pages/TutorRegistrationPage';
+import TutorRegistrationPage from '@/components/screens/TutorRegistrationScreen';
 
 const TutorRegistrationRoute = () => (
   <Suspense fallback={null}>

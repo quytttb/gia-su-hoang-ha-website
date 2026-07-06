@@ -11,7 +11,7 @@ const FeaturedClassesSection = ({ featuredClasses, loading }: FeaturedClassesSec
   return (
     <section
       id="featured-classes"
-      className="section-padding bg-white dark:bg-gray-800"
+      className="section-padding bg-background"
       aria-labelledby="featured-classes-heading"
     >
       <div className="container-custom">
@@ -19,11 +19,11 @@ const FeaturedClassesSection = ({ featuredClasses, loading }: FeaturedClassesSec
         <header className="text-center mb-12">
           <h2
             id="featured-classes-heading"
-            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
+            className="text-3xl md:text-4xl font-bold text-foreground mb-4"
           >
             Lớp học nổi bật
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Những lớp học được yêu thích và đánh giá cao nhất
           </p>
         </header>
@@ -36,7 +36,7 @@ const FeaturedClassesSection = ({ featuredClasses, loading }: FeaturedClassesSec
             featuredClasses.map(classItem => <ClassCard key={classItem.id} class={classItem} />)
           ) : (
             <div className="col-span-full text-center py-12">
-              <div className="text-gray-400 mb-4">
+              <div className="text-muted-foreground mb-4">
                 <svg
                   className="w-16 h-16 mx-auto"
                   fill="none"
@@ -51,10 +51,10 @@ const FeaturedClassesSection = ({ featuredClasses, loading }: FeaturedClassesSec
                   />
                 </svg>
               </div>
-              <p className="text-xl font-medium text-gray-500 dark:text-gray-400 mb-2">
-                Chưa có lớp học nào
+              <p className="text-xl font-medium text-muted-foreground mb-2">Chưa có lớp học nào</p>
+              <p className="text-muted-foreground dark:text-muted-foreground">
+                Các lớp học sẽ được cập nhật sớm
               </p>
-              <p className="text-gray-400 dark:text-gray-500">Các lớp học sẽ được cập nhật sớm</p>
             </div>
           )}
         </div>

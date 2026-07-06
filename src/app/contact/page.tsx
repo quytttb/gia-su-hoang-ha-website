@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import ContactPage from '@/pages/ContactPage';
+import ContactPage from '@/components/screens/ContactScreen';
 import { buildMetadata } from '@/lib/metadata';
 import { seoData } from '@/utils/seo';
 

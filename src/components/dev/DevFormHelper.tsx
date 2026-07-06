@@ -104,10 +104,8 @@ const DevFormHelper: React.FC<DevFormHelperProps> = ({ onFillForm, onClearForm }
 
       {/* Expanded Panel */}
       {isExpanded && (
-        <div className="absolute top-12 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-4 min-w-[280px]">
-          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-            🚀 Form Auto Fill
-          </h3>
+        <div className="absolute top-12 right-0 bg-background border border-border rounded-lg shadow-xl p-4 min-w-[280px]">
+          <h3 className="text-sm font-semibold text-foreground mb-3">🚀 Form Auto Fill</h3>
 
           {/* Quick Actions */}
           <div className="space-y-2 mb-4">
@@ -135,13 +133,13 @@ const DevFormHelper: React.FC<DevFormHelperProps> = ({ onFillForm, onClearForm }
 
           {/* Dataset Selection */}
           <div className="mb-3">
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
               Select Dataset:
             </label>
             <select
               value={selectedDataset}
               onChange={e => setSelectedDataset(Number(e.target.value))}
-              className="w-full text-xs border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full text-xs border border-border rounded px-2 py-1 bg-white dark:bg-muted text-foreground"
             >
               {testDataSets.map((dataset, index) => (
                 <option key={index} value={index}>
@@ -153,14 +151,12 @@ const DevFormHelper: React.FC<DevFormHelperProps> = ({ onFillForm, onClearForm }
 
           {/* Individual Dataset Buttons */}
           <div className="space-y-1">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-              Or fill with specific dataset:
-            </p>
+            <p className="text-xs text-muted-foreground mb-2">Or fill with specific dataset:</p>
             {testDataSets.map((dataset, index) => (
               <button
                 key={index}
                 onClick={() => handleFillForm(index)}
-                className="w-full text-left bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-xs transition-colors duration-200"
+                className="w-full text-left bg-muted hover:bg-muted dark:hover:bg-muted text-foreground px-2 py-1 rounded text-xs transition-colors duration-200"
               >
                 📊 {dataset.name}
               </button>
@@ -169,9 +165,7 @@ const DevFormHelper: React.FC<DevFormHelperProps> = ({ onFillForm, onClearForm }
 
           {/* Info */}
           <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              💡 Dev mode only. Hidden in production.
-            </p>
+            <p className="text-xs text-muted-foreground">💡 Dev mode only. Hidden in production.</p>
           </div>
         </div>
       )}

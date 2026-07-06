@@ -1,13 +1,14 @@
 import { Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface DeleteConfirmDialogProps {
   open: boolean;
@@ -26,28 +27,28 @@ const DeleteConfirmDialog = ({
   onConfirm,
   loading = false,
 }: DeleteConfirmDialogProps) => (
-  <Dialog open={open} onOpenChange={onOpenChange}>
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
-      </DialogHeader>
-      <DialogFooter>
-        <Button
-          variant="outline"
-          className="text-foreground"
-          onClick={() => onOpenChange(false)}
+  <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>{title}</AlertDialogTitle>
+        <AlertDialogDescription>{description}</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel disabled={loading}>Hủy</AlertDialogCancel>
+        <AlertDialogAction
+          onClick={e => {
+            e.preventDefault();
+            onConfirm();
+          }}
           disabled={loading}
+          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
         >
-          Hủy
-        </Button>
-        <Button variant="destructive" onClick={onConfirm} disabled={loading}>
           {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
           Xóa
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
 );
 
 export default DeleteConfirmDialog;

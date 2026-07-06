@@ -16,7 +16,7 @@ const TutorInfoSidebar = ({ tutorInfo }: TutorInfoSidebarProps) => {
   const colors = getTutorColorClasses(tutorInfo.color);
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 sticky top-4">
+    <div className="bg-background p-6 rounded-xl shadow-lg border border-border sticky top-4">
       <h3 className="text-lg font-semibold text-black dark:text-white mb-4">Thông tin Gia sư</h3>
 
       <div className={`mb-6 p-4 rounded-lg border ${colors.card}`}>
@@ -28,7 +28,7 @@ const TutorInfoSidebar = ({ tutorInfo }: TutorInfoSidebarProps) => {
       <div className="space-y-4">
         <div>
           <h5 className="font-semibold text-black dark:text-white mb-3">Quy trình</h5>
-          <ul className="text-sm text-gray-700 dark:text-gray-200 space-y-2">
+          <ul className="text-sm text-foreground space-y-2">
             {PROCESS_STEPS.map((step, index) => (
               <li key={step} className="flex items-start">
                 <span className="text-blue-500 mr-2 font-medium">{index + 1}.</span>
@@ -39,7 +39,7 @@ const TutorInfoSidebar = ({ tutorInfo }: TutorInfoSidebarProps) => {
         </div>
       </div>
 
-      <div className="text-sm text-gray-600 dark:text-gray-400 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="text-sm text-muted-foreground mt-6 pt-4 border-t border-border">
         <p className="mb-1">✓ Dạy thử miễn phí 1 buổi đầu tiên</p>
         <p>✓ Đổi Gia sư miễn phí nếu không phù hợp</p>
       </div>

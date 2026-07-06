@@ -96,7 +96,7 @@ const ClassesStats = () => {
     <Card className="transition-colors duration-200">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">Thống kê lớp học</h2>
+          <h2 className="text-xl font-bold text-foreground">Thống kê lớp học</h2>
         </div>
 
         {stats && (
@@ -106,55 +106,51 @@ const ClassesStats = () => {
                 <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {stats.totalClasses}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Tổng lớp học</div>
+                <div className="text-sm text-muted-foreground">Tổng lớp học</div>
               </div>
 
               <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
                 <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {stats.activeClasses}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Đang hoạt động</div>
+                <div className="text-sm text-muted-foreground">Đang hoạt động</div>
               </div>
 
               <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
                 <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                   {stats.totalStudents}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Tổng học viên</div>
+                <div className="text-sm text-muted-foreground">Tổng học viên</div>
               </div>
 
               <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
                 <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                   {new Intl.NumberFormat('vi-VN').format(Math.round(stats.averagePrice))}đ
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Giá trung bình</div>
+                <div className="text-sm text-muted-foreground">Giá trung bình</div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                  Môn học phổ biến
-                </h3>
+                <h3 className="text-lg font-semibold text-foreground mb-3">Môn học phổ biến</h3>
                 <div className="space-y-2">
                   {stats.popularSubjects.length === 0 && (
                     <p className="text-sm text-muted-foreground">Chưa có dữ liệu</p>
                   )}
                   {stats.popularSubjects.slice(0, 5).map(subject => (
                     <div key={subject.subject} className="flex items-center justify-between">
-                      <span className="text-gray-700 dark:text-gray-300">{subject.subject}</span>
+                      <span className="text-muted-foreground">{subject.subject}</span>
                       <div className="flex items-center">
-                        <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
+                        <div className="w-20 bg-muted rounded-full h-2 mr-2">
                           <div
-                            className="bg-blue-500 dark:bg-blue-400 h-2 rounded-full"
+                            className="bg-primary dark:bg-blue-400 h-2 rounded-full"
                             style={{
                               width: `${stats.popularSubjects[0]?.count ? (subject.count / stats.popularSubjects[0].count) * 100 : 0}%`,
                             }}
                           ></div>
                         </div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {subject.count}
-                        </span>
+                        <span className="text-sm text-muted-foreground">{subject.count}</span>
                       </div>
                     </div>
                   ))}
@@ -162,12 +158,10 @@ const ClassesStats = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                  Hoạt động gần đây
-                </h3>
+                <h3 className="text-lg font-semibold text-foreground mb-3">Hoạt động gần đây</h3>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded">
-                    <span className="text-gray-700 dark:text-gray-300">Đăng ký mới (30 ngày)</span>
+                  <div className="flex items-center justify-between p-3 bg-muted dark:bg-muted rounded">
+                    <span className="text-muted-foreground">Đăng ký mới (30 ngày)</span>
                     <span className="font-semibold text-green-600 dark:text-green-400">
                       {stats.recentEnrollments}
                     </span>

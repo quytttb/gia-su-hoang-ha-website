@@ -31,8 +31,8 @@ const typeConfig = {
     icon: Info,
     variant: 'default' as const,
     alertClass:
-      'border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400 [&>svg]:text-blue-500',
-    iconClass: 'text-blue-500',
+      'border-primary/30 bg-primary/10 text-foreground dark:border-primary/40 dark:bg-primary/20 [&>svg]:text-primary',
+    iconClass: 'text-primary',
   },
 };
 

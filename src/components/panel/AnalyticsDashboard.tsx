@@ -100,8 +100,8 @@ const AnalyticsDashboard: React.FC = () => {
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="text-2xl font-bold text-foreground">{value}</p>
           {trend && <p className="text-sm text-green-600 mt-1">↗ {trend}</p>}
         </div>
         <div className="p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
@@ -115,8 +115,8 @@ const AnalyticsDashboard: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Analytics Dashboard</h2>
-        <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+        <h2 className="text-2xl font-bold text-foreground">Analytics Dashboard</h2>
+        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
           <Clock className="h-4 w-4" />
           <span>Cập nhật: {new Date().toLocaleTimeString('vi-VN')}</span>
         </div>
@@ -186,22 +186,18 @@ const AnalyticsDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Pages */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Trang phổ biến nhất
-          </h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Trang phổ biến nhất</h3>
           <div className="space-y-3">
             {topPages.map((page, index) => (
               <div key={index} className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {page.page}
-                    </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                    <span className="text-sm font-medium text-foreground">{page.page}</span>
+                    <span className="text-sm text-muted-foreground">
                       {page.views.toLocaleString('de-DE')}
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-muted rounded-full h-2">
                     <div
                       className="bg-blue-600 h-2 rounded-full"
                       style={{ width: `${page.percentage}%` }}
@@ -215,9 +211,7 @@ const AnalyticsDashboard: React.FC = () => {
 
         {/* Top Courses */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Lớp học phổ biến
-          </h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Lớp học phổ biến</h3>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -253,10 +247,8 @@ const AnalyticsDashboard: React.FC = () => {
 
       {/* Real-time Activity */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Hoạt động thời gian thực
-        </h3>
-        <div className="text-sm text-gray-600">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Hoạt động thời gian thực</h3>
+        <div className="text-sm text-muted-foreground">
           <p>
             • Người dùng đang online: <span className="font-semibold text-green-600">23</span>
           </p>
