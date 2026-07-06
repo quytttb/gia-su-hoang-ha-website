@@ -19,7 +19,7 @@ const ContactCTASection = () => (
         <h2 id="contact-cta-heading" className="text-3xl md:text-4xl font-bold mb-4 text-white">
           Sẵn sàng bắt đầu hành trình học tập?
         </h2>
-        <p className="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
+        <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mx-auto leading-relaxed">
           Liên hệ với chúng tôi ngay hôm nay để được tư vấn miễn phí về các lớp học phù hợp nhất với
           nhu cầu của bạn hoặc con em của bạn.
         </p>
@@ -64,7 +64,7 @@ const ContactCTASection = () => (
           <Phone className="w-5 h-5" />
           <span className="font-medium">Hotline: {CENTER_INFO.phonePrimary}</span>
         </div>
-        <div className="hidden sm:block w-px h-6 bg-blue-200"></div>
+        <div className="hidden sm:block w-px h-6 bg-border"></div>
         <div className="flex items-center gap-2">
           <MessageCircle className="w-5 h-5" />
           <span className="font-medium">Tư vấn 24/7</span>

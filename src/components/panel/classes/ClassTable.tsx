@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Class } from '../../../types';
 import { formatCurrency, hasValidDiscount } from '../../../utils/helpers';
 import { Button } from '../../ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
@@ -182,28 +183,24 @@ const ClassTable: React.FC<ClassTableProps> = ({
                     <TableCell className="text-foreground">{classItem.category}</TableCell>
                     <TableCell>
                       {hasDiscountValue ? (
-                        <span className="inline-block px-2 py-1 text-xs rounded bg-green-600 text-white font-semibold">
+                        <Badge variant="success" className="font-semibold">
                           Giảm {classItem.discount}%<br />
                           đến {classItem.discountEndDate}
-                        </span>
+                        </Badge>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
                     <TableCell>
                       {classItem.featured && (
-                        <span className="inline-block px-2 py-1 text-xs rounded bg-yellow-400 text-black dark:bg-yellow-600 dark:text-black mr-1">
+                        <Badge variant="warning" className="mr-1">
                           Nổi bật
-                        </span>
+                        </Badge>
                       )}
                       {classItem.isActive !== false ? (
-                        <span className="inline-block px-2 py-1 text-xs rounded bg-green-600 text-white dark:bg-green-700 dark:text-white font-semibold">
-                          Đang mở
-                        </span>
+                        <Badge variant="success">Đang mở</Badge>
                       ) : (
-                        <span className="inline-block px-2 py-1 text-xs rounded bg-muted text-muted-foreground dark:bg-muted dark:text-foreground font-semibold">
-                          Đã ẩn
-                        </span>
+                        <Badge variant="secondary">Đã ẩn</Badge>
                       )}
                     </TableCell>
                     <TableCell className="space-x-2">
@@ -218,7 +215,7 @@ const ClassTable: React.FC<ClassTableProps> = ({
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-blue-600"
+                        className="text-primary"
                         onClick={() => onViewRegistrations(classItem)}
                       >
                         Đăng ký

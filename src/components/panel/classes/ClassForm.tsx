@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Class } from '../../../types';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
-import { Label } from '../../ui/label';
+import { Textarea } from '../../ui/textarea';
 import { Switch } from '../../ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import {
@@ -16,6 +16,10 @@ import {
   DialogTitle,
 } from '../../ui/dialog';
 import { Dialog as PreviewDialog, DialogContent as PreviewDialogContent } from '../../ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../ui/form';
+import { Alert, AlertDescription } from '../../ui/alert';
+import { Progress } from '../../ui/progress';
+import DatePicker from '../../ui/date-picker';
 import { Upload, X, Loader2, CheckCircle } from 'lucide-react';
 import { classFormSchema, type ClassFormValues } from '@/lib/validations/panel';
 import { uploadFile } from '@/actions/upload';
@@ -55,11 +59,8 @@ const ClassForm: React.FC<ClassFormProps> = ({
       discountEndDate: '',
     },
   });
-  const formData = form.watch();
-  const fieldErrors = form.formState.errors;
-  const errors = Object.fromEntries(
-    Object.entries(fieldErrors).map(([k, v]) => [k, v?.message ?? ''])
-  ) as Record<string, string>;
+
+  const imageUrl = form.watch('imageUrl');
 
   // State cho loading
   const [loading, setLoading] = useState(false);
@@ -75,7 +76,6 @@ const ClassForm: React.FC<ClassFormProps> = ({
   const [tempUploadedUrl, setTempUploadedUrl] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
-  // Cập nhật formData khi classItem thay đổi (khi mở form sửa)
   const { reset, clearErrors } = form;
 
   useEffect(() => {
@@ -121,56 +121,15 @@ const ClassForm: React.FC<ClassFormProps> = ({
     };
   }, [saved, tempUploadedUrl]);
 
-  // Xử lý thay đổi input
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-
-    if (name === 'price') {
-      // Chỉ cho phép nhập số
-      const cleanValue = value.replace(/[^\d]/g, '');
-      const numericValue = cleanValue ? parseInt(cleanValue, 10) : 0;
-
-      form.setValue('price', numericValue, { shouldValidate: true });
-    } else if (name === 'discount') {
-      // Chỉ cho phép nhập số từ 0-100
-      const filteredValue = value.replace(/[^\d]/g, '');
-      const numericValue = filteredValue ? parseInt(filteredValue, 10) : 0;
-      // Giới hạn giá trị từ 0-100
-      const limitedValue = Math.min(100, Math.max(0, numericValue));
-
-      form.setValue('discount', limitedValue, { shouldValidate: true });
-    } else {
-      form.setValue(name as keyof ClassFormValues, value, { shouldValidate: true });
-    }
-
-    if (errors[name]) form.clearErrors(name as keyof ClassFormValues);
-  };
-
-  // Xử lý thay đổi select
-  const handleSelectChange = (name: string, value: string) => {
-    form.setValue(name as keyof ClassFormValues, value, { shouldValidate: true });
-
-    if (errors[name]) form.clearErrors(name as keyof ClassFormValues);
-  };
-
-  // Xử lý thay đổi switch
-  const handleSwitchChange = (name: string, checked: boolean) => {
-    form.setValue(name as keyof ClassFormValues, checked);
-  };
-
   const [generalError, setGeneralError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const valid = await form.trigger();
-    if (!valid) return;
-
+  const onSubmit = async (values: ClassFormValues) => {
     try {
       setLoading(true);
       setGeneralError(null);
       setSuccessMessage(null);
 
-      let finalImageUrl = formData.imageUrl;
+      let finalImageUrl = values.imageUrl;
 
       // Upload file if a new file is selected
       if (selectedFile) {
@@ -187,7 +146,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
 
       // Save class with final image URL
       await onSave({
-        ...formData,
+        ...values,
         imageUrl: finalImageUrl,
       });
       setSaved(true);
@@ -220,7 +179,6 @@ const ClassForm: React.FC<ClassFormProps> = ({
       // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       form.setValue('imageUrl', previewUrl, { shouldValidate: true });
-      if (errors.imageUrl) form.clearErrors('imageUrl');
     }
   };
 
@@ -276,291 +234,335 @@ const ClassForm: React.FC<ClassFormProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Success Message */}
-          {successMessage && (
-            <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <p className="text-sm text-green-700 dark:text-green-300">{successMessage}</p>
-              </div>
-            </div>
-          )}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {successMessage && (
+              <Alert className="border-primary/20 bg-primary/10">
+                <CheckCircle className="h-4 w-4 text-primary" />
+                <AlertDescription>{successMessage}</AlertDescription>
+              </Alert>
+            )}
 
-          {/* General Error */}
-          {generalError && (
-            <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-700 dark:text-red-300">{generalError}</p>
-            </div>
-          )}
+            {generalError && (
+              <Alert variant="destructive">
+                <AlertDescription>{generalError}</AlertDescription>
+              </Alert>
+            )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Cột trái: Thông tin lớp học */}
-            <div className="space-y-4">
-              {/* Tên lớp học */}
-              <div className="space-y-2">
-                <Label htmlFor="name">Tên lớp học *</Label>
-                <Input
-                  id="name"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Cột trái: Thông tin lớp học */}
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
                   name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Nhập tên lớp học"
-                  className={errors.name ? 'border-destructive' : ''}
-                  disabled={isLoading}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tên lớp học *</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Nhập tên lớp học" disabled={isLoading} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-              </div>
 
-              {/* Mô tả */}
-              <div className="space-y-2">
-                <Label htmlFor="description">
-                  Mô tả <span className="text-muted-foreground text-sm">(Tùy chọn)</span>
-                </Label>
-                <textarea
-                  id="description"
+                <FormField
+                  control={form.control}
                   name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder="Mô tả chi tiết về lớp học"
-                  rows={3}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
-                  disabled={isLoading}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Mô tả <span className="text-muted-foreground text-sm">(Tùy chọn)</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="Mô tả chi tiết về lớp học"
+                          rows={3}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              {/* Giá */}
-              <div className="space-y-2">
-                <Label htmlFor="price">Giá (VNĐ) *</Label>
-                <Input
-                  id="price"
+                <FormField
+                  control={form.control}
                   name="price"
-                  value={
-                    formData.price ? new Intl.NumberFormat('de-DE').format(formData.price) : ''
-                  }
-                  onChange={handleChange}
-                  placeholder="Nhập giá lớp học"
-                  className={errors.price ? 'border-destructive' : ''}
-                  disabled={isLoading}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Giá (VNĐ) *</FormLabel>
+                      <FormControl>
+                        <Input
+                          value={
+                            field.value ? new Intl.NumberFormat('de-DE').format(field.value) : ''
+                          }
+                          onChange={e => {
+                            const cleanValue = e.target.value.replace(/[^\d]/g, '');
+                            const numericValue = cleanValue ? parseInt(cleanValue, 10) : 0;
+                            field.onChange(numericValue);
+                          }}
+                          placeholder="Nhập giá lớp học"
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
-              </div>
 
-              {/* Giảm giá và Thời gian kết thúc */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="discount">
-                    Giảm giá (%) <span className="text-muted-foreground text-sm">(Tùy chọn)</span>
-                  </Label>
-                  <Input
-                    id="discount"
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
                     name="discount"
-                    value={formData.discount || ''}
-                    onChange={handleChange}
-                    placeholder="Nhập % giảm giá"
-                    disabled={isLoading}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Giảm giá (%){' '}
+                          <span className="text-muted-foreground text-sm">(Tùy chọn)</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            value={field.value || ''}
+                            onChange={e => {
+                              const filteredValue = e.target.value.replace(/[^\d]/g, '');
+                              const numericValue = filteredValue ? parseInt(filteredValue, 10) : 0;
+                              const limitedValue = Math.min(100, Math.max(0, numericValue));
+                              field.onChange(limitedValue);
+                            }}
+                            placeholder="Nhập % giảm giá"
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="discountEndDate">
-                    Thời gian kết thúc{' '}
-                    <span className="text-muted-foreground text-sm">(Tùy chọn)</span>
-                  </Label>
-                  <Input
-                    id="discountEndDate"
+
+                  <FormField
+                    control={form.control}
                     name="discountEndDate"
-                    type="date"
-                    value={formData.discountEndDate}
-                    onChange={handleChange}
-                    placeholder="Ngày kết thúc giảm giá"
-                    disabled={isLoading}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Thời gian kết thúc{' '}
+                          <span className="text-muted-foreground text-sm">(Tùy chọn)</span>
+                        </FormLabel>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Ngày kết thúc giảm giá"
+                            disabled={isLoading}
+                            fromDate={new Date(new Date().setHours(0, 0, 0, 0))}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-              </div>
 
-              {/* Thể loại */}
-              <div className="space-y-2">
-                <Label htmlFor="category">Thể loại *</Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={value => handleSelectChange('category', value)}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger
-                    className={`text-foreground ${errors.category ? 'border-destructive' : ''}`}
-                  >
-                    <SelectValue placeholder="Chọn thể loại" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(cat => (
-                      <SelectItem key={cat} value={cat} className="text-foreground">
-                        {cat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.category && <p className="text-sm text-destructive">{errors.category}</p>}
-              </div>
-
-              {/* Nổi bật & Trạng thái */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="featured"
-                    checked={formData.featured}
-                    onCheckedChange={checked => handleSwitchChange('featured', checked)}
-                    disabled={isLoading}
-                  />
-                  <Label htmlFor="featured">Lớp học nổi bật</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="isActive"
-                    checked={formData.isActive}
-                    onCheckedChange={checked => handleSwitchChange('isActive', checked)}
-                    disabled={isLoading}
-                  />
-                  <Label htmlFor="isActive">Hiển thị lớp học</Label>
-                </div>
-              </div>
-            </div>
-
-            {/* Cột phải: Upload và xem trước ảnh */}
-            <div className="space-y-4 flex flex-col items-center justify-start">
-              <div className="w-full space-y-2">
-                <Label htmlFor="imageFile">Ảnh lớp học</Label>
-                <div className="space-y-3">
-                  {/* File Input */}
-                  <div className="flex items-center space-x-2">
-                    <input
-                      ref={fileInputRef}
-                      id="imageFile"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileSelect}
-                      className="hidden"
-                      disabled={isLoading}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isLoading}
-                      className="flex items-center space-x-2"
-                    >
-                      {uploadProgress.isUploading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Upload className="h-4 w-4" />
-                      )}
-                      <span>{selectedFile ? 'Thay đổi ảnh' : 'Chọn ảnh'}</span>
-                    </Button>
-                    {selectedFile && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleRemoveFile}
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Thể loại *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
                         disabled={isLoading}
                       >
-                        <X className="h-4 w-4" />
-                      </Button>
+                        <FormControl>
+                          <SelectTrigger className="text-foreground">
+                            <SelectValue placeholder="Chọn thể loại" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map(cat => (
+                            <SelectItem key={cat} value={cat} className="text-foreground">
+                              {cat}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="featured"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                        <FormLabel className="!mt-0">Lớp học nổi bật</FormLabel>
+                      </FormItem>
                     )}
-                  </div>
+                  />
 
-                  {/* Upload Progress */}
-                  {uploadProgress.isUploading && (
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>Đang tải lên...</span>
-                        <span>{uploadProgress.progress}%</span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-2">
-                        <div
-                          className="bg-primary h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${uploadProgress.progress}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* File Info */}
-                  {selectedFile && (
-                    <div className="text-sm text-muted-foreground">
-                      <p>Tệp đã chọn: {selectedFile.name}</p>
-                      <p>Kích thước: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                    </div>
-                  )}
-
-                  {/* Error */}
-                  {errors.imageUrl && <p className="text-sm text-destructive">{errors.imageUrl}</p>}
-
-                  {/* Preview */}
-                  {formData.imageUrl && (
-                    <div className="mt-2 w-full flex flex-col items-center justify-center">
-                      <img
-                        src={formData.imageUrl}
-                        alt="Preview"
-                        className="h-40 w-auto max-w-full object-cover rounded-md border cursor-zoom-in"
-                        onClick={() => setIsPreviewOpen(true)}
-                        onError={e => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                      <span className="text-xs text-muted-foreground mt-1">
-                        Nhấn vào hình để phóng to
-                      </span>
-                    </div>
-                  )}
+                  <FormField
+                    control={form.control}
+                    name="isActive"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                        <FormLabel className="!mt-0">Hiển thị lớp học</FormLabel>
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
-            </div>
-          </div>
 
-          <DialogFooter className="mt-6 flex justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              className="text-foreground"
-              onClick={onClose}
-              disabled={isLoading}
-            >
-              Hủy
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading || !!successMessage}
-              className="flex items-center space-x-2"
-            >
-              {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              <span>
-                {isLoading
-                  ? uploadProgress.isUploading
-                    ? 'Đang tải lên...'
-                    : 'Đang lưu...'
-                  : classItem
-                    ? 'Cập nhật'
-                    : 'Thêm mới'}
-              </span>
-            </Button>
-          </DialogFooter>
-        </form>
+              {/* Cột phải: Upload và xem trước ảnh */}
+              <div className="space-y-4 flex flex-col items-center justify-start">
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={() => (
+                    <FormItem className="w-full">
+                      <FormLabel>Ảnh lớp học</FormLabel>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            ref={fileInputRef}
+                            id="imageFile"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileSelect}
+                            className="hidden"
+                            disabled={isLoading}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isLoading}
+                            className="flex items-center space-x-2"
+                          >
+                            {uploadProgress.isUploading ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Upload className="h-4 w-4" />
+                            )}
+                            <span>{selectedFile ? 'Thay đổi ảnh' : 'Chọn ảnh'}</span>
+                          </Button>
+                          {selectedFile && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleRemoveFile}
+                              disabled={isLoading}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+
+                        {uploadProgress.isUploading && (
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-sm">
+                              <span>Đang tải lên...</span>
+                              <span>{uploadProgress.progress}%</span>
+                            </div>
+                            <Progress value={uploadProgress.progress} className="h-2" />
+                          </div>
+                        )}
+
+                        {selectedFile && (
+                          <div className="text-sm text-muted-foreground">
+                            <p>Tệp đã chọn: {selectedFile.name}</p>
+                            <p>Kích thước: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                          </div>
+                        )}
+
+                        {imageUrl && (
+                          <div className="mt-2 w-full flex flex-col items-center justify-center">
+                            <img
+                              src={imageUrl}
+                              alt="Preview"
+                              className="h-40 w-auto max-w-full object-cover rounded-md border cursor-zoom-in"
+                              onClick={() => setIsPreviewOpen(true)}
+                              onError={e => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                            <span className="text-xs text-muted-foreground mt-1">
+                              Nhấn vào hình để phóng to
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="mt-6 flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                className="text-foreground"
+                onClick={onClose}
+                disabled={isLoading}
+              >
+                Hủy
+              </Button>
+              <Button
+                type="submit"
+                disabled={isLoading || !!successMessage}
+                className="flex items-center space-x-2"
+              >
+                {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                <span>
+                  {isLoading
+                    ? uploadProgress.isUploading
+                      ? 'Đang tải lên...'
+                      : 'Đang lưu...'
+                    : classItem
+                      ? 'Cập nhật'
+                      : 'Thêm mới'}
+                </span>
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
 
       {/* Dialog phóng to ảnh */}
-      {formData.imageUrl && (
+      {imageUrl && (
         <PreviewDialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
           <PreviewDialogContent className="max-w-4xl flex flex-col items-center">
-            <button
-              className="absolute top-2 right-2 text-foreground bg-background rounded-full p-1 hover:bg-muted"
-              onClick={() => setIsPreviewOpen(false)}
+            <Button
               type="button"
-              aria-label="Đóng"
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2"
+              onClick={() => setIsPreviewOpen(false)}
             >
               <X className="h-5 w-5" />
-            </button>
+            </Button>
             <img
-              src={formData.imageUrl}
+              src={imageUrl}
               alt="Phóng to ảnh lớp học"
               className="max-h-[90vh] w-auto max-w-full object-contain rounded-md border"
             />

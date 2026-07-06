@@ -13,9 +13,19 @@ import { Input } from '../../ui/input';
 import { Button } from '../../ui/button';
 import { Textarea } from '../../ui/textarea';
 import { Switch } from '../../ui/switch';
-import { Label } from '../../ui/label';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../ui/form';
+import { Alert, AlertDescription } from '../../ui/alert';
+import { Progress } from '../../ui/progress';
 import { createPost, updatePost } from '@/actions/blog';
 import { uploadFile } from '@/actions/upload';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../ui/select';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+import { Loader2, Upload, X } from 'lucide-react';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from '../../../utils/cropImage';
+import { Dialog as CropDialog, DialogContent as CropDialogContent } from '../../ui/dialog';
+import { blogPostFormSchema, type BlogPostFormValues } from '@/lib/validations/panel';
 
 type UploadProgress = {
   progress: number;
@@ -29,14 +39,6 @@ const computeReadTime = (markdown: string): number => {
     .filter(Boolean);
   return Math.max(1, Math.ceil(words.length / 200));
 };
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../ui/select';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
-import { Loader2, Upload, X } from 'lucide-react';
-import Cropper from 'react-easy-crop';
-import getCroppedImg from '../../../utils/cropImage';
-import { Dialog as CropDialog, DialogContent as CropDialogContent } from '../../ui/dialog';
-import { blogPostFormSchema, type BlogPostFormValues } from '@/lib/validations/panel';
 
 interface BlogPostFormProps {
   isOpen: boolean;
@@ -66,13 +68,8 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
       coverImage: '',
     },
   });
-  const title = form.watch('title');
-  const subtitle = form.watch('subtitle');
+
   const contentMarkdown = form.watch('contentMarkdown');
-  const categoryId = form.watch('categoryId');
-  const tagsInput = form.watch('tagsInput');
-  const featured = form.watch('featured');
-  const status = form.watch('status');
   const coverImage = form.watch('coverImage') || '';
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -236,10 +233,6 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
     }
   };
 
-  const tags = (tagsInput || '')
-    .split(',')
-    .map(t => t.trim())
-    .filter(Boolean);
   const readTime = computeReadTime(contentMarkdown);
 
   let rawPreview = marked.parse(contentMarkdown || '') as any;
@@ -249,43 +242,40 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
   }
   const previewHtml = DOMPurify.sanitize(rawPreview as string);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const valid = await form.trigger();
-    if (!valid) {
-      const firstError = Object.values(form.formState.errors)[0]?.message;
-      setError(typeof firstError === 'string' ? firstError : 'Vui lòng kiểm tra lại form');
-      return;
-    }
-
+  const onSubmit = async (values: BlogPostFormValues) => {
     setSaving(true);
     setError(null);
     try {
+      const parsedTags = (values.tagsInput || '')
+        .split(',')
+        .map(t => t.trim())
+        .filter(Boolean);
+
       if (post) {
         const result = await updatePost(post.id, {
-          title,
-          subtitle,
-          contentMarkdown,
-          categoryId,
-          tags,
-          featured,
-          status,
-          coverImageUrl: coverImage || undefined,
+          title: values.title,
+          subtitle: values.subtitle,
+          contentMarkdown: values.contentMarkdown,
+          categoryId: values.categoryId,
+          tags: parsedTags,
+          featured: values.featured,
+          status: values.status,
+          coverImageUrl: values.coverImage || undefined,
         });
         if (!result.success) {
           throw new Error(result.error ?? 'Không thể cập nhật bài viết');
         }
       } else {
         const result = await createPost({
-          title,
-          subtitle,
-          contentMarkdown,
-          categoryId,
-          tags,
-          featured,
-          status,
+          title: values.title,
+          subtitle: values.subtitle,
+          contentMarkdown: values.contentMarkdown,
+          categoryId: values.categoryId,
+          tags: parsedTags,
+          featured: values.featured,
+          status: values.status,
           authorName: 'Admin',
-          coverImageUrl: coverImage || undefined,
+          coverImageUrl: values.coverImage || undefined,
         });
         if (!result.success) {
           throw new Error(result.error ?? 'Không thể tạo bài viết');
@@ -302,6 +292,11 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
     }
   };
 
+  const onInvalid = () => {
+    const firstError = Object.values(form.formState.errors)[0]?.message;
+    setError(typeof firstError === 'string' ? firstError : 'Vui lòng kiểm tra lại form');
+  };
+
   return (
     <Dialog
       open={isOpen}
@@ -311,220 +306,302 @@ export const BlogPostForm: React.FC<BlogPostFormProps> = ({
         }
       }}
     >
-      <DialogContent className="max-w-5xl h-[90vh] overflow-y-auto text-black dark:text-white">
+      <DialogContent className="max-w-5xl h-[90vh] overflow-y-auto text-foreground">
         <DialogHeader>
           <DialogTitle>{post ? 'Chỉnh sửa bài viết' : 'Bài viết mới'}</DialogTitle>
           <DialogDescription>Nhập thông tin bài viết blog</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {error && (
-            <div className="p-3 text-sm rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">
-              {error}
-            </div>
-          )}
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <div>
-                <Label>Tiêu đề</Label>
-                <Input
-                  value={title}
-                  onChange={e => form.setValue('title', e.target.value, { shouldValidate: true })}
-                  placeholder="Tiêu đề..."
-                />
-              </div>
-              <div>
-                <Label>Phụ đề</Label>
-                <Input
-                  value={subtitle}
-                  onChange={e => form.setValue('subtitle', e.target.value)}
-                  placeholder="Phụ đề..."
-                />
-              </div>
-              <div>
-                <Label>Chủ đề</Label>
-                <Select
-                  value={categoryId}
-                  onValueChange={v => form.setValue('categoryId', v, { shouldValidate: true })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn chủ đề" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(c => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Tags (phân cách bằng dấu phẩy)</Label>
-                <Input
-                  value={tagsInput}
-                  onChange={e => form.setValue('tagsInput', e.target.value)}
-                  placeholder="toán, văn, ôn thi"
-                />
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Switch checked={featured} onCheckedChange={v => form.setValue('featured', v)} />
-                  <Label>Nổi bật</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={status === 'published'}
-                    onCheckedChange={c => form.setValue('status', c ? 'published' : 'draft')}
-                  />
-                  <Label>Xuất bản</Label>
-                </div>
-              </div>
-              <div>
-                <Label>Ảnh bìa</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <input
-                    id="blogCoverInput"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => document.getElementById('blogCoverInput')?.click()}
-                    className="flex items-center gap-2"
-                  >
-                    <Upload className="w-4 h-4" /> {coverImage ? 'Đổi ảnh' : 'Chọn ảnh'}
-                  </Button>
-                  {coverImage && (
-                    <Button type="button" variant="ghost" size="sm" onClick={handleRemoveImage}>
-                      <X className="w-4 h-4" />
-                    </Button>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-5">
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tiêu đề</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Tiêu đề..." />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                </div>
-                {uploading.isUploading && (
-                  <div className="mt-1 text-xs">Đang upload {uploading.progress}%</div>
-                )}
-                {coverImage && (
-                  <div className="mt-2">
-                    <img
-                      src={coverImage}
-                      alt="cover"
-                      className="h-32 w-auto object-contain rounded border cursor-zoom-in"
-                    />
-                  </div>
-                )}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Thời gian đọc ước tính: {readTime} phút
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <Label>Nội dung (Markdown)</Label>
-              <div className="flex items-center gap-2 mb-2">
-                <input
-                  id="blogContentImageInput"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={onContentImageSelected}
                 />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => document.getElementById('blogContentImageInput')?.click()}
-                  className="flex items-center gap-2"
-                >
-                  <Upload className="w-4 h-4" /> Chèn ảnh
-                </Button>
-                {contentUploading.isUploading && (
-                  <span className="text-xs text-muted-foreground">
-                    Đang tải {contentUploading.progress}%
-                  </span>
+
+                <FormField
+                  control={form.control}
+                  name="subtitle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phụ đề</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Phụ đề..." />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Chủ đề</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn chủ đề" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map(c => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="tagsInput"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tags (phân cách bằng dấu phẩy)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="toán, văn, ôn thi" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex items-center gap-4">
+                  <FormField
+                    control={form.control}
+                    name="featured"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center gap-2 space-y-0">
+                        <FormControl>
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <FormLabel className="!mt-0">Nổi bật</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center gap-2 space-y-0">
+                        <FormControl>
+                          <Switch
+                            checked={field.value === 'published'}
+                            onCheckedChange={c => field.onChange(c ? 'published' : 'draft')}
+                          />
+                        </FormControl>
+                        <FormLabel className="!mt-0">Xuất bản</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="coverImage"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>Ảnh bìa</FormLabel>
+                      <div className="flex items-center gap-2 mt-1">
+                        <input
+                          id="blogCoverInput"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('blogCoverInput')?.click()}
+                          className="flex items-center gap-2"
+                        >
+                          <Upload className="w-4 h-4" /> {coverImage ? 'Đổi ảnh' : 'Chọn ảnh'}
+                        </Button>
+                        {coverImage && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleRemoveImage}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                      {uploading.isUploading && (
+                        <div className="mt-2 space-y-1">
+                          <p className="text-xs text-muted-foreground">
+                            Đang upload {uploading.progress}%
+                          </p>
+                          <Progress value={uploading.progress} className="h-2" />
+                        </div>
+                      )}
+                      {coverImage && (
+                        <div className="mt-2">
+                          <img
+                            src={coverImage}
+                            alt="cover"
+                            className="h-32 w-auto object-contain rounded border cursor-zoom-in"
+                          />
+                        </div>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="text-sm text-muted-foreground">
+                  Thời gian đọc ước tính: {readTime} phút
+                </div>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="contentMarkdown"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Nội dung (Markdown)</FormLabel>
+                    <div className="flex items-center gap-2 mb-2">
+                      <input
+                        id="blogContentImageInput"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={onContentImageSelected}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById('blogContentImageInput')?.click()}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" /> Chèn ảnh
+                      </Button>
+                      {contentUploading.isUploading && (
+                        <div className="flex-1 space-y-1">
+                          <span className="text-xs text-muted-foreground">
+                            Đang tải {contentUploading.progress}%
+                          </span>
+                          <Progress value={contentUploading.progress} className="h-2" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      Hỗ trợ Markdown:{' '}
+                      <code className="font-mono bg-muted px-1 rounded">**đậm**</code>,
+                      <code className="font-mono bg-muted px-1 rounded ml-1">*nghiêng*</code>,
+                      <code className="font-mono bg-muted px-1 rounded ml-1">- danh sách</code>,
+                      <code className="font-mono bg-muted px-1 rounded ml-1">
+                        [link](https://...)
+                      </code>
+                      ,<code className="font-mono bg-muted px-1 rounded ml-1">![alt](url)</code>.
+                      Nhấn "Chèn ảnh" để tải ảnh và tự chèn cú pháp vào vị trí con trỏ.
+                    </div>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        ref={el => {
+                          field.ref(el);
+                          contentTextareaRef.current = el;
+                        }}
+                        placeholder="Viết nội dung bằng Markdown...\nVí dụ: # Tiêu đề chính\n\nĐoạn văn...\n\n- Gạch đầu dòng 1\n- Gạch đầu dòng 2"
+                        className="flex-1 min-h-[300px] font-mono text-sm"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-              <div className="text-xs text-muted-foreground mb-2">
-                Hỗ trợ Markdown: <code className="font-mono bg-muted px-1 rounded">**đậm**</code>,
-                <code className="font-mono bg-muted px-1 rounded ml-1">*nghiêng*</code>,
-                <code className="font-mono bg-muted px-1 rounded ml-1">- danh sách</code>,
-                <code className="font-mono bg-muted px-1 rounded ml-1">[link](https://...)</code>,
-                <code className="font-mono bg-muted px-1 rounded ml-1">![alt](url)</code>. Nhấn
-                "Chèn ảnh" để tải ảnh và tự chèn cú pháp vào vị trí con trỏ.
-              </div>
-              <Textarea
-                value={contentMarkdown}
-                onChange={e =>
-                  form.setValue('contentMarkdown', e.target.value, { shouldValidate: true })
-                }
-                ref={contentTextareaRef}
-                placeholder="Viết nội dung bằng Markdown...\nVí dụ: # Tiêu đề chính\n\nĐoạn văn...\n\n- Gạch đầu dòng 1\n- Gạch đầu dòng 2"
-                className="flex-1 min-h-[300px] font-mono text-sm text-black dark:text-white"
               />
             </div>
-          </div>
-          <div>
-            <Label>Xem trước</Label>
-            <div
-              className="prose dark:prose-invert max-w-none border rounded p-4 h-64 overflow-y-auto text-black dark:text-white"
-              dangerouslySetInnerHTML={{ __html: previewHtml }}
-            />
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Hủy
-            </Button>
-            <Button type="submit" disabled={saving}>
-              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Lưu
-            </Button>
-          </DialogFooter>
-          {/* Crop Dialog */}
-          {showCrop && (
-            <CropDialog open={showCrop} onOpenChange={setShowCrop}>
-              <CropDialogContent className="max-w-2xl">
-                <div className="relative w-full h-80 bg-black">
-                  {cropImage && (
-                    <Cropper
-                      image={cropImage}
-                      crop={crop}
-                      zoom={zoom}
-                      aspect={3 / 1}
-                      onCropChange={setCrop}
-                      onZoomChange={setZoom}
-                      onCropComplete={onCropComplete}
-                    />
-                  )}
-                </div>
-                <div className="mt-4 flex flex-col gap-4">
-                  <div className="flex items-center gap-3">
-                    <Label htmlFor="zoomRange" className="text-sm">
-                      Zoom
-                    </Label>
-                    <input
-                      id="zoomRange"
-                      type="range"
-                      min={1}
-                      max={3}
-                      step={0.1}
-                      value={zoom}
-                      onChange={e => setZoom(Number(e.target.value))}
-                      className="flex-1"
-                    />
-                    <span className="text-xs w-10 text-right">{zoom.toFixed(1)}x</span>
+
+            <div>
+              <FormLabel>Xem trước</FormLabel>
+              <div
+                className="prose dark:prose-invert max-w-none border rounded p-4 h-64 overflow-y-auto"
+                dangerouslySetInnerHTML={{ __html: previewHtml }}
+              />
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Hủy
+              </Button>
+              <Button type="submit" disabled={saving}>
+                {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Lưu
+              </Button>
+            </DialogFooter>
+
+            {/* Crop Dialog */}
+            {showCrop && (
+              <CropDialog open={showCrop} onOpenChange={setShowCrop}>
+                <CropDialogContent className="max-w-2xl">
+                  <div className="relative w-full h-80 bg-card">
+                    {cropImage && (
+                      <Cropper
+                        image={cropImage}
+                        crop={crop}
+                        zoom={zoom}
+                        aspect={3 / 1}
+                        onCropChange={setCrop}
+                        onZoomChange={setZoom}
+                        onCropComplete={onCropComplete}
+                      />
+                    )}
                   </div>
-                  <div className="flex justify-end gap-2">
-                    <Button type="button" variant="outline" onClick={() => setShowCrop(false)}>
-                      Hủy
-                    </Button>
-                    <Button type="button" onClick={handleCropSave}>
-                      Cắt & tải lên
-                    </Button>
+                  <div className="mt-4 flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                      <FormLabel htmlFor="zoomRange" className="text-sm">
+                        Zoom
+                      </FormLabel>
+                      <input
+                        id="zoomRange"
+                        type="range"
+                        min={1}
+                        max={3}
+                        step={0.1}
+                        value={zoom}
+                        onChange={e => setZoom(Number(e.target.value))}
+                        className="flex-1"
+                      />
+                      <span className="text-xs w-10 text-right">{zoom.toFixed(1)}x</span>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button type="button" variant="outline" onClick={() => setShowCrop(false)}>
+                        Hủy
+                      </Button>
+                      <Button type="button" onClick={handleCropSave}>
+                        Cắt & tải lên
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </CropDialogContent>
-            </CropDialog>
-          )}
-        </form>
+                </CropDialogContent>
+              </CropDialog>
+            )}
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

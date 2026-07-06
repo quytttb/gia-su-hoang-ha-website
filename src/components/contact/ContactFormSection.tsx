@@ -4,6 +4,7 @@ import { Check, Loader2 } from 'lucide-react';
 import SectionHeading from '../shared/SectionHeading';
 import EmailServiceStatus from '../shared/EmailServiceStatus';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -38,31 +39,24 @@ const ContactFormSection = ({
     return (
       <div>
         <SectionHeading title="Gửi Tin Nhắn" centered={false} />
-        <div className="bg-green-50 border-l-4 border-green-500 p-6 rounded-lg dark:bg-green-900/20">
-          <div className="flex items-center">
-            <Check className="h-6 w-6 text-green-500 flex-shrink-0" aria-hidden="true" />
-            <div className="ml-3">
-              <h3 className="text-lg font-medium text-green-800 dark:text-green-300">
-                Gửi tin nhắn thành công!
-              </h3>
-              <p className="mt-2 text-sm text-green-700 dark:text-green-400">
-                Cảm ơn bạn đã liên hệ với chúng tôi. Chúng tôi sẽ phản hồi lại trong thời gian sớm
-                nhất.
-              </p>
-              <Button
-                type="button"
-                variant="link"
-                className="mt-4 p-0 h-auto text-green-700 dark:text-green-400"
-                onClick={() => {
-                  form.reset();
-                  onResetSuccess();
-                }}
-              >
-                Gửi tin nhắn khác
-              </Button>
-            </div>
-          </div>
-        </div>
+        <Alert className="border-primary/30 bg-primary/10 [&>svg]:text-primary">
+          <Check className="h-5 w-5" aria-hidden="true" />
+          <AlertTitle>Gửi tin nhắn thành công!</AlertTitle>
+          <AlertDescription>
+            Cảm ơn bạn đã liên hệ với chúng tôi. Chúng tôi sẽ phản hồi lại trong thời gian sớm nhất.
+            <Button
+              type="button"
+              variant="link"
+              className="mt-4 p-0 h-auto"
+              onClick={() => {
+                form.reset();
+                onResetSuccess();
+              }}
+            >
+              Gửi tin nhắn khác
+            </Button>
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }

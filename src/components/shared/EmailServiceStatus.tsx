@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { getEmailServiceStatus } from '../../services/emailService';
 
 const EmailServiceStatus: React.FC = () => {
@@ -14,27 +15,21 @@ const EmailServiceStatus: React.FC = () => {
   }
 
   return (
-    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
-      <div className="flex items-start">
-        <div className="flex-shrink-0">
-          <AlertTriangle className="h-5 w-5 text-yellow-400" aria-hidden="true" />
-        </div>
-        <div className="ml-3">
-          <h3 className="text-sm font-medium text-yellow-800">Cảnh báo cấu hình Email</h3>
-          <div className="mt-2 text-sm text-yellow-700">
-            <p>Một số cấu hình email chưa được thiết lập:</p>
-            <ul className="list-disc pl-5 mt-1">
-              {status.missingFields.map(field => (
-                <li key={field}>{field}</li>
-              ))}
-            </ul>
-            <p className="mt-2">
-              Form liên hệ có thể không hoạt động đúng cách. Vui lòng kiểm tra cấu hình EmailJS.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Alert className="mb-6 border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400 [&>svg]:text-amber-500">
+      <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+      <AlertTitle>Cảnh báo cấu hình Email</AlertTitle>
+      <AlertDescription>
+        <p>Một số cấu hình email chưa được thiết lập:</p>
+        <ul className="list-disc pl-5 mt-1">
+          {status.missingFields.map(field => (
+            <li key={field}>{field}</li>
+          ))}
+        </ul>
+        <p className="mt-2">
+          Form liên hệ có thể không hoạt động đúng cách. Vui lòng kiểm tra cấu hình EmailJS.
+        </p>
+      </AlertDescription>
+    </Alert>
   );
 };
 

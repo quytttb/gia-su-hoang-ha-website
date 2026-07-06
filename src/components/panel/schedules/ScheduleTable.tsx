@@ -1,5 +1,8 @@
 import React from 'react';
 import { Button } from '../../ui/button';
+import { Badge } from '@/components/ui/badge';
+import StatusBadge from '@/components/shared/StatusBadge';
+import { scheduleStatusConfig } from '@/lib/ui/status-badges';
 import { Edit2, Trash2, Users, Calendar, Clock } from 'lucide-react';
 import {
   Table,
@@ -29,39 +32,25 @@ interface ScheduleTableProps {
 
 const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedules, onEdit, onDelete }) => {
   const getStatusBadge = (status?: 'active' | 'inactive') => {
-    if (status === 'active') {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          <div className="w-2 h-2 bg-green-400 rounded-full mr-1"></div>
-          Hoạt động
-        </span>
-      );
-    }
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
-        <div className="w-2 h-2 bg-muted-foreground rounded-full mr-1"></div>
-        Đã qua
-      </span>
-    );
+    const config = scheduleStatusConfig[status === 'active' ? 'active' : 'inactive'];
+    return <StatusBadge label={config.label} variant={config.variant} />;
   };
 
   const getStudentCountBadge = (current: number, max: number) => {
     const percentage = max > 0 ? (current / max) * 100 : 0;
-    let colorClass = 'bg-green-100 text-green-800';
+    let variant: 'success' | 'warning' | 'destructive' = 'success';
 
     if (percentage >= 80) {
-      colorClass = 'bg-red-100 text-red-800';
+      variant = 'destructive';
     } else if (percentage >= 60) {
-      colorClass = 'bg-yellow-100 text-yellow-800';
+      variant = 'warning';
     }
 
     return (
-      <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}
-      >
+      <Badge variant={variant}>
         <Users className="w-3 h-3 mr-1" />
         {current}/{max}
-      </span>
+      </Badge>
     );
   };
 
@@ -95,8 +84,8 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedules, onEdit, onDele
             <TableCell>
               <div className="flex items-start space-x-3">
                 <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center">
-                    <Calendar className="w-4 h-4 text-primary dark:text-primary-400" />
+                  <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Calendar className="w-4 h-4 text-primary" />
                   </div>
                 </div>
                 <div className="min-w-0 flex-1">

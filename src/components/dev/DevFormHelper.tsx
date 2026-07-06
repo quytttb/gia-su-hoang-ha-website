@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 interface DevFormHelperProps {
   onFillForm: (data: any) => void;
@@ -70,7 +71,6 @@ const DevFormHelper: React.FC<DevFormHelperProps> = ({ onFillForm, onClearForm }
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedDataset, setSelectedDataset] = useState(0);
 
-  // Only show in development mode
   if (process.env.NODE_ENV !== 'development') {
     return null;
   }
@@ -93,45 +93,38 @@ const DevFormHelper: React.FC<DevFormHelperProps> = ({ onFillForm, onClearForm }
 
   return (
     <div className="fixed top-4 right-4 z-50">
-      {/* Toggle Button */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg shadow-lg text-sm font-medium transition-colors duration-200"
-        title="Development Form Helper"
-      >
+      <Button onClick={() => setIsExpanded(!isExpanded)} size="sm" title="Development Form Helper">
         🛠️ Dev Tools {isExpanded ? '▼' : '▶'}
-      </button>
+      </Button>
 
-      {/* Expanded Panel */}
       {isExpanded && (
         <div className="absolute top-12 right-0 bg-background border border-border rounded-lg shadow-xl p-4 min-w-[280px]">
           <h3 className="text-sm font-semibold text-foreground mb-3">🚀 Form Auto Fill</h3>
 
-          {/* Quick Actions */}
           <div className="space-y-2 mb-4">
             <div className="flex gap-2">
-              <button
-                onClick={handleQuickFill}
-                className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-xs font-medium transition-colors duration-200"
-              >
+              <Button onClick={handleQuickFill} size="sm" className="flex-1 text-xs">
                 🚀 Quick Fill
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleRandomFill}
-                className="flex-1 bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 rounded text-xs font-medium transition-colors duration-200"
+                variant="secondary"
+                size="sm"
+                className="flex-1 text-xs"
               >
                 🎲 Random
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={onClearForm}
-                className="flex-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-xs font-medium transition-colors duration-200"
+                variant="destructive"
+                size="sm"
+                className="flex-1 text-xs"
               >
                 🧹 Clear
-              </button>
+              </Button>
             </div>
           </div>
 
-          {/* Dataset Selection */}
           <div className="mb-3">
             <label className="block text-xs font-medium text-muted-foreground mb-1">
               Select Dataset:
@@ -139,7 +132,7 @@ const DevFormHelper: React.FC<DevFormHelperProps> = ({ onFillForm, onClearForm }
             <select
               value={selectedDataset}
               onChange={e => setSelectedDataset(Number(e.target.value))}
-              className="w-full text-xs border border-border rounded px-2 py-1 bg-white dark:bg-muted text-foreground"
+              className="w-full text-xs border border-border rounded px-2 py-1 bg-background text-foreground"
             >
               {testDataSets.map((dataset, index) => (
                 <option key={index} value={index}>
@@ -149,22 +142,22 @@ const DevFormHelper: React.FC<DevFormHelperProps> = ({ onFillForm, onClearForm }
             </select>
           </div>
 
-          {/* Individual Dataset Buttons */}
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground mb-2">Or fill with specific dataset:</p>
             {testDataSets.map((dataset, index) => (
-              <button
+              <Button
                 key={index}
                 onClick={() => handleFillForm(index)}
-                className="w-full text-left bg-muted hover:bg-muted dark:hover:bg-muted text-foreground px-2 py-1 rounded text-xs transition-colors duration-200"
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-xs h-auto py-1"
               >
                 📊 {dataset.name}
-              </button>
+              </Button>
             ))}
           </div>
 
-          {/* Info */}
-          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+          <div className="mt-3 pt-3 border-t border-border">
             <p className="text-xs text-muted-foreground">💡 Dev mode only. Hidden in production.</p>
           </div>
         </div>

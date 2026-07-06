@@ -2,6 +2,7 @@ import { Search } from 'lucide-react';
 import BlogCard from './BlogCard';
 import SkeletonLoading from '../shared/SkeletonLoading';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -77,15 +78,15 @@ const BlogPostGrid = ({
     </div>
 
     {error && !loading && (
-      <Card className="mb-6 border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20">
-        <CardContent className="py-6">
-          <h3 className="text-red-600 dark:text-red-400 font-semibold mb-2">Lỗi tải dữ liệu</h3>
-          <p className="text-sm text-red-700 dark:text-red-300 mb-4">{error}</p>
+      <Alert variant="destructive" className="mb-6">
+        <AlertTitle>Lỗi tải dữ liệu</AlertTitle>
+        <AlertDescription>
+          <p className="mb-4">{error}</p>
           <Button variant="outline" size="sm" onClick={onRetry}>
             Thử lại
           </Button>
-        </CardContent>
-      </Card>
+        </AlertDescription>
+      </Alert>
     )}
 
     <div id="posts-grid">

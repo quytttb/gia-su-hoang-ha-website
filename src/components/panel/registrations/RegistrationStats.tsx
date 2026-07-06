@@ -28,36 +28,36 @@ const RegistrationStats: React.FC<RegistrationStatsProps> = ({ stats, loading })
       title: 'Tổng đăng ký',
       value: stats.totalRegistrations,
       icon: Users,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
     },
     {
       title: 'Chờ duyệt',
       value: stats.pendingRegistrations,
       icon: Clock,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-50',
+      iconBg: 'bg-accent/20',
+      iconColor: 'text-accent-foreground',
     },
     {
       title: 'Đã duyệt',
       value: stats.approvedRegistrations,
       icon: CheckCircle,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
     },
     {
       title: 'Từ chối',
       value: stats.rejectedRegistrations,
       icon: XCircle,
-      color: 'text-red-600',
-      bgColor: 'bg-red-50',
+      iconBg: 'bg-destructive/10',
+      iconColor: 'text-destructive',
     },
     {
       title: 'Đăng ký gần đây',
       value: stats.recentRegistrations,
       icon: TrendingUp,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
+      iconBg: 'bg-muted',
+      iconColor: 'text-foreground',
     },
   ];
 
@@ -69,8 +69,8 @@ const RegistrationStats: React.FC<RegistrationStatsProps> = ({ stats, loading })
           <Card key={index}>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className={`p-2 rounded-lg ${card.bgColor}`}>
-                  <Icon className={`h-6 w-6 ${card.color}`} />
+                <div className={`p-2 rounded-lg ${card.iconBg}`}>
+                  <Icon className={`h-6 w-6 ${card.iconColor}`} />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-muted-foreground">{card.title}</p>

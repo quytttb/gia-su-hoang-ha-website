@@ -3,6 +3,8 @@ import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../ui/select';
 import { Badge } from '../../ui/badge';
+import StatusBadge from '@/components/shared/StatusBadge';
+import { blogPostStatusConfig } from '@/lib/ui/status-badges';
 import { format } from 'date-fns';
 import { Edit, Trash2, Star } from 'lucide-react';
 import {
@@ -53,7 +55,7 @@ export const BlogPostTable: React.FC<BlogPostTableProps> = ({
   };
 
   return (
-    <div className="space-y-4 text-black dark:text-white">
+    <div className="space-y-4 text-foreground">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Bài viết Blog</h2>
         <Button onClick={onCreate}>+ Bài viết mới</Button>
@@ -143,15 +145,12 @@ export const BlogPostTable: React.FC<BlogPostTableProps> = ({
                 <TableCell className="align-top max-w-lg">
                   <div className="space-y-1">
                     <p
-                      className="font-semibold leading-snug text-black dark:text-white line-clamp-2"
+                      className="font-semibold leading-snug text-foreground line-clamp-2"
                       title={p.title}
                     >
                       {p.title}
                     </p>
-                    <p
-                      className="text-xs text-black/60 dark:text-white/60 line-clamp-1"
-                      title={p.slug}
-                    >
+                    <p className="text-xs text-muted-foreground line-clamp-1" title={p.slug}>
                       {p.slug}
                     </p>
                     <div className="flex flex-wrap gap-1">
@@ -172,28 +171,27 @@ export const BlogPostTable: React.FC<BlogPostTableProps> = ({
                   {p.categoryId || '-'}
                 </TableCell>
                 <TableCell className="align-top text-center min-w-[7rem]">
-                  {p.status === 'published' ? (
-                    <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-green-600 text-white dark:bg-green-500 dark:text-black">
-                      Xuất bản
-                    </span>
-                  ) : p.status === 'draft' ? (
-                    <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground">
-                      Nháp
-                    </span>
+                  {(['published', 'draft', 'archived'] as const).includes(p.status) ? (
+                    <StatusBadge
+                      label={
+                        blogPostStatusConfig[p.status as 'draft' | 'published' | 'archived'].label
+                      }
+                      variant={
+                        blogPostStatusConfig[p.status as 'draft' | 'published' | 'archived'].variant
+                      }
+                      className="text-[11px]"
+                    />
                   ) : (
-                    <span className="inline-block px-2 py-0.5 text-[11px] rounded-full bg-red-500 text-white dark:bg-red-600">
-                      Lưu trữ
-                    </span>
+                    <Badge variant="secondary" className="text-[11px]">
+                      {p.status}
+                    </Badge>
                   )}
                 </TableCell>
                 <TableCell className="align-top text-center">
                   {p.featured ? (
-                    <span
-                      className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] rounded-full bg-yellow-400 text-black dark:bg-yellow-600 dark:text-black"
-                      title="Bài viết nổi bật"
-                    >
+                    <Badge variant="warning" className="text-[11px]" title="Bài viết nổi bật">
                       <Star className="h-3 w-3" /> Có
-                    </span>
+                    </Badge>
                   ) : (
                     <span className="text-xs text-muted-foreground">-</span>
                   )}

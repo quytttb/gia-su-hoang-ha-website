@@ -8,6 +8,7 @@ import BlogFeaturedSection from '@/components/blog/BlogFeaturedSection';
 import BlogPostGrid from '@/components/blog/BlogPostGrid';
 import BlogCard from '@/components/blog/BlogCard';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, TrendingUp, BookOpen, Filter } from 'lucide-react';
@@ -199,11 +200,12 @@ const BlogScreen = ({ initialPosts, initialCursor }: BlogScreenProps) => {
                             p.status === 'published'
                         ).length;
                         return (
-                          <button
+                          <Button
                             key={category.id}
                             type="button"
+                            variant="ghost"
                             onClick={() => handleCategoryClick(category.id)}
-                            className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted transition-colors text-left"
+                            className="w-full flex items-center justify-between p-2 h-auto"
                           >
                             <div className="flex items-center gap-2">
                               <div
@@ -213,7 +215,7 @@ const BlogScreen = ({ initialPosts, initialCursor }: BlogScreenProps) => {
                               <span className="font-medium">{category.name}</span>
                             </div>
                             <Badge variant="secondary">{postsCount}</Badge>
-                          </button>
+                          </Button>
                         );
                       })}
                     </div>

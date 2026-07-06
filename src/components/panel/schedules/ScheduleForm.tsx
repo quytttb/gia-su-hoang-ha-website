@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import DatePicker from '@/components/ui/date-picker';
 import { CheckCircle, Loader2 } from 'lucide-react';
 import { getAllSchedules } from '@/data/schedules';
 import { scheduleFormSchema, type ScheduleFormValues } from '@/lib/validations/panel';
@@ -197,7 +198,12 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ isOpen, onClose, onSave, in
                 <FormItem>
                   <FormLabel>Ngày khai giảng *</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <DatePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Chọn ngày khai giảng"
+                      fromDate={new Date(new Date().setHours(0, 0, 0, 0))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -258,7 +264,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ isOpen, onClose, onSave, in
             />
 
             {successMessage && (
-              <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
+              <Alert className="border-primary/20 bg-primary/10">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription>{successMessage}</AlertDescription>
               </Alert>

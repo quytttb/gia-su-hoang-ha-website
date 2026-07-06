@@ -1,22 +1,13 @@
 import React from 'react';
 import { Registration } from '../../../types';
-import { Badge } from '../../ui/badge';
+import StatusBadge from '@/components/shared/StatusBadge';
+import { registrationStatusConfig } from '@/lib/ui/status-badges';
 import { formatDate } from '../../../utils/helpers';
 import { User, Phone, MapPin, Book, Calendar, FileText } from 'lucide-react';
 
 interface RegistrationDetailProps {
   registration: Registration;
 }
-
-const statusConfig = {
-  pending: { label: 'Chờ duyệt', color: 'bg-yellow-100 text-yellow-800' },
-  approved: { label: 'Đã duyệt', color: 'bg-green-100 text-green-800' },
-  rejected: { label: 'Đã từ chối', color: 'bg-red-100 text-red-800' },
-  cancelled: { label: 'Đã hủy', color: 'bg-muted text-foreground' },
-  completed: { label: 'Hoàn thành', color: 'bg-blue-100 text-blue-800' },
-  matched: { label: 'Đã ghép lớp', color: 'bg-purple-100 text-purple-800' },
-  trial_scheduled: { label: 'Đã xếp lịch học thử', color: 'bg-indigo-100 text-indigo-800' },
-};
 
 const RegistrationDetail: React.FC<RegistrationDetailProps> = ({ registration }) => {
   return (
@@ -30,9 +21,10 @@ const RegistrationDetail: React.FC<RegistrationDetailProps> = ({ registration })
           </p>
         </div>
         <div className="flex gap-2">
-          <Badge className={statusConfig[registration.status]?.color}>
-            {statusConfig[registration.status]?.label}
-          </Badge>
+          <StatusBadge
+            label={registrationStatusConfig[registration.status]?.label ?? registration.status}
+            variant={registrationStatusConfig[registration.status]?.variant ?? 'secondary'}
+          />
         </div>
       </div>
 
@@ -170,7 +162,7 @@ const RegistrationDetail: React.FC<RegistrationDetailProps> = ({ registration })
             {registration.rejectionReason && (
               <div className="text-sm">
                 <span className="font-medium">Lý do từ chối:</span>
-                <p className="mt-1 p-2 bg-red-50 text-red-700 rounded text-xs">
+                <p className="mt-1 p-2 bg-destructive/10 text-destructive rounded text-xs">
                   {registration.rejectionReason}
                 </p>
               </div>

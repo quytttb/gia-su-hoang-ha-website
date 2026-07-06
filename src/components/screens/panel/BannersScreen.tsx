@@ -200,8 +200,8 @@ const BannersScreen: React.FC = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Image className="h-6 w-6 text-green-600" />
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Image className="h-6 w-6 text-primary" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-muted-foreground">Đang hiển thị</p>

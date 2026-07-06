@@ -15,6 +15,7 @@ import { CalendarValue, ViewType } from '@/components/schedule/scheduleTypes';
 import { filterSchedules } from '@/components/schedule/scheduleUtils';
 import { Schedule } from '@/types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   useAvailableScheduleDates,
   usePersonalSchedules,
@@ -177,9 +178,9 @@ const ScheduleScreen = () => {
 
       <div className="container-custom py-12">
         {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-            <p>{error}</p>
-          </div>
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

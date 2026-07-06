@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Banner } from '../../../types';
 import { Button } from '../../ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Switch } from '../../ui/switch';
 import {
   Dialog,
@@ -181,13 +182,13 @@ const BannerList: React.FC<BannerListProps> = ({
                       onCheckedChange={checked => onToggleActive(banner.id, checked)}
                     />
                     {banner.isActive ? (
-                      <span className="inline-block px-2 py-1 text-xs rounded bg-green-600 text-white dark:bg-green-700 dark:text-white font-semibold">
+                      <Badge variant="success">
                         <Eye className="h-4 w-4 mr-1 inline" /> Hiển thị
-                      </span>
+                      </Badge>
                     ) : (
-                      <span className="inline-block px-2 py-1 text-xs rounded bg-muted text-muted-foreground dark:bg-muted dark:text-foreground font-semibold">
+                      <Badge variant="secondary">
                         <EyeOff className="h-4 w-4 mr-1 inline" /> Ẩn
-                      </span>
+                      </Badge>
                     )}
                   </div>
                 </TableCell>

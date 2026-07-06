@@ -1,6 +1,7 @@
 import { TrendingUp } from 'lucide-react';
 import BlogCard from './BlogCard';
-import SkeletonLoading from '../shared/SkeletonLoading';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { blogCategories } from '../../constants/blogData';
 
 interface BlogFeaturedSectionProps {
@@ -13,11 +14,12 @@ const BlogFeaturedSection = ({ loading, featuredPosts }: BlogFeaturedSectionProp
     return (
       <section id="featured-posts" className="mb-16" aria-labelledby="featured-posts-heading">
         <div className="flex items-center gap-4 mb-8">
-          <SkeletonLoading type="text" count={1} width="200px" />
-          <div className="flex-1 h-px bg-gradient-to-r from-primary to-transparent" />
+          <Skeleton className="h-8 w-48" />
+          <Separator className="flex-1 bg-gradient-to-r from-primary to-transparent" />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <SkeletonLoading type="card" count={2} height="300px" />
+          <Skeleton className="h-[300px] w-full rounded-lg" />
+          <Skeleton className="h-[300px] w-full rounded-lg" />
         </div>
       </section>
     );
@@ -34,7 +36,7 @@ const BlogFeaturedSection = ({ loading, featuredPosts }: BlogFeaturedSectionProp
             Bài viết nổi bật
           </h2>
         </div>
-        <div className="flex-1 h-px bg-gradient-to-r from-primary to-transparent" />
+        <Separator className="flex-1 bg-gradient-to-r from-primary to-transparent" />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {featuredPosts.map(post => (

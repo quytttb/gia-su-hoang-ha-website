@@ -2,6 +2,7 @@ import { CenterInfo } from '../../types';
 import Link from 'next/link';
 import SkeletonLoading from '../shared/SkeletonLoading';
 import { ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface IntroductionSectionProps {
   centerInfo: CenterInfo;
@@ -38,14 +39,12 @@ const IntroductionSection = ({ centerInfo, loading }: IntroductionSectionProps) 
           {loading ? (
             <SkeletonLoading type="button" className="mx-auto" />
           ) : (
-            <Link
-              href="/about"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl"
-              aria-label="Tìm hiểu thêm về trung tâm"
-            >
-              Tìm hiểu thêm về chúng tôi
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+            <Button size="lg" className="rounded-xl shadow-lg" asChild>
+              <Link href="/about" aria-label="Tìm hiểu thêm về trung tâm">
+                Tìm hiểu thêm về chúng tôi
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </Button>
           )}
         </footer>
       </div>

@@ -46,7 +46,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, variant = 'default', classNam
     return (
       <Link href={`/blog/${encodeURIComponent(linkParam)}`} className={className}>
         <Card
-          className={`${baseCardClasses} h-full bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border-2 border-primary/20 hover:border-primary/40`}
+          className={`${baseCardClasses} h-full bg-gradient-to-br from-card to-muted border-2 border-primary/20 hover:border-primary/40`}
         >
           <div className="aspect-video relative overflow-hidden">
             <img

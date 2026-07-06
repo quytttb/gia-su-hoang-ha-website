@@ -78,21 +78,11 @@ const BulkActions: React.FC<BulkActionsProps> = ({
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowApproveDialog(true)}
-                className="text-green-600 border-green-600 hover:bg-green-50"
-              >
+              <Button size="sm" onClick={() => setShowApproveDialog(true)}>
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Duyệt tất cả
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowRejectDialog(true)}
-                className="text-red-600 border-red-600 hover:bg-red-50"
-              >
+              <Button variant="destructive" size="sm" onClick={() => setShowRejectDialog(true)}>
                 <XCircle className="h-4 w-4 mr-2" />
                 Từ chối tất cả
               </Button>

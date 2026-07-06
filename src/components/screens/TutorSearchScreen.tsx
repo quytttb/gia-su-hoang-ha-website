@@ -47,7 +47,7 @@ const TutorSearchScreen = () => {
                 <div className="space-y-3 mb-8">
                   <div className="flex items-center">
                     <svg
-                      className="w-5 h-5 text-green-500 mr-3"
+                      className="w-5 h-5 text-primary mr-3"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -63,7 +63,7 @@ const TutorSearchScreen = () => {
                   </div>
                   <div className="flex items-center">
                     <svg
-                      className="w-5 h-5 text-green-500 mr-3"
+                      className="w-5 h-5 text-primary mr-3"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -79,7 +79,7 @@ const TutorSearchScreen = () => {
                   </div>
                   <div className="flex items-center">
                     <svg
-                      className="w-5 h-5 text-green-500 mr-3"
+                      className="w-5 h-5 text-primary mr-3"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -95,7 +95,7 @@ const TutorSearchScreen = () => {
                   </div>
                   <div className="flex items-center">
                     <svg
-                      className="w-5 h-5 text-green-500 mr-3"
+                      className="w-5 h-5 text-primary mr-3"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -131,7 +131,7 @@ const TutorSearchScreen = () => {
                     />
                   </div>
                   <h3 className="text-2xl font-bold text-foreground mb-2">Gia sư Sinh viên</h3>
-                  <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-4">
+                  <div className="text-3xl font-bold text-primary mb-4">
                     160,000đ
                     <span className="text-lg font-normal text-muted-foreground">/buổi</span>
                   </div>
@@ -140,7 +140,7 @@ const TutorSearchScreen = () => {
                 <div className="space-y-3 mb-8">
                   <div className="flex items-center">
                     <svg
-                      className="w-5 h-5 text-green-500 mr-3"
+                      className="w-5 h-5 text-primary mr-3"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -158,7 +158,7 @@ const TutorSearchScreen = () => {
                   </div>
                   <div className="flex items-center">
                     <svg
-                      className="w-5 h-5 text-green-500 mr-3"
+                      className="w-5 h-5 text-primary mr-3"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -176,7 +176,7 @@ const TutorSearchScreen = () => {
                   </div>
                   <div className="flex items-center">
                     <svg
-                      className="w-5 h-5 text-green-500 mr-3"
+                      className="w-5 h-5 text-primary mr-3"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -192,7 +192,7 @@ const TutorSearchScreen = () => {
                   </div>
                   <div className="flex items-center">
                     <svg
-                      className="w-5 h-5 text-green-500 mr-3"
+                      className="w-5 h-5 text-primary mr-3"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -222,28 +222,28 @@ const TutorSearchScreen = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
                   <span className="text-xl font-bold text-primary">1</span>
                 </div>
                 <h4 className="font-semibold text-foreground mb-2">Đăng ký</h4>
                 <p className="text-sm text-muted-foreground">Điền thông tin và yêu cầu</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
                   <span className="text-xl font-bold text-primary">2</span>
                 </div>
                 <h4 className="font-semibold text-foreground mb-2">Tư vấn</h4>
                 <p className="text-sm text-muted-foreground">Nhân viên tư vấn chi tiết</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
                   <span className="text-xl font-bold text-primary">3</span>
                 </div>
                 <h4 className="font-semibold text-foreground mb-2">Chọn lọc</h4>
                 <p className="text-sm text-muted-foreground">Tìm Gia sư phù hợp nhất</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
                   <span className="text-xl font-bold text-primary">4</span>
                 </div>
                 <h4 className="font-semibold text-foreground mb-2">Học thử</h4>

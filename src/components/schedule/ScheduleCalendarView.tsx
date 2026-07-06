@@ -4,6 +4,7 @@ import { format, parseISO } from 'date-fns';
 import { Schedule } from '../../types';
 import { formatDate } from '../../utils/helpers';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { CalendarValue } from './scheduleTypes';
 import 'react-day-picker/style.css';
@@ -98,7 +99,7 @@ const ScheduleCalendarView = ({
               locale={vi}
               modifiers={{ hasSchedule: scheduleDates }}
               modifiersClassNames={{
-                hasSchedule: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200',
+                hasSchedule: 'bg-primary/10 text-primary',
               }}
               components={{
                 DayButton: props => {
@@ -110,9 +111,9 @@ const ScheduleCalendarView = ({
                       <span>{day.date.getDate()}</span>
                       {showCalendarEvents && events.length > 0 && (
                         <span className="block text-xs mt-0.5">
-                          <span className="bg-primary text-white rounded px-1 py-0.5 text-center text-[10px] leading-tight">
+                          <Badge className="text-[10px] leading-tight px-1 py-0">
                             {events.length} lịch
-                          </span>
+                          </Badge>
                         </span>
                       )}
                     </button>

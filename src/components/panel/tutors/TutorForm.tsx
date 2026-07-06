@@ -164,7 +164,7 @@ const TutorForm: React.FC<TutorFormProps> = ({ tutor, isOpen, onClose, onSave })
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {successMessage && (
-                <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
+                <Alert className="border-primary/20 bg-primary/10">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <AlertDescription>{successMessage}</AlertDescription>
                 </Alert>

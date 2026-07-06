@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { Tutor } from '../../types';
 import SectionHeading from '../shared/SectionHeading';
 import LazyImage from '../shared/LazyImage';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 const TUTOR_ORDER = ['Cô Khương Thị Hà', 'Cô Nguyễn Thị Hoa', 'Cô Bùi Thị Hà', 'Cô Khương Thị Yến'];
 
@@ -25,9 +27,9 @@ const AboutTeamSection = ({ tutors }: AboutTeamSectionProps) => {
         {sortedTutors.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {sortedTutors.map(tutor => (
-              <div
+              <Card
                 key={tutor.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-lg dark:bg-card dark:border-border"
+                className="overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-lg"
               >
                 <div className="h-80 overflow-hidden">
                   <LazyImage
@@ -36,14 +38,14 @@ const AboutTeamSection = ({ tutors }: AboutTeamSectionProps) => {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="p-5">
+                <CardContent className="p-5">
                   <h3 className="text-xl font-bold text-foreground mb-1">{tutor.name}</h3>
-                  <p className="text-primary font-medium mb-3 dark:text-foreground">
+                  <Badge variant="secondary" className="mb-3">
                     {tutor.specialty}
-                  </p>
+                  </Badge>
                   <p className="text-muted-foreground text-sm">{tutor.bio}</p>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         ) : (

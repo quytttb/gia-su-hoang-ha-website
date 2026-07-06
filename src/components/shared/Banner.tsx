@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Banner as BannerType } from '../../types';
 
 interface BannerProps {
@@ -153,12 +155,9 @@ const Banner = ({ banners, autoplay = true, interval = 8000 }: BannerProps) => {
                         </p>
                       )}
                       {banner.link && (
-                        <a
-                          href={banner.link}
-                          className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 inline-block"
-                        >
-                          Xem thêm
-                        </a>
+                        <Button asChild size="lg" className="shadow-lg hover:shadow-xl">
+                          <a href={banner.link}>Xem thêm</a>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -172,39 +171,24 @@ const Banner = ({ banners, autoplay = true, interval = 8000 }: BannerProps) => {
       {/* Navigation Arrows */}
       {activeBanners.length > 1 && (
         <>
-          <button
-            className="absolute top-1/2 left-4 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full"
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute top-1/2 left-4 -translate-y-1/2 bg-background/80 hover:bg-background"
             onClick={handlePrev}
+            aria-label="Banner trước"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-          <button
-            className="absolute top-1/2 right-4 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full"
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute top-1/2 right-4 -translate-y-1/2 bg-background/80 hover:bg-background"
             onClick={handleNext}
+            aria-label="Banner sau"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+            <ChevronRight className="h-6 w-6" />
+          </Button>
         </>
       )}
 
@@ -212,12 +196,15 @@ const Banner = ({ banners, autoplay = true, interval = 8000 }: BannerProps) => {
       {activeBanners.length > 1 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
           {activeBanners.map((_, index) => (
-            <button
+            <Button
               key={index}
-              className={`w-3 h-3 rounded-full ${
-                index === currentIndex ? 'bg-primary' : 'bg-white'
+              variant="ghost"
+              size="icon"
+              className={`w-3 h-3 rounded-full p-0 min-w-0 ${
+                index === currentIndex ? 'bg-primary' : 'bg-background'
               }`}
               onClick={() => handleIndicatorClick(index)}
+              aria-label={`Chuyển đến banner ${index + 1}`}
             />
           ))}
         </div>

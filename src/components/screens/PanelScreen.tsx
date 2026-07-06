@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import SkeletonLoading from '@/components/shared/SkeletonLoading';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const PanelScreen = () => {
   const [loading, setLoading] = useState(true);
@@ -30,12 +33,9 @@ const PanelScreen = () => {
   return (
     <>
       {error && (
-        <div
-          className="bg-destructive/15 border border-destructive text-destructive px-4 py-3 rounded-md mb-6"
-          role="alert"
-        >
-          <p>{error}</p>
-        </div>
+        <Alert variant="destructive" className="mb-6">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
       <div className="space-y-6">
@@ -83,30 +83,38 @@ const PanelScreen = () => {
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-foreground mb-4">Thao tác nhanh</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <button className="flex flex-col items-center p-4 rounded-lg border hover:bg-accent transition-colors">
-                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-2">
-                  <span className="text-primary text-xl">📚</span>
-                </div>
-                <span className="text-sm font-medium text-foreground">Thêm lớp học</span>
-              </button>
-              <button className="flex flex-col items-center p-4 rounded-lg border hover:bg-accent transition-colors">
-                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-2">
-                  <span className="text-primary text-xl">📅</span>
-                </div>
-                <span className="text-sm font-medium text-foreground">Lập lịch</span>
-              </button>
-              <button className="flex flex-col items-center p-4 rounded-lg border hover:bg-accent transition-colors">
-                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-2">
-                  <span className="text-primary text-xl">👥</span>
-                </div>
-                <span className="text-sm font-medium text-foreground">Xem đăng ký</span>
-              </button>
-              <button className="flex flex-col items-center p-4 rounded-lg border hover:bg-accent transition-colors">
-                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-2">
-                  <span className="text-primary text-xl">📊</span>
-                </div>
-                <span className="text-sm font-medium text-foreground">Xem báo cáo</span>
-              </button>
+              <Button variant="outline" className="h-auto flex-col p-4" asChild>
+                <Link href="/panel/classes">
+                  <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-2">
+                    <span className="text-primary text-xl">📚</span>
+                  </div>
+                  <span className="text-sm font-medium">Thêm lớp học</span>
+                </Link>
+              </Button>
+              <Button variant="outline" className="h-auto flex-col p-4" asChild>
+                <Link href="/panel/schedules">
+                  <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-2">
+                    <span className="text-primary text-xl">📅</span>
+                  </div>
+                  <span className="text-sm font-medium">Lập lịch</span>
+                </Link>
+              </Button>
+              <Button variant="outline" className="h-auto flex-col p-4" asChild>
+                <Link href="/panel/registrations">
+                  <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-2">
+                    <span className="text-primary text-xl">👥</span>
+                  </div>
+                  <span className="text-sm font-medium">Xem đăng ký</span>
+                </Link>
+              </Button>
+              <Button variant="outline" className="h-auto flex-col p-4" asChild>
+                <Link href="/panel/analytics">
+                  <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-2">
+                    <span className="text-primary text-xl">📊</span>
+                  </div>
+                  <span className="text-sm font-medium">Xem báo cáo</span>
+                </Link>
+              </Button>
             </div>
           </CardContent>
         </Card>

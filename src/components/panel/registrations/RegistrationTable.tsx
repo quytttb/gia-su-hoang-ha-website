@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Registration } from '../../../types';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
-import { Badge } from '../../ui/badge';
+import StatusBadge from '@/components/shared/StatusBadge';
+import { registrationStatusConfig } from '@/lib/ui/status-badges';
 import { Card, CardContent } from '@/components/ui/card';
 import PanelTableSkeleton from '@/components/panel/shared/PanelTableSkeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
@@ -40,16 +41,6 @@ interface RegistrationTableProps {
   /** Explicit flag for tutor tab, ensures correct column when empty */
   isTutorTab?: boolean;
 }
-
-const statusConfig = {
-  pending: { label: 'Chờ duyệt', color: 'bg-yellow-100 text-yellow-800' },
-  approved: { label: 'Đã duyệt', color: 'bg-green-100 text-green-800' },
-  rejected: { label: 'Đã từ chối', color: 'bg-red-100 text-red-800' },
-  cancelled: { label: 'Đã hủy', color: 'bg-muted text-foreground' },
-  completed: { label: 'Hoàn thành', color: 'bg-blue-100 text-blue-800' },
-  matched: { label: 'Đã ghép lớp', color: 'bg-purple-100 text-purple-800' },
-  trial_scheduled: { label: 'Đã xếp lịch học thử', color: 'bg-indigo-100 text-indigo-800' },
-};
 
 const RegistrationTable: React.FC<RegistrationTableProps> = ({
   registrations,
@@ -315,9 +306,14 @@ const RegistrationTable: React.FC<RegistrationTableProps> = ({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={statusConfig[registration.status]?.color}>
-                      {statusConfig[registration.status]?.label}
-                    </Badge>
+                    <StatusBadge
+                      label={
+                        registrationStatusConfig[registration.status]?.label ?? registration.status
+                      }
+                      variant={
+                        registrationStatusConfig[registration.status]?.variant ?? 'secondary'
+                      }
+                    />
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -334,7 +330,7 @@ const RegistrationTable: React.FC<RegistrationTableProps> = ({
                             variant="outline"
                             size="sm"
                             onClick={() => handleApprove(registration)}
-                            className="text-green-600 border-green-600 hover:bg-green-50"
+                            className="text-primary border-primary hover:bg-primary/10"
                           >
                             <CheckCircle className="h-4 w-4" />
                           </Button>
@@ -342,7 +338,7 @@ const RegistrationTable: React.FC<RegistrationTableProps> = ({
                             variant="outline"
                             size="sm"
                             onClick={() => openRejectDialog(registration)}
-                            className="text-red-600 border-red-600 hover:bg-red-50"
+                            className="text-destructive border-destructive hover:bg-destructive/10"
                           >
                             <XCircle className="h-4 w-4" />
                           </Button>
